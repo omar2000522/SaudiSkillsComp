@@ -2593,6 +2593,15 @@ public class Main extends Application {
                 e.printStackTrace();
             }
         });
+        charitiesButton.setOnAction(value -> {
+            try {
+                screen26(window);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        });
 
         Runnable countdown = new Runnable() {
             @Override
@@ -3511,39 +3520,35 @@ public class Main extends Application {
 
         //---------------Code----------------
 
-        ResultSet charities = sqlExe("SELECT charityId,charityName FROM charity ORDER BY charityName;");
+        ResultSet charities = sqlExe("SELECT charityId,charityName,charityLogo,charityDescription FROM charity ORDER BY charityName;");
         while (charities.next()){
-            charitiesAmount.put(charities.getString("charityName"),0);
-            charitiesIds.put(charities.getString("charityId"),charities.getString("charityName"));
-        }
-        for (Object e:charitiesIds.keySet().toArray()) {
-            String id = (String) e;
-            int amount = 0;
-            ResultSet sponsorship = sqlExe("SELECT amount FROM (registration INNER JOIN sponsorship ON registration.registrationId = sponsorship.registrationId) WHERE charityId ='"+id+"';");
-            while (sponsorship.next()) amount += sponsorship.getInt("amount");
-            charitiesAmount.replace(charitiesIds.get(e),amount);
-        }
-        for (Object e:charitiesAmount.keySet().toArray()) {
-            Label name = new Label(e.toString());
-            ResultSet imageDir = sqlExe("SELECT charityLogo FROM charity WHERE charityName ='"+e.toString()+"';");
-            imageDir.next();
-            ImageView logo = new ImageView(new Image(new FileInputStream("src/sample/Images/"+imageDir.getString("charityLogo"))));
-            String amount = charitiesAmount.get(e).toString();
-            amount = "$" + amount.substring(0,amount.length()-3) + "," + amount.substring(amount.length()-3);
-            Label amountLabel = new Label(amount);
+            ImageView logo = new ImageView(new Image(new FileInputStream("src/sample/Images/"+charities.getString("charityLogo"))));
+            Label name = new Label(charities.getString("charityName"));
+            Text charityDesc = new Text(charities.getString("charityDescription"));
+            Rectangle topDivider = new Rectangle(10,3,Color.BLACK);
+            Rectangle divider1 = new Rectangle(3,10,Color.BLACK);
+            Rectangle divider2 = new Rectangle(3,10,Color.BLACK);
+            Rectangle divider3 = new Rectangle(3,10,Color.BLACK);
+            Rectangle divider4 = new Rectangle(3,10,Color.BLACK);
+            HBox element = new HBox(divider1,logo,divider2,name,divider3,charityDesc,divider4);
 
             logo.setPreserveRatio(true);
-            logo.setFitWidth(100);
-            logo.setFitHeight(100);
-            name.setMinWidth(300);
-            name.setFont(Font.font("Arial",FontWeight.SEMI_BOLD,16));
-            amountLabel.setFont(Font.font("Arial",FontWeight.SEMI_BOLD,16));
+            logo.setFitWidth(75);
+            name.setPrefWidth(100);
+            name.setWrapText(true);
+            name.setFont(Font.font("Arial",FontWeight.SEMI_BOLD,14));
+            charityDesc.setWrappingWidth(400);
 
-            HBox element = new HBox(logo,name,amountLabel);
-            element.setSpacing(40);
-            element.setAlignment(Pos.CENTER_LEFT);
+            //set it to RECT.setHieght
+            topDivider.widthProperty().bind(element.widthProperty());
+            divider1.heightProperty().bind(element.heightProperty());
+            divider2.heightProperty().bind(element.heightProperty());
+            divider3.heightProperty().bind(element.heightProperty());
+            divider4.heightProperty().bind(element.heightProperty());
+            element.setSpacing(10);
+            element.setAlignment(Pos.TOP_LEFT);
             element.setPadding(new Insets(15));
-            elements.getChildren().add(element);
+            elements.getChildren().addAll(topDivider,element);
         }
 
 
