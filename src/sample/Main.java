@@ -2,6 +2,7 @@ package sample;
 
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -79,7 +80,6 @@ public class Main extends Application {
         window.setScene(new Scene(rootBorderPane, windowWidth, windowHight));
         window.show();
 
-
         Runnable countdown = new Runnable() {
             @Override
             public void run() {
@@ -89,7 +89,12 @@ public class Main extends Application {
                     Long hours = (countDownInMillis%86400000)/3600000;
                     Long mins = ((countDownInMillis%86400000)%3600000)/60000;
                     Long secs = (((countDownInMillis%86400000)%3600000)%60000)/1000;
-                    countdownLabel.setText(days.toString() + " days " + hours.toString() + " hours " + mins.toString() + " minutes " + secs.toString() + " seconds until marathon start.");
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            countdownLabel.setText(days.toString() + " days " + hours.toString() + " hours " + mins.toString() + " minutes " + secs.toString() + " seconds until marathon start.");
+                        }
+                    });
 
                     try {
                         Thread.sleep(interval);
@@ -109,6 +114,11 @@ public class Main extends Application {
     }
 
     public void screen2(Stage window){
+
+    }
+
+    public void screen6(Stage window){
+        BorderPane rootBorderPane = new BorderPane();
 
     }
 
