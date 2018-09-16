@@ -14,8 +14,8 @@ import javafx.geometry.Pos;
 import javafx.scene.text.TextAlignment.*;
 
 import java.sql.*;
-
-
+import java.util.Calendar;
+import java.util.concurrent.TimeUnit;
 
 
 public class Main extends Application {
@@ -31,17 +31,32 @@ public class Main extends Application {
     }
 
     public void screen1(Stage window){
-        GridPane rootGridPane = new GridPane();
-        //Button backButton = new Button();
+        BorderPane rootBorderPane = new BorderPane();
         Button loginButton = new Button("Login");
         Button runnerButton = new Button("I want to be a runner");
         Button sponsorButton = new Button("I want to sponsor a runner");
         Button infoButton = new Button("I want to find out more");
         Label marathonNameLabel = new Label("MARATHON SKILLS 2015");
-        //rootGridPane.add(backButton, 0 ,0);
+        Label countdownLabel = new Label();
+        VBox buttonsBox = new VBox(runnerButton,sponsorButton,infoButton);
+        HBox bottomBox = new HBox(countdownLabel,loginButton);
+        HBox topBox = new HBox(marathonNameLabel);
+        Long interval = 1000L;
 
+        Calendar marathonStart = Calendar.getInstance();
+        marathonStart.set(2019,8,5,6,0);
+        Long countDownInMillis = marathonStart.getTimeInMillis() - System.currentTimeMillis();
+        System.out.print("Days: ");
+        System.out.println(countDownInMillis/86400000);
+        System.out.print("Hours: ");
+        System.out.println((countDownInMillis%86400000)/3600000);
+        System.out.print("Minutes: ");
+        System.out.println(((countDownInMillis%86400000)%3600000)/60000);
         //--------Proprieties--------
         marathonNameLabel.setFont(Font.font("Open Sans Semibold",36));
+        topBox.setAlignment(Pos.CENTER);
+        bottomBox.setAlignment(Pos.CENTER);
+        buttonsBox.setAlignment(Pos.CENTER);
         runnerButton.setMinWidth(300);
         sponsorButton.setMinWidth(300);
         infoButton.setMinWidth(300);
@@ -51,14 +66,41 @@ public class Main extends Application {
         runnerButton.setMinHeight(50);
         sponsorButton.setMinHeight(50);
         infoButton.setMinHeight(50);
+        topBox.setPadding(new Insets(30));
+        buttonsBox.setPadding(new Insets(30,50,50,50));
+        topBox.setSpacing(50);
+        buttonsBox.setSpacing(50);
         //loginButton.setMinWidth(50);
-        rootGridPane.setHgap(5);
-        rootGridPane.setVgap(75);
-//        rootGridPane.setAlignment(Pos.CENTER);
-        rootGridPane.addColumn(50, marathonNameLabel, runnerButton, sponsorButton, infoButton);
-        rootGridPane.add(loginButton, 60, 4);
-        window.setScene(new Scene(rootGridPane, windowWidth, windowHight));
+
+        rootBorderPane.setCenter(buttonsBox);
+        rootBorderPane.setTop(topBox);
+        rootBorderPane.setBottom(bottomBox);
+        //rootGridPane.add(loginButton, 60, 4);
+        window.setScene(new Scene(rootBorderPane, windowWidth, windowHight));
         window.show();
+
+
+        Runnable countdown = new Runnable() {
+            @Override
+            public void run() {
+                while(true){
+                    Long countDownInMillis = marathonStart.getTimeInMillis() - System.currentTimeMillis();
+                    Long days = countDownInMillis/86400000;
+                    Long hours = (countDownInMillis%86400000)/3600000;
+                    Long mins = ((countDownInMillis%86400000)%3600000)/60000;
+                    Long secs = (((countDownInMillis%86400000)%3600000)%60000)/1000;
+                    countdownLabel.setText(days.toString() + " days " + hours.toString() + " hours " + mins.toString() + " minutes " + secs.toString() + " seconds until marathon start.");
+
+                    try {
+                        Thread.sleep(interval);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        Thread thrd = new Thread(countdown);
+        thrd.start();
 
         loginButton.setOnAction(value -> {
             loginScreen3(window);
@@ -114,7 +156,7 @@ public class Main extends Application {
     public void  sql_login(String username, String password){
         try {
 
-            String URL = "jdbc:mysql://127.0.0.1:3306/nibba?useSSL=False";
+            String URL = "jdbc:mysql://localhost/nibba?useSSL=False";
             String USER = "root";
             String PASS = "omar";
             conn = DriverManager.getConnection(URL, USER, PASS);
