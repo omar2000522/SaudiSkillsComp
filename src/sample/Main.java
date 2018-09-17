@@ -88,15 +88,15 @@ public class Main extends Application {
             @Override
             public void run() {
                 while(true){
-                    Long countDownInMillis = marathonStart.getTimeInMillis() - System.currentTimeMillis();
-                    Long days = countDownInMillis/86400000;
-                    Long hours = (countDownInMillis%86400000)/3600000;
-                    Long mins = ((countDownInMillis%86400000)%3600000)/60000;
-                    Long secs = (((countDownInMillis%86400000)%3600000)%60000)/1000;
+                    long countDownInMillis = marathonStart.getTimeInMillis() - System.currentTimeMillis();
+                    long days = countDownInMillis/86400000;
+                    long hours = (countDownInMillis%86400000)/3600000;
+                    long mins = ((countDownInMillis%86400000)%3600000)/60000;
+                    long secs = (((countDownInMillis%86400000)%3600000)%60000)/1000;
                     Platform.runLater(new Runnable() {
                         @Override
                         public void run() {
-                            countdownLabel.setText(days.toString() + " days " + hours.toString() + " hours " + mins.toString() + " minutes " + secs.toString() + " seconds until marathon start.");
+                            countdownLabel.setText(days+" days "+hours+" hours "+mins+" minutes "+secs+" seconds until marathon start.");
                         }
                     });
 
@@ -114,6 +114,9 @@ public class Main extends Application {
         loginButton.setOnAction(value -> {
             loginScreen3(window);
         });
+        sponsorButton.setOnAction(value -> {
+            screen6(window);
+        });
 
     }
 
@@ -123,6 +126,32 @@ public class Main extends Application {
 
     public void screen6(Stage window){
         BorderPane rootBorderPane = new BorderPane();
+        ComboBox runners = new ComboBox();
+        TextField nameTextField = new TextField();
+        TextField nameOnCardTextField = new TextField();
+        TextField cardNumTextField = new TextField();
+        TextField expiryMonthTextField = new TextField();
+        TextField expiryYearTextField = new TextField();
+        TextField cvcTextField = new TextField();
+        Label nameLabel = new Label("Your Name:");
+        Label runnerLabel = new Label("Runner:");
+        Label nameOnCardLabel = new Label("Name on Card:");
+        Label cardNumLabel = new Label("Credit Card #:");
+        Label expiryLabel = new Label("Expiry Date:");
+        Label cvcLabel = new Label("CVC:");
+        VBox labelBox = new VBox(nameLabel,runnerLabel,nameOnCardLabel,cardNumLabel,expiryLabel,cvcLabel);
+        VBox fieldBox = new VBox(nameTextField,runners,nameOnCardTextField,cardNumTextField,expiryMonthTextField,expiryYearTextField,cvcTextField);
+
+        //----------Properties----------
+        rootBorderPane.setLeft(labelBox);
+        rootBorderPane.setRight(fieldBox);
+        sqlExe("use cpt02;\n" +
+                "select Firstname, Lastname, CountryCode from user, runner where user.Email in (SELECT Email FROM runner) and runner.Email = user.Email GROUP BY runner.Email;");
+        runners.getItems().addAll();
+
+
+        window.setScene(new Scene(rootBorderPane,windowWidth,windowHight));
+        window.show();
 
     }
 
@@ -195,6 +224,25 @@ public class Main extends Application {
 
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    public ResultSet sqlExe(String query){
+        try {
+
+            String URL = "jdbc:mysql://localhost/nibba?useSSL=False";
+            String USER = "root";
+            String PASS = "omar";
+            conn = DriverManager.getConnection(URL, USER, PASS);
+            System.out.println("connected");
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+            return rs;
+
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
