@@ -37,7 +37,7 @@ public class Main extends Application {
         Button runnerButton = new Button("I want to be a runner");
         Button sponsorButton = new Button("I want to sponsor a runner");
         Button infoButton = new Button("I want to find out more");
-        Label marathonNameLabel = new Label("MARATHON SKILLS 2015");
+        Label marathonNameLabel = new Label("Marathon Skills 2015");
         Label countdownLabel = new Label();
         VBox buttonsBox = new VBox(runnerButton,sponsorButton,infoButton);
         HBox bottomBox = new HBox(countdownLabel,loginButton);
@@ -55,9 +55,12 @@ public class Main extends Application {
         System.out.println(((countDownInMillis%86400000)%3600000)/60000);
         //--------Proprieties--------
         marathonNameLabel.setFont(Font.font("Open Sans Semibold",36));
+        topBox.setStyle("-fx-background-color: #336699;");
+        bottomBox.setStyle("-fx-background-color: #336699;");
         topBox.setAlignment(Pos.CENTER);
         bottomBox.setAlignment(Pos.CENTER);
         buttonsBox.setAlignment(Pos.CENTER);
+        loginButton.setAlignment(Pos.CENTER);
         runnerButton.setMinWidth(300);
         sponsorButton.setMinWidth(300);
         infoButton.setMinWidth(300);
@@ -68,10 +71,11 @@ public class Main extends Application {
         sponsorButton.setMinHeight(50);
         infoButton.setMinHeight(50);
         topBox.setPadding(new Insets(30));
+        bottomBox.setPadding(new Insets(30));
         buttonsBox.setPadding(new Insets(30,50,50,50));
         topBox.setSpacing(50);
         buttonsBox.setSpacing(50);
-        //loginButton.setMinWidth(50);
+        bottomBox.setSpacing(30);
 
         rootBorderPane.setCenter(buttonsBox);
         rootBorderPane.setTop(topBox);
