@@ -157,6 +157,8 @@ public class Main extends Application {
         Button cancelButton = new Button("Cancel");
         HBox charityBox = new HBox(charityLabel,charityInfoButton);
         HBox amountBox = new HBox(minButton,amountTextField,plusButton);
+        int numberOfRunners = 0;
+        int x = 0;
 
 
         //----------Properties----------
@@ -174,14 +176,25 @@ public class Main extends Application {
         //rootBorderPane.setRight();
 
 
-//        ResultSet runnersSet = sqlExe("SELECT user.Firstname, user.Lastname, runner.CountryCode, RegistrationEvent.BibNumber FROM (((user INNER JOIN runner ON runner.Email = user.Email) INNER JOIN Registration ON runner.RunnerId = Registration.RunnerId) INNER JOIN RegistrationEvent ON Registration.RegistrationId = RegistrationEvent.RegistrationId);");
-//        while (runnersSet.next()){
-//            runners.getItems().addAll(
-//                    runnersSet.getString("LastName")+", "
-//                    +runnersSet.getString("FirstName")+" - "
-//                    +runnersSet.getString("BibNumber") +" ("
-//                    +runnersSet.getString("CountryCode")+")");
-//        }
+        ResultSet runnersSet = sqlExe("SELECT user.Firstname, user.Lastname, runner.CountryCode, RegistrationEvent.BibNumber, Charity.CharityName, Charity.CharityDescription, Charity.CharityLogo FROM ((((user INNER JOIN runner ON runner.Email = user.Email) INNER JOIN Registration ON runner.RunnerId = Registration.RunnerId) INNER JOIN RegistrationEvent ON Registration.RegistrationId = RegistrationEvent.RegistrationId) INNER JOIN Charity ON Registration.CharityId = Charity.CharityId);");
+        while (runnersSet.next()) numberOfRunners = runnersSet.getRow();
+        runnersSet.beforeFirst();
+        String[][] charityTable = new String[numberOfRunners][3];
+
+        while (runnersSet.next()){
+            runners.getItems().addAll(
+                    runnersSet.getString("LastName")+", "
+                    +runnersSet.getString("FirstName")+" - "
+                    +runnersSet.getString("BibNumber") +" ("
+                    +runnersSet.getString("CountryCode")+")");
+            charityTable[x][0] = runnersSet.getString("CharityName");
+            charityTable[x][1] = runnersSet.getString("CharityDescription");
+            charityTable[x][2] = runnersSet.getString("CharityLogo");
+            x++;
+        }
+        runners.setOnAction(value -> {
+            System.out.println(charityTable[runners.getSelectionModel().getSelectedIndex()][0]);
+        });
         window.setScene(new Scene(rootBorderPane,windowWidth,windowHight));
         window.show();
     }
@@ -261,7 +274,7 @@ public class Main extends Application {
     public ResultSet sqlExe(String query){
         try {
 
-            String URL = "jdbc:mysql://127.0.0.1:3306/cpt01?useSSL=False";
+            String URL = "jdbc:mysql://127.0.0.1:3306/cpt02?useSSL=False";
             String USER = "root";
             String PASS = "omar";
             conn = DriverManager.getConnection(URL, USER, PASS);
