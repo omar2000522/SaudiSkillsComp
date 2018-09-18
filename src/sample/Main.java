@@ -115,7 +115,11 @@ public class Main extends Application {
             loginScreen3(window);
         });
         sponsorButton.setOnAction(value -> {
-            screen6(window);
+            try {
+                screen6(window);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         });
 
     }
@@ -124,7 +128,7 @@ public class Main extends Application {
 
     }
 
-    public void screen6(Stage window){
+    public void screen6(Stage window) throws SQLException {
         BorderPane rootBorderPane = new BorderPane();
         ComboBox runners = new ComboBox();
         TextField nameTextField = new TextField();
@@ -145,10 +149,14 @@ public class Main extends Application {
         //----------Properties----------
         rootBorderPane.setLeft(labelBox);
         rootBorderPane.setRight(fieldBox);
-        sqlExe("use cpt02;\n" +
-                "select Firstname, Lastname, CountryCode from user, runner where user.Email in (SELECT Email FROM runner) and runner.Email = user.Email GROUP BY runner.Email;");
-        runners.getItems().addAll();
-
+        ResultSet runnersSet = sqlExe("SELECT user.Firstname, user.Lastname, runner.CountryCode, RegistrationEvent.BibNumber FROM (((user INNER JOIN runner ON runner.Email = user.Email) INNER JOIN Registration ON runner.RunnerId = Registration.RunnerId) INNER JOIN RegistrationEvent ON Registration.RegistrationId = RegistrationEvent.RegistrationId);");
+        while (runnersSet.next()){
+            runners.getItems().addAll(
+                    runnersSet.getString("LastName")+", "
+                    +runnersSet.getString("FirstName")+" - "
+                    +runnersSet.getString("BibNumber") +" ("
+                    +runnersSet.getString("CountryCode")+")");
+        }
 
         window.setScene(new Scene(rootBorderPane,windowWidth,windowHight));
         window.show();
@@ -199,7 +207,7 @@ public class Main extends Application {
     public void  sql_login(String username, String password){
         try {
 
-            String URL = "jdbc:mysql://localhost/nibba?useSSL=False";
+            String URL = "jdbc:mysql://127.0.0.1:3306/nibba?useSSL=False";
             String USER = "root";
             String PASS = "omar";
             conn = DriverManager.getConnection(URL, USER, PASS);
@@ -230,7 +238,7 @@ public class Main extends Application {
     public ResultSet sqlExe(String query){
         try {
 
-            String URL = "jdbc:mysql://localhost/nibba?useSSL=False";
+            String URL = "jdbc:mysql://127.0.0.1:3306/cpt01?useSSL=False";
             String USER = "root";
             String PASS = "omar";
             conn = DriverManager.getConnection(URL, USER, PASS);
