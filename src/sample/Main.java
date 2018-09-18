@@ -143,24 +143,47 @@ public class Main extends Application {
         Label cardNumLabel = new Label("Credit Card #:");
         Label expiryLabel = new Label("Expiry Date:");
         Label cvcLabel = new Label("CVC:");
+        HBox expiryBox = new HBox(expiryMonthTextField,expiryYearTextField);
+        VBox fieldBox = new VBox(nameTextField,runners,nameOnCardTextField,cardNumTextField,expiryBox,cvcTextField);
         VBox labelBox = new VBox(nameLabel,runnerLabel,nameOnCardLabel,cardNumLabel,expiryLabel,cvcLabel);
-        VBox fieldBox = new VBox(nameTextField,runners,nameOnCardTextField,cardNumTextField,expiryMonthTextField,expiryYearTextField,cvcTextField);
+        HBox leftSide = new HBox(labelBox,fieldBox);
+        Label charityLabel = new Label();
+        Button charityInfoButton = new Button();
+        Label amountLabel = new Label();
+        Button minButton = new Button("-");
+        Button plusButton = new Button();
+        TextField amountTextField = new TextField();
+        Button payButton = new Button("Pay now");
+        Button cancelButton = new Button("Cancel");
+        HBox charityBox = new HBox(charityLabel,charityInfoButton);
+        HBox amountBox = new HBox(minButton,amountTextField,plusButton);
+
 
         //----------Properties----------
-        rootBorderPane.setLeft(labelBox);
-        rootBorderPane.setRight(fieldBox);
-        ResultSet runnersSet = sqlExe("SELECT user.Firstname, user.Lastname, runner.CountryCode, RegistrationEvent.BibNumber FROM (((user INNER JOIN runner ON runner.Email = user.Email) INNER JOIN Registration ON runner.RunnerId = Registration.RunnerId) INNER JOIN RegistrationEvent ON Registration.RegistrationId = RegistrationEvent.RegistrationId);");
-        while (runnersSet.next()){
-            runners.getItems().addAll(
-                    runnersSet.getString("LastName")+", "
-                    +runnersSet.getString("FirstName")+" - "
-                    +runnersSet.getString("BibNumber") +" ("
-                    +runnersSet.getString("CountryCode")+")");
-        }
+        rootBorderPane.setLeft(leftSide);
+        //leftBox.setAlignment(Pos.CENTER);
+        leftSide.setSpacing(10);
+        leftSide.setPadding(new Insets(30));
+        labelBox.setSpacing(15);
+        labelBox.setPadding(new Insets(5));
+        fieldBox.setSpacing(7.5);
+        cvcTextField.maxWidth(60);
+        expiryBox.setSpacing(10);
+        expiryMonthTextField.maxWidth(30);
+        expiryYearTextField.maxWidth(60);
+        //rootBorderPane.setRight();
 
+
+//        ResultSet runnersSet = sqlExe("SELECT user.Firstname, user.Lastname, runner.CountryCode, RegistrationEvent.BibNumber FROM (((user INNER JOIN runner ON runner.Email = user.Email) INNER JOIN Registration ON runner.RunnerId = Registration.RunnerId) INNER JOIN RegistrationEvent ON Registration.RegistrationId = RegistrationEvent.RegistrationId);");
+//        while (runnersSet.next()){
+//            runners.getItems().addAll(
+//                    runnersSet.getString("LastName")+", "
+//                    +runnersSet.getString("FirstName")+" - "
+//                    +runnersSet.getString("BibNumber") +" ("
+//                    +runnersSet.getString("CountryCode")+")");
+//        }
         window.setScene(new Scene(rootBorderPane,windowWidth,windowHight));
         window.show();
-
     }
 
     public void loginScreen3(Stage window){
