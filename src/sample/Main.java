@@ -149,23 +149,30 @@ public class Main extends Application {
         HBox leftSide = new HBox(labelBox,fieldBox);
         Label charityLabel = new Label();
         Button charityInfoButton = new Button();
-        Label amountLabel = new Label();
+        Label amountLabel = new Label("0$");
         Button minButton = new Button("-");
-        Button plusButton = new Button();
-        TextField amountTextField = new TextField();
+        Button plusButton = new Button("+");
+        TextField amountTextField = new TextField("0");
         Button payButton = new Button("Pay now");
         Button cancelButton = new Button("Cancel");
         HBox charityBox = new HBox(charityLabel,charityInfoButton);
         HBox amountBox = new HBox(minButton,amountTextField,plusButton);
+        HBox payCancelBox = new HBox(payButton, cancelButton);
+        VBox rightSide = new VBox(charityBox,amountLabel,amountBox,payCancelBox);
+        int amount = 0;
         int numberOfRunners = 0;
         int x = 0;
 
 
         //----------Properties----------
         rootBorderPane.setLeft(leftSide);
+        rootBorderPane.setRight(rightSide);
+        amountLabel.setFont(Font.font("Open Sans Semibold",100));
         //leftBox.setAlignment(Pos.CENTER);
         leftSide.setSpacing(10);
         leftSide.setPadding(new Insets(30));
+        rightSide.setSpacing(10);
+        rightSide.setPadding(new Insets(30));
         labelBox.setSpacing(15);
         labelBox.setPadding(new Insets(5));
         fieldBox.setSpacing(7.5);
@@ -173,8 +180,38 @@ public class Main extends Application {
         expiryBox.setSpacing(10);
         expiryMonthTextField.maxWidth(30);
         expiryYearTextField.maxWidth(60);
+        amountTextField.maxWidth(70);
+        minButton.setMinWidth(30);
+        plusButton.setMinWidth(30);
+        amountBox.setSpacing(10);
+        payCancelBox.setSpacing(20);
+        cancelButton.minWidth(100);
+        payButton.minWidth(100);
+        cancelButton.maxWidth(100);
+        payButton.maxWidth(100);
+        payCancelBox.setAlignment(Pos.CENTER);
+        runners.setMinWidth(nameTextField.getWidth());
         //rootBorderPane.setRight();
 
+
+        minButton.setOnAction(value -> {
+            Integer currentAmount = Integer.parseInt(amountTextField.getText()) - 5;
+            if (currentAmount>0 && currentAmount<=999) amountTextField.setText(currentAmount.toString());
+            else if (currentAmount<5) amountTextField.setText("0");
+            amountLabel.setText(amountTextField.getText() + "$");
+        });
+        plusButton.setOnAction(value -> {
+            Integer currentAmount = Integer.parseInt(amountTextField.getText()) + 5;
+            amountTextField.setText(currentAmount.toString());
+            amountLabel.setText(amountTextField.getText() + "$");
+        });
+        payButton.setOnAction(value -> {
+            if(!(nameTextField.getText().isEmpty()) &&
+            !(nameOnCardTextField.getText().isEmpty()) &&
+            !(cardNumTextField.getText().isEmpty())){
+
+            }
+        });
 
         ResultSet runnersSet = sqlExe("SELECT user.Firstname, user.Lastname, runner.CountryCode, RegistrationEvent.BibNumber, Charity.CharityName, Charity.CharityDescription, Charity.CharityLogo FROM ((((user INNER JOIN runner ON runner.Email = user.Email) INNER JOIN Registration ON runner.RunnerId = Registration.RunnerId) INNER JOIN RegistrationEvent ON Registration.RegistrationId = RegistrationEvent.RegistrationId) INNER JOIN Charity ON Registration.CharityId = Charity.CharityId);");
         while (runnersSet.next()) numberOfRunners = runnersSet.getRow();
@@ -193,7 +230,7 @@ public class Main extends Application {
             x++;
         }
         runners.setOnAction(value -> {
-            System.out.println(charityTable[runners.getSelectionModel().getSelectedIndex()][0]);
+            charityLabel.setText(charityTable[runners.getSelectionModel().getSelectedIndex()][0]);
         });
         window.setScene(new Scene(rootBorderPane,windowWidth,windowHight));
         window.show();
