@@ -8,7 +8,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.scene.layout.*;
 import javafx.geometry.Pos;
@@ -195,24 +197,29 @@ public class Main extends Application {
 
 
         minButton.setOnAction(value -> {
-            Integer currentAmount = Integer.parseInt(amountTextField.getText()) - 5;
+            Integer currentAmount = Integer.parseInt(amountTextField.getText()) - 10;
             if (currentAmount>0 && currentAmount<=999) amountTextField.setText(currentAmount.toString());
-            else if (currentAmount<5) amountTextField.setText("0");
+            else if (currentAmount<10) amountTextField.setText("0");
             amountLabel.setText(amountTextField.getText() + "$");
         });
         plusButton.setOnAction(value -> {
-            Integer currentAmount = Integer.parseInt(amountTextField.getText()) + 5;
+            Integer currentAmount = Integer.parseInt(amountTextField.getText()) + 10;
             amountTextField.setText(currentAmount.toString());
             amountLabel.setText(amountTextField.getText() + "$");
         });
         payButton.setOnAction(value -> {
+            Calendar currentDate = Calendar.getInstance();
+            currentDate.setTimeInMillis(System.currentTimeMillis());
+            Calendar expiryDate = Calendar.getInstance();
+            expiryDate.set(Integer.parseInt(expiryYearTextField.getText()), Integer.parseInt(expiryMonthTextField.getText()),1);
             if(!(nameTextField.getText().isEmpty()) &&
             !(nameOnCardTextField.getText().isEmpty()) &&
-            !(cardNumTextField.getText().isEmpty())){
+            cardNumTextField.getText().length() == 16 &&
+            expiryDate.before(currentDate) &&
+            cvcTextField.getText().length() == 3){
 
             }
         });
-
         ResultSet runnersSet = sqlExe("SELECT user.Firstname, user.Lastname, runner.CountryCode, RegistrationEvent.BibNumber, Charity.CharityName, Charity.CharityDescription, Charity.CharityLogo FROM ((((user INNER JOIN runner ON runner.Email = user.Email) INNER JOIN Registration ON runner.RunnerId = Registration.RunnerId) INNER JOIN RegistrationEvent ON Registration.RegistrationId = RegistrationEvent.RegistrationId) INNER JOIN Charity ON Registration.CharityId = Charity.CharityId);");
         while (runnersSet.next()) numberOfRunners = runnersSet.getRow();
         runnersSet.beforeFirst();
@@ -231,6 +238,18 @@ public class Main extends Application {
         }
         runners.setOnAction(value -> {
             charityLabel.setText(charityTable[runners.getSelectionModel().getSelectedIndex()][0]);
+        });
+        charityInfoButton.setOnAction(value -> {
+
+            final Stage dialog = new Stage();
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            dialog.initOwner(window);
+            VBox dialogVbox = new VBox(20);
+            dialogVbox.getChildren().add(new Text());
+            Scene dialogScene = new Scene(dialogVbox, 300, 200);
+            dialog.setScene(dialogScene);
+            dialog.show();
+
         });
         window.setScene(new Scene(rootBorderPane,windowWidth,windowHight));
         window.show();
