@@ -165,6 +165,7 @@ public class Main extends Application {
         int amount = 0;
         int numberOfRunners = 0;
         int x = 0;
+        final String[] runnerId = new String[1];
 
 
         //----------Properties----------
@@ -196,7 +197,7 @@ public class Main extends Application {
         runners.setMinWidth(nameTextField.getWidth());
         //rootBorderPane.setRight();
 
-        ResultSet runnersSet = sqlExe("SELECT user.Firstname, user.Lastname, runner.CountryCode, RegistrationEvent.BibNumber, Charity.CharityName, Charity.CharityDescription, Charity.CharityLogo FROM ((((user INNER JOIN runner ON runner.Email = user.Email) INNER JOIN Registration ON runner.RunnerId = Registration.RunnerId) INNER JOIN RegistrationEvent ON Registration.RegistrationId = RegistrationEvent.RegistrationId) INNER JOIN Charity ON Registration.CharityId = Charity.CharityId);");
+        ResultSet runnersSet = sqlExe("SELECT user.Firstname, user.Lastname, runner.CountryCode, RegistrationEvent.BibNumber, Charity.CharityName, Charity.CharityDescription, Charity.CharityLogo, Registration.RunnerId FROM ((((user INNER JOIN runner ON runner.Email = user.Email) INNER JOIN Registration ON runner.RunnerId = Registration.RunnerId) INNER JOIN RegistrationEvent ON Registration.RegistrationId = RegistrationEvent.RegistrationId) INNER JOIN Charity ON Registration.CharityId = Charity.CharityId);");
         while (runnersSet.next()) numberOfRunners = runnersSet.getRow();
         runnersSet.beforeFirst();
         String[][] charityTable = new String[numberOfRunners][3];
@@ -210,6 +211,7 @@ public class Main extends Application {
             charityTable[x][0] = runnersSet.getString("CharityName");
             charityTable[x][1] = runnersSet.getString("CharityDescription");
             charityTable[x][2] = runnersSet.getString("CharityLogo");
+            charityTable[x][3] = runnersSet.getString("RunnerId");
             x++;
         }
 
@@ -238,11 +240,13 @@ public class Main extends Application {
                 currentDate.before(expiryDate) &&
                 cvcTextField.getText().length() == 3){
                     System.out.println("zucc");
+                    screen7(window,runnerId[0],amountLabel.getText());
                 }}
             finally {}
         });
         runners.setOnAction(value -> {
             charityLabel.setText(charityTable[runners.getSelectionModel().getSelectedIndex()][0]);
+            runnerId[0] = charityTable[runners.getSelectionModel().getSelectedIndex()][3];
         });
         charityInfoButton.setOnAction(value -> {
 
@@ -264,7 +268,7 @@ public class Main extends Application {
         window.show();
     }
 
-    public void screen7(Stage window){
+    public void screen7(Stage window, String runnerId, String amount){
         BorderPane rootBorderPane = new BorderPane();
         Label thxLabel = new Label("Thank you for your sponsorship!");
         Label smolThxLabel = new Label("Thank you for sponsoring a runner in Marathon Skills 2019!\nYour donation will help out their chosen charity.");
@@ -275,6 +279,9 @@ public class Main extends Application {
         VBox centerBox = new VBox(thxLabel,smolThxLabel,runnerInfoLabel,charityNameLabel,amountLabel,backButton);
 
         //----------Proprieties----------
+        rootBorderPane.setCenter(centerBox);
+
+        sqlExe("SELECT user.FirstName, user.LastName, runner.RunnerId, runner.CountryCode, charity.CharityName FROM ((((runner INNER JOIN user ON runner.Email = user.Email) INNER JOIN registration ON runner.RunnerId = registration.RunnerId) ");
 
     }
 
@@ -360,6 +367,7 @@ public class Main extends Application {
             System.out.println("connected");
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
+            conn.close();
             return rs;
 
 
