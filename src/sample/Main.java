@@ -15,6 +15,7 @@ import javafx.stage.Stage;
 import javafx.scene.layout.*;
 import javafx.geometry.Pos;
 import javafx.scene.text.TextAlignment.*;
+import org.w3c.dom.ls.LSException;
 
 import java.sql.*;
 import java.util.Calendar;
@@ -150,7 +151,7 @@ public class Main extends Application {
         VBox labelBox = new VBox(nameLabel,runnerLabel,nameOnCardLabel,cardNumLabel,expiryLabel,cvcLabel);
         HBox leftSide = new HBox(labelBox,fieldBox);
         Label charityLabel = new Label();
-        Button charityInfoButton = new Button();
+        Button charityInfoButton = new Button("INFO");
         Label amountLabel = new Label("0$");
         Button minButton = new Button("-");
         Button plusButton = new Button("+");
@@ -195,31 +196,6 @@ public class Main extends Application {
         runners.setMinWidth(nameTextField.getWidth());
         //rootBorderPane.setRight();
 
-
-        minButton.setOnAction(value -> {
-            Integer currentAmount = Integer.parseInt(amountTextField.getText()) - 10;
-            if (currentAmount>0 && currentAmount<=999) amountTextField.setText(currentAmount.toString());
-            else if (currentAmount<10) amountTextField.setText("0");
-            amountLabel.setText(amountTextField.getText() + "$");
-        });
-        plusButton.setOnAction(value -> {
-            Integer currentAmount = Integer.parseInt(amountTextField.getText()) + 10;
-            amountTextField.setText(currentAmount.toString());
-            amountLabel.setText(amountTextField.getText() + "$");
-        });
-        payButton.setOnAction(value -> {
-            Calendar currentDate = Calendar.getInstance();
-            currentDate.setTimeInMillis(System.currentTimeMillis());
-            Calendar expiryDate = Calendar.getInstance();
-            expiryDate.set(Integer.parseInt(expiryYearTextField.getText()), Integer.parseInt(expiryMonthTextField.getText()),1);
-            if(!(nameTextField.getText().isEmpty()) &&
-            !(nameOnCardTextField.getText().isEmpty()) &&
-            cardNumTextField.getText().length() == 16 &&
-            expiryDate.before(currentDate) &&
-            cvcTextField.getText().length() == 3){
-
-            }
-        });
         ResultSet runnersSet = sqlExe("SELECT user.Firstname, user.Lastname, runner.CountryCode, RegistrationEvent.BibNumber, Charity.CharityName, Charity.CharityDescription, Charity.CharityLogo FROM ((((user INNER JOIN runner ON runner.Email = user.Email) INNER JOIN Registration ON runner.RunnerId = Registration.RunnerId) INNER JOIN RegistrationEvent ON Registration.RegistrationId = RegistrationEvent.RegistrationId) INNER JOIN Charity ON Registration.CharityId = Charity.CharityId);");
         while (runnersSet.next()) numberOfRunners = runnersSet.getRow();
         runnersSet.beforeFirst();
@@ -228,14 +204,43 @@ public class Main extends Application {
         while (runnersSet.next()){
             runners.getItems().addAll(
                     runnersSet.getString("LastName")+", "
-                    +runnersSet.getString("FirstName")+" - "
-                    +runnersSet.getString("BibNumber") +" ("
-                    +runnersSet.getString("CountryCode")+")");
+                            +runnersSet.getString("FirstName")+" - "
+                            +runnersSet.getString("BibNumber") +" ("
+                            +runnersSet.getString("CountryCode")+")");
             charityTable[x][0] = runnersSet.getString("CharityName");
             charityTable[x][1] = runnersSet.getString("CharityDescription");
             charityTable[x][2] = runnersSet.getString("CharityLogo");
             x++;
         }
+
+        //---------Lambda Funcs--------------
+        minButton.setOnAction(value -> {
+            Integer currentAmount = Integer.parseInt(amountTextField.getText()) - 10;
+            if (currentAmount>0 && currentAmount<=999) amountTextField.setText(currentAmount.toString());
+            else if (currentAmount<10) amountTextField.setText("0");
+            amountLabel.setText(amountTextField.getText() + "$");
+        });
+        plusButton.setOnAction(value -> {
+            Integer currentAmount = Integer.parseInt(amountTextField.getText()) + 10;
+            if (currentAmount>0 && currentAmount<=999) amountTextField.setText(currentAmount.toString());
+            amountLabel.setText(amountTextField.getText() + "$");
+        });
+        payButton.setOnAction(value -> {
+            try{
+                Calendar currentDate = Calendar.getInstance();
+                currentDate.setTimeInMillis(System.currentTimeMillis());
+                Calendar expiryDate = Calendar.getInstance();
+                expiryDate.set(Integer.parseInt(expiryYearTextField.getText()), Integer.parseInt(expiryMonthTextField.getText()),1);
+
+                if(!(nameTextField.getText().isEmpty()) &&
+                !(nameOnCardTextField.getText().isEmpty()) &&
+                cardNumTextField.getText().length() == 16 &&
+                currentDate.before(expiryDate) &&
+                cvcTextField.getText().length() == 3){
+                    System.out.println("zucc");
+                }}
+            finally {}
+        });
         runners.setOnAction(value -> {
             charityLabel.setText(charityTable[runners.getSelectionModel().getSelectedIndex()][0]);
         });
@@ -244,15 +249,33 @@ public class Main extends Application {
             final Stage dialog = new Stage();
             dialog.initModality(Modality.APPLICATION_MODAL);
             dialog.initOwner(window);
-            VBox dialogVbox = new VBox(20);
-            dialogVbox.getChildren().add(new Text());
+            Text charityInfo = new Text(charityTable[runners.getSelectionModel().getSelectedIndex()][1]);
+            VBox dialogVbox = new VBox(charityInfo);
+            dialogVbox.setSpacing(20);
             Scene dialogScene = new Scene(dialogVbox, 300, 200);
             dialog.setScene(dialogScene);
             dialog.show();
 
         });
+        cancelButton.setOnAction(value -> {
+            screen1(window);
+        });
         window.setScene(new Scene(rootBorderPane,windowWidth,windowHight));
         window.show();
+    }
+
+    public void screen7(Stage window){
+        BorderPane rootBorderPane = new BorderPane();
+        Label thxLabel = new Label("Thank you for your sponsorship!");
+        Label smolThxLabel = new Label("Thank you for sponsoring a runner in Marathon Skills 2019!\nYour donation will help out their chosen charity.");
+        Label runnerInfoLabel = new Label();
+        Label charityNameLabel = new Label();
+        Label amountLabel = new Label();
+        Button backButton = new Button("Back");
+        VBox centerBox = new VBox(thxLabel,smolThxLabel,runnerInfoLabel,charityNameLabel,amountLabel,backButton);
+
+        //----------Proprieties----------
+
     }
 
     public void loginScreen3(Stage window){
