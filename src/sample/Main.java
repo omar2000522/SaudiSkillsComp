@@ -124,6 +124,9 @@ public class Main extends Application {
                 e.printStackTrace();
             }
         });
+        infoButton.setOnAction(value -> {
+            screen10(window);
+        });
 
     }
 
@@ -200,7 +203,7 @@ public class Main extends Application {
         ResultSet runnersSet = sqlExe("SELECT user.Firstname, user.Lastname, runner.CountryCode, RegistrationEvent.BibNumber, Charity.CharityName, Charity.CharityDescription, Charity.CharityLogo, Registration.RunnerId FROM ((((user INNER JOIN runner ON runner.Email = user.Email) INNER JOIN Registration ON runner.RunnerId = Registration.RunnerId) INNER JOIN RegistrationEvent ON Registration.RegistrationId = RegistrationEvent.RegistrationId) INNER JOIN Charity ON Registration.CharityId = Charity.CharityId);");
         while (runnersSet.next()) numberOfRunners = runnersSet.getRow();
         runnersSet.beforeFirst();
-        String[][] charityTable = new String[numberOfRunners][3];
+        String[][] charityTable = new String[numberOfRunners][4];
 
         while (runnersSet.next()){
             runners.getItems().addAll(
@@ -242,7 +245,9 @@ public class Main extends Application {
                     System.out.println("zucc");
                     screen7(window,runnerId[0],amountLabel.getText());
                 }}
-            finally {}
+            catch (SQLException e) {
+                e.printStackTrace();
+                }
         });
         runners.setOnAction(value -> {
             charityLabel.setText(charityTable[runners.getSelectionModel().getSelectedIndex()][0]);
@@ -268,21 +273,72 @@ public class Main extends Application {
         window.show();
     }
 
-    public void screen7(Stage window, String runnerId, String amount){
+    public void screen7(Stage window, String runnerId, String amount) throws SQLException {
         BorderPane rootBorderPane = new BorderPane();
         Label thxLabel = new Label("Thank you for your sponsorship!");
         Label smolThxLabel = new Label("Thank you for sponsoring a runner in Marathon Skills 2019!\nYour donation will help out their chosen charity.");
         Label runnerInfoLabel = new Label();
         Label charityNameLabel = new Label();
-        Label amountLabel = new Label();
+        Label amountLabel = new Label(amount);
         Button backButton = new Button("Back");
         VBox centerBox = new VBox(thxLabel,smolThxLabel,runnerInfoLabel,charityNameLabel,amountLabel,backButton);
+        ResultSet runnerInfo;
 
         //----------Proprieties----------
         rootBorderPane.setCenter(centerBox);
 
-        sqlExe("SELECT user.FirstName, user.LastName, runner.RunnerId, runner.CountryCode, charity.CharityName FROM ((((runner INNER JOIN user ON runner.Email = user.Email) INNER JOIN registration ON runner.RunnerId = registration.RunnerId) ");
+        runnerInfo = sqlExe("SELECT user.FirstName, user.LastName, RegistrationEvent.BibNumber, runner.CountryCode, charity.CharityName FROM ((((runner INNER JOIN user ON runner.Email = user.Email) INNER JOIN registration ON runner.RunnerId = registration.RunnerId) INNER JOIN charity ON registration.CharityId = charity.CharityId) INNER JOIN RegistrationEvent ON registration.RegistrationId = RegistrationEvent.RegistrationId) WHERE runner.RunnerId = "+runnerId);
+        runnerInfo.next();
+        System.out.println();
+        charityNameLabel.setText(runnerInfo.getString("CharityName"));
+        runnerInfoLabel.setText(runnerInfo.getString("FirstName")+" "+runnerInfo.getString("LastName")+" ("+runnerInfo.getString("BibNumber")+") from "+runnerInfo.getString("CountryCode"));
 
+        backButton.setOnAction(value -> {
+            screen1(window);
+        });
+        window.setScene(new Scene(rootBorderPane,windowWidth,windowHight));
+        window.show();
+    }
+
+    public void screen10(Stage window){
+        BorderPane rootBorderPane = new BorderPane();
+        Label header = new Label("Find out more information");
+        Button backButton = new Button("Back");
+        Button marathon2015 = new Button("Marathon Skills 2015");
+        Button howLong = new Button("How long is a marathon?");
+        Button prevResults = new Button("Previous race results");
+        Button listOfCharities = new Button("List of charities");
+        Button BMI = new Button("BMI calculator");
+        Button BMR = new Button("BMR calculator");
+        VBox leftBox = new VBox(marathon2015,prevResults,BMI);
+        VBox rightBox = new VBox(howLong,listOfCharities,BMR);
+        HBox centerBox = new HBox(leftBox,rightBox);
+        HBox topBox = new HBox(backButton,header);
+
+        //-----------------properties--------------
+        topBox.setAlignment(Pos.CENTER);
+        centerBox.setAlignment(Pos.CENTER);
+        rootBorderPane.setCenter(centerBox);
+        rootBorderPane.setTop(topBox);
+        leftBox.setSpacing(20);
+        rightBox.setSpacing(20);
+        centerBox.setSpacing(20);
+        marathon2015.setMinSize(200,50);
+        howLong.setMinSize(200,50);
+        prevResults.setMinSize(200,50);
+        listOfCharities.setMinSize(200,50);
+        BMI.setMinSize(200,50);
+        BMR.setMinSize(200,50);
+
+        listOfCharities.setOnAction(value -> {
+            screen13(window);
+        });
+        window.setScene(new Scene(rootBorderPane,windowWidth,windowHight));
+        window.show();
+    }
+
+    public void screen13(Stage window){
+        
     }
 
     public void loginScreen3(Stage window){
@@ -367,7 +423,6 @@ public class Main extends Application {
             System.out.println("connected");
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
-            conn.close();
             return rs;
 
 
