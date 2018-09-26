@@ -6,7 +6,12 @@ import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.image.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
@@ -14,12 +19,10 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.scene.layout.*;
 import javafx.geometry.Pos;
-import javafx.scene.text.TextAlignment.*;
-import org.w3c.dom.ls.LSException;
-
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.sql.*;
 import java.util.Calendar;
-import java.util.concurrent.TimeUnit;
 
 
 public class Main extends Application {
@@ -27,6 +30,8 @@ public class Main extends Application {
     boolean LoggedIn = false;
     Double windowWidth = 800.0;
     Double windowHight = 600.0;
+    Long interval = 1000L;
+
     @Override
     public void start(Stage primaryStage) throws Exception{
         primaryStage.setTitle("Brazil Marathon");
@@ -45,17 +50,7 @@ public class Main extends Application {
         VBox buttonsBox = new VBox(runnerButton,sponsorButton,infoButton);
         HBox bottomBox = new HBox(countdownLabel,loginButton);
         HBox topBox = new HBox(marathonNameLabel);
-        Long interval = 1000L;
 
-        Calendar marathonStart = Calendar.getInstance();
-        marathonStart.set(2019,8,5,6,0);
-        Long countDownInMillis = marathonStart.getTimeInMillis() - System.currentTimeMillis();
-        System.out.print("Days: ");
-        System.out.println(countDownInMillis/86400000);
-        System.out.print("Hours: ");
-        System.out.println((countDownInMillis%86400000)/3600000);
-        System.out.print("Minutes: ");
-        System.out.println(((countDownInMillis%86400000)%3600000)/60000);
         //--------Proprieties--------
         marathonNameLabel.setFont(Font.font("Open Sans Semibold",36));
         topBox.setStyle("-fx-background-color: #336699;");
@@ -91,6 +86,8 @@ public class Main extends Application {
             @Override
             public void run() {
                 while(true){
+                    Calendar marathonStart = Calendar.getInstance();
+                    marathonStart.set(2019,8,5,6,0);
                     long countDownInMillis = marathonStart.getTimeInMillis() - System.currentTimeMillis();
                     long days = countDownInMillis/86400000;
                     long hours = (countDownInMillis%86400000)/3600000;
@@ -331,14 +328,75 @@ public class Main extends Application {
         BMR.setMinSize(200,50);
 
         listOfCharities.setOnAction(value -> {
-            screen13(window);
+            try {
+                screen13(window);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
         });
         window.setScene(new Scene(rootBorderPane,windowWidth,windowHight));
         window.show();
     }
 
-    public void screen13(Stage window){
-        
+    public void screen13(Stage window) throws SQLException, FileNotFoundException {
+        BorderPane rootBorderPane = new BorderPane();
+        ScrollPane charitiesScrollPane = new ScrollPane();
+        VBox mainBox = new VBox();
+        Label countdownLabel = new Label();
+        Image charityLogo = null;
+        ImageView nibba = new ImageView();
+        int numOfCharities = 0;
+        int x = 0;
+
+        ResultSet charitiesResultSet = sqlExe("SELECT * FROM Charity");
+        while (charitiesResultSet.next()) numOfCharities = charitiesResultSet.getRow();
+        charitiesResultSet.beforeFirst();
+        String[][] charitiesTable = new String[numOfCharities][3];
+        HBox[] charityElement = new HBox[numOfCharities];
+
+        while (charitiesResultSet.next()){
+            charitiesTable[x][0] = charitiesResultSet.getString("CharityName");
+            charitiesTable[x][1] = charitiesResultSet.getString("CharityDescription");
+            charitiesTable[x][2] = charitiesResultSet.getString("CharityLogo");
+            System.out.println(charitiesTable[x][0]+charitiesTable[x][1]+charitiesTable[x][2]);
+            x++;
+        }
+        while (x!=0){
+
+            x--;
+        }
+        Runnable countdown = new Runnable() {
+            @Override
+            public void run() {
+                while(true){
+                    Calendar marathonStart = Calendar.getInstance();
+                    marathonStart.set(2019,8,5,6,0);
+                    long countDownInMillis = marathonStart.getTimeInMillis() - System.currentTimeMillis();
+                    long days = countDownInMillis/86400000;
+                    long hours = (countDownInMillis%86400000)/3600000;
+                    long mins = ((countDownInMillis%86400000)%3600000)/60000;
+                    long secs = (((countDownInMillis%86400000)%3600000)%60000)/1000;
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            countdownLabel.setText(days+" days "+hours+" hours "+mins+" minutes "+secs+" seconds until marathon start.");
+                        }
+                    });
+
+                    try {
+                        Thread.sleep(interval);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        Thread thrd = new Thread(countdown);
+        thrd.start();
+        window.setScene(new Scene(rootBorderPane,windowWidth,windowHight));
+        window.show();
     }
 
     public void loginScreen3(Stage window){
@@ -416,7 +474,7 @@ public class Main extends Application {
     public ResultSet sqlExe(String query){
         try {
 
-            String URL = "jdbc:mysql://127.0.0.1:3306/cpt02?useSSL=False";
+            String URL = "jdbc:mysql://127.0.0.1:3306/cpt01?useSSL=False";
             String USER = "root";
             String PASS = "omar";
             conn = DriverManager.getConnection(URL, USER, PASS);
