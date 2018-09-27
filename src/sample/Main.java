@@ -131,6 +131,21 @@ public class Main extends Application {
 
     }
 
+    public void screen3(Stage window){
+        BorderPane rootBorderPane = new BorderPane();
+        Label titleLabel = new Label("Marathon Skills 2015");
+        Label loginLabel = new Label("Login Form");
+        Label userLabel = new Label("Email: ");
+        Label passLabel = new Label("Password: ");
+        TextField userField = new TextField("yo");
+        TextField passField = new TextField();
+        VBox labelsBox = new VBox(userLabel,passLabel);
+        VBox fieldsBox = new VBox(userField,passField);
+        HBox topBox = new HBox(titleLabel);
+
+
+    }
+
     public void screen6(Stage window) throws SQLException {
         BorderPane rootBorderPane = new BorderPane();
         ComboBox runners = new ComboBox();
@@ -342,9 +357,13 @@ public class Main extends Application {
 
     public void screen13(Stage window) throws SQLException, FileNotFoundException {
         BorderPane rootBorderPane = new BorderPane();
+        Label titleLabel = new Label("Marathon Skills 2015");
         ScrollPane charitiesScrollPane = new ScrollPane();
         VBox mainBox = new VBox();
+        Button backButton = new Button("Back");
         Label countdownLabel = new Label();
+        HBox topBox = new HBox(backButton,titleLabel);
+        HBox bottomBox = new HBox(countdownLabel);
         int numOfCharities = 0;
         int x = 0;
 
@@ -370,18 +389,33 @@ public class Main extends Application {
             HBox charityElement = new HBox(image,labelsBox);
             image.setFitWidth(100);
             image.setFitHeight((100/inputImage.getWidth())*inputImage.getHeight());
-            description.setMaxWidth(400);
-            labelsBox.setSpacing(20);
+            description.setMaxWidth(600);
+            labelsBox.setSpacing(10);
             charityElement.setSpacing(20);
             name.setFont(Font.font("Courier New",20));
-
+            charityElement.setStyle("-fx-background-color: #ffffff;");
+            charityElement.setPadding(new Insets(15));
             mainBox.getChildren().add(charityElement);
             x++;
         }
         charitiesScrollPane.setContent(mainBox);
         mainBox.setAlignment(Pos.CENTER);
-        mainBox.setSpacing(30);
+        mainBox.setSpacing(40);
         rootBorderPane.setCenter(charitiesScrollPane);
+        rootBorderPane.setTop(topBox);
+        rootBorderPane.setBottom(bottomBox);
+        titleLabel.setFont(Font.font("Open Sans Semibold",28));
+        topBox.setStyle("-fx-background-color: #336699;");
+        bottomBox.setStyle("-fx-background-color: #336699");
+        topBox.setSpacing(30);
+        bottomBox.setAlignment(Pos.CENTER);
+        bottomBox.setPadding(new Insets(20));
+        topBox.setPadding(new Insets(20));
+        mainBox.setPadding(new Insets(15));
+
+        backButton.setOnAction(value -> {
+            screen10(window);
+        });
 
         Runnable countdown = new Runnable() {
             @Override
