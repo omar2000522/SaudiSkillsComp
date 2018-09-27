@@ -357,18 +357,32 @@ public class Main extends Application {
             charitiesTable[x][0] = charitiesResultSet.getString("CharityName");
             charitiesTable[x][1] = charitiesResultSet.getString("CharityDescription");
             charitiesTable[x][2] = charitiesResultSet.getString("CharityLogo");
-            System.out.println(charitiesTable[x][0]+charitiesTable[x][1]+charitiesTable[x][2]);
             x++;
         }
         x=0;
         while (x<charitiesTable.length){
-            FileInputStream inputImage = new FileInputStream("src/sample/Images"+charitiesTable[x][2]);
-            ImageView image = new ImageView(new Image(inputImage));
+            FileInputStream inputStreamImage = new FileInputStream("src/sample/Images/"+charitiesTable[x][2]);
+            Image inputImage = new Image(inputStreamImage);
+            ImageView image = new ImageView(inputImage);
+            Label name = new Label(charitiesTable[x][0]);
+            Label description = new Label(charitiesTable[x][1]);
+            VBox labelsBox = new VBox(name,description);
+            HBox charityElement = new HBox(image,labelsBox);
+            image.setFitWidth(100);
+            image.setFitHeight((100/inputImage.getWidth())*inputImage.getHeight());
+            description.setMaxWidth(400);
+            labelsBox.setSpacing(20);
+            charityElement.setSpacing(20);
+            name.setFont(Font.font("Courier New",20));
 
-
-            mainBox.getChildren().add();
+            mainBox.getChildren().add(charityElement);
             x++;
         }
+        charitiesScrollPane.setContent(mainBox);
+        mainBox.setAlignment(Pos.CENTER);
+        mainBox.setSpacing(30);
+        rootBorderPane.setCenter(charitiesScrollPane);
+
         Runnable countdown = new Runnable() {
             @Override
             public void run() {
