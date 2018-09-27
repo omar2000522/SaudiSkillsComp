@@ -345,8 +345,6 @@ public class Main extends Application {
         ScrollPane charitiesScrollPane = new ScrollPane();
         VBox mainBox = new VBox();
         Label countdownLabel = new Label();
-        Image charityLogo = null;
-        ImageView nibba = new ImageView();
         int numOfCharities = 0;
         int x = 0;
 
@@ -354,7 +352,6 @@ public class Main extends Application {
         while (charitiesResultSet.next()) numOfCharities = charitiesResultSet.getRow();
         charitiesResultSet.beforeFirst();
         String[][] charitiesTable = new String[numOfCharities][3];
-        HBox[] charityElement = new HBox[numOfCharities];
 
         while (charitiesResultSet.next()){
             charitiesTable[x][0] = charitiesResultSet.getString("CharityName");
@@ -363,9 +360,14 @@ public class Main extends Application {
             System.out.println(charitiesTable[x][0]+charitiesTable[x][1]+charitiesTable[x][2]);
             x++;
         }
-        while (x!=0){
+        x=0;
+        while (x<charitiesTable.length){
+            FileInputStream inputImage = new FileInputStream("src/sample/Images"+charitiesTable[x][2]);
+            ImageView image = new ImageView(new Image(inputImage));
 
-            x--;
+
+            mainBox.getChildren().add();
+            x++;
         }
         Runnable countdown = new Runnable() {
             @Override
@@ -474,7 +476,7 @@ public class Main extends Application {
     public ResultSet sqlExe(String query){
         try {
 
-            String URL = "jdbc:mysql://127.0.0.1:3306/cpt01?useSSL=False";
+            String URL = "jdbc:mysql://127.0.0.1:3306/cpt02?useSSL=False";
             String USER = "root";
             String PASS = "omar";
             conn = DriverManager.getConnection(URL, USER, PASS);
