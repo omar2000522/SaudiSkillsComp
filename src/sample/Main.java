@@ -112,7 +112,7 @@ public class Main extends Application {
         thrd.start();
 
         loginButton.setOnAction(value -> {
-            loginScreen3(window);
+            screen3(window);
         });
         sponsorButton.setOnAction(value -> {
             try {
@@ -137,13 +137,49 @@ public class Main extends Application {
         Label loginLabel = new Label("Login Form");
         Label userLabel = new Label("Email: ");
         Label passLabel = new Label("Password: ");
-        TextField userField = new TextField("yo");
-        TextField passField = new TextField();
+        TextField userField = new TextField("a.wenzinger@gmail.com");
+        TextField passField = new TextField("u!!CqiDD");
+        Button loginButton = new Button("Login");
+        Button cancelButton = new Button("Cancel");
         VBox labelsBox = new VBox(userLabel,passLabel);
         VBox fieldsBox = new VBox(userField,passField);
         HBox topBox = new HBox(titleLabel);
+        HBox buttonsBox = new HBox(loginButton,cancelButton);
+        HBox loginElements = new HBox(labelsBox,fieldsBox);
+        VBox midBox = new VBox(loginLabel,loginElements,buttonsBox);
 
+        //---------proprieties-------------
+        topBox.setStyle("-fx-background-color : #336699");
+        rootBorderPane.setTop(topBox);
+        rootBorderPane.setCenter(midBox);
+        titleLabel.setFont(Font.font("Courier New",20));
+        midBox.setAlignment(Pos.CENTER);
+        loginElements.setAlignment(Pos.CENTER);
+        buttonsBox.setAlignment(Pos.CENTER);
+        midBox.setSpacing(40);
+        loginElements.setSpacing(20);
+        labelsBox.setSpacing(30);
+        fieldsBox.setSpacing(25);
+        buttonsBox.setSpacing(20);
+        userField.minWidth(200);
+        passField.minWidth(200);
+        userField.maxWidth(200);
+        passField.maxWidth(200);
+        topBox.setPadding(new Insets(20));
 
+        loginButton.setOnAction(value -> {
+            ResultSet result = sqlExe("SELECT * FROM user WHERE Email = \""+userField.getText()+"\" AND Password = \""+passField.getText()+"\"");
+            try {
+                if (result.next()){
+                    System.out.println(result.getString("RoleId"));
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+
+        window.setScene(new Scene(rootBorderPane,windowWidth,windowHight));
+        window.show();
     }
 
     public void screen6(Stage window) throws SQLException {
@@ -351,6 +387,9 @@ public class Main extends Application {
                 e.printStackTrace();
             }
         });
+        backButton.setOnAction(value -> {
+            screen1(window);
+        });
         window.setScene(new Scene(rootBorderPane,windowWidth,windowHight));
         window.show();
     }
@@ -524,7 +563,7 @@ public class Main extends Application {
     public ResultSet sqlExe(String query){
         try {
 
-            String URL = "jdbc:mysql://127.0.0.1:3306/cpt02?useSSL=False";
+            String URL = "jdbc:mysql://127.0.0.1:3306/cpt01?useSSL=False";
             String USER = "root";
             String PASS = "omar";
             conn = DriverManager.getConnection(URL, USER, PASS);
