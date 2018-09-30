@@ -12,6 +12,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.image.*;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
@@ -35,7 +36,7 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception{
         primaryStage.setTitle("Brazil Marathon");
-        textParse();
+        //textParse();
         screen1(primaryStage);
     }
 
@@ -50,6 +51,8 @@ public class Main extends Application {
         VBox buttonsBox = new VBox(runnerButton,sponsorButton,infoButton);
         HBox bottomBox = new HBox(countdownLabel,loginButton);
         HBox topBox = new HBox(marathonNameLabel);
+        Calendar marathonStart = Calendar.getInstance();
+        marathonStart.set(2019,8,5,6,0);
 
         //--------Proprieties--------
         marathonNameLabel.setFont(Font.font("Open Sans Semibold",36));
@@ -86,8 +89,6 @@ public class Main extends Application {
             @Override
             public void run() {
                 while(true){
-                    Calendar marathonStart = Calendar.getInstance();
-                    marathonStart.set(2019,8,5,6,0);
                     long countDownInMillis = marathonStart.getTimeInMillis() - System.currentTimeMillis();
                     long days = countDownInMillis/86400000;
                     long hours = (countDownInMillis%86400000)/3600000;
@@ -141,12 +142,13 @@ public class Main extends Application {
         TextField passField = new TextField("u!!CqiDD");
         Button loginButton = new Button("Login");
         Button cancelButton = new Button("Cancel");
+        Label errLabel = new Label();
         VBox labelsBox = new VBox(userLabel,passLabel);
         VBox fieldsBox = new VBox(userField,passField);
         HBox topBox = new HBox(titleLabel);
         HBox buttonsBox = new HBox(loginButton,cancelButton);
         HBox loginElements = new HBox(labelsBox,fieldsBox);
-        VBox midBox = new VBox(loginLabel,loginElements,buttonsBox);
+        VBox midBox = new VBox(loginLabel,loginElements,errLabel,buttonsBox);
 
         //---------proprieties-------------
         topBox.setStyle("-fx-background-color : #336699");
@@ -171,11 +173,24 @@ public class Main extends Application {
             ResultSet result = sqlExe("SELECT * FROM user WHERE Email = \""+userField.getText()+"\" AND Password = \""+passField.getText()+"\"");
             try {
                 if (result.next()){
-                    System.out.println(result.getString("RoleId"));
+                    String roleId = result.getString("RoleId");
+                    switch (roleId) {
+                        case "R" : screen9(window);
+                        case "C" : //screen19(window);
+                        case "A" : //screen20(window);
+
+                    }
+                }
+                else {
+                    errLabel.setText("Invalid Email or password.");
+                    errLabel.setTextFill(Color.color(1,0,0));
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
+        });
+        cancelButton.setOnAction(value -> {
+            screen1(window);
         });
 
         window.setScene(new Scene(rootBorderPane,windowWidth,windowHight));
@@ -348,6 +363,28 @@ public class Main extends Application {
         window.show();
     }
 
+    public void screen9(Stage window){
+        BorderPane rootBorderPane = new BorderPane();
+        Label titleLabel = new Label("Marathon Skills 2015");
+        Button backButton = new Button("Back");
+        Button logoutButton = new Button("Logout");
+        HBox topBox = new HBox(backButton,titleLabel,logoutButton);
+        Label menuDesc = new Label("Runner menu");
+        Button registerButton = new Button("Register for an event");
+        Button editProfileButton = new Button("Edit your profile");
+        Button contactInfoButton = new Button("Contact information");
+        Button raceResultsButton = new Button("My race results");
+        Button sponsorshipsButton = new Button("My sponsorships");
+        VBox leftSide = new VBox();
+
+        //-----------proprieties----------
+        topBox.setStyle("-fx-background-color : #336699");
+        titleLabel.setFont(Font.font("Courier New", 20));
+        logoutButton.setAlignment(Pos.CENTER_LEFT);
+        rootBorderPane.setTop(topBox);
+
+    }
+
     public void screen10(Stage window){
         BorderPane rootBorderPane = new BorderPane();
         Label header = new Label("Find out more information");
@@ -405,6 +442,8 @@ public class Main extends Application {
         HBox bottomBox = new HBox(countdownLabel);
         int numOfCharities = 0;
         int x = 0;
+        Calendar marathonStart = Calendar.getInstance();
+        marathonStart.set(2019,8,5,6,0);
 
         ResultSet charitiesResultSet = sqlExe("SELECT * FROM Charity");
         while (charitiesResultSet.next()) numOfCharities = charitiesResultSet.getRow();
@@ -460,8 +499,6 @@ public class Main extends Application {
             @Override
             public void run() {
                 while(true){
-                    Calendar marathonStart = Calendar.getInstance();
-                    marathonStart.set(2019,8,5,6,0);
                     long countDownInMillis = marathonStart.getTimeInMillis() - System.currentTimeMillis();
                     long days = countDownInMillis/86400000;
                     long hours = (countDownInMillis%86400000)/3600000;
@@ -563,7 +600,7 @@ public class Main extends Application {
     public ResultSet sqlExe(String query){
         try {
 
-            String URL = "jdbc:mysql://127.0.0.1:3306/cpt01?useSSL=False";
+            String URL = "jdbc:mysql://127.0.0.1:3306/cpt02?useSSL=False";
             String USER = "root";
             String PASS = "omar";
             conn = DriverManager.getConnection(URL, USER, PASS);
