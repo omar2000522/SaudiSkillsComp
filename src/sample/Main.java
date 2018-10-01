@@ -43,13 +43,58 @@ public class Main extends Application {
         screen1(primaryStage);
     }
 
+    public void screen0(Stage window){
+        BorderPane rootBorderPane = new BorderPane();
+        Label countdownLabel = new Label();
+        Label titleLabel = new Label("Marathon Skills 2015");
+        HBox topBox = new HBox(titleLabel);
+        HBox bottomBox = new HBox(countdownLabel);
+
+        //--------Proprieties--------
+        topBox.setStyle("-fx-background-color: #336699;");
+        bottomBox.setStyle("-fx-background-color: #336699;");
+        titleLabel.setFont(Font.font("Courier New",20));
+        rootBorderPane.setTop(topBox);
+        rootBorderPane.setBottom(bottomBox);
+
+        Runnable countdown = new Runnable() {
+            @Override
+            public void run() {
+                while(true){
+                    long countDownInMillis = marathonStart.getTimeInMillis() - System.currentTimeMillis();
+                    long days = countDownInMillis/86400000;
+                    long hours = (countDownInMillis%86400000)/3600000;
+                    long mins = ((countDownInMillis%86400000)%3600000)/60000;
+                    long secs = (((countDownInMillis%86400000)%3600000)%60000)/1000;
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            countdownLabel.setText(days+" days "+hours+" hours "+mins+" minutes "+secs+" seconds until marathon start.");
+                        }
+                    });
+
+                    try {
+                        Thread.sleep(interval);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        Thread thrd = new Thread(countdown);
+        thrd.start();
+
+        window.setScene(new Scene(rootBorderPane, windowWidth, windowHight));
+        window.show();
+    }
+
     public void screen1(Stage window){
         BorderPane rootBorderPane = new BorderPane();
         Button loginButton = new Button("Login");
         Button runnerButton = new Button("I want to be a runner");
         Button sponsorButton = new Button("I want to sponsor a runner");
         Button infoButton = new Button("I want to find out more");
-        Label marathonNameLabel = new Label("Marathon Skills 2015");
+        Label marathonNameLabel = new Label("Marathon Skills 2018");
         Label countdownLabel = new Label();
         VBox buttonsBox = new VBox(runnerButton,sponsorButton,infoButton);
         HBox bottomBox = new HBox(countdownLabel,loginButton);
@@ -131,7 +176,48 @@ public class Main extends Application {
     }
 
     public void screen2(Stage window){
+        BorderPane rootBorderPane = new BorderPane();
+        Label countdownLabel = new Label();
+        Label titleLabel = new Label("Marathon Skills 2015");
+        HBox topBox = new HBox(titleLabel);
+        HBox bottomBox = new HBox(countdownLabel);
 
+        //--------Proprieties--------
+        topBox.setStyle("-fx-background-color: #336699;");
+        bottomBox.setStyle("-fx-background-color: #336699;");
+        titleLabel.setFont(Font.font("Courier New",20));
+        rootBorderPane.setTop(topBox);
+        rootBorderPane.setBottom(bottomBox);
+
+        Runnable countdown = new Runnable() {
+            @Override
+            public void run() {
+                while(true){
+                    long countDownInMillis = marathonStart.getTimeInMillis() - System.currentTimeMillis();
+                    long days = countDownInMillis/86400000;
+                    long hours = (countDownInMillis%86400000)/3600000;
+                    long mins = ((countDownInMillis%86400000)%3600000)/60000;
+                    long secs = (((countDownInMillis%86400000)%3600000)%60000)/1000;
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            countdownLabel.setText(days+" days "+hours+" hours "+mins+" minutes "+secs+" seconds until marathon start.");
+                        }
+                    });
+
+                    try {
+                        Thread.sleep(interval);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        Thread thrd = new Thread(countdown);
+        thrd.start();
+
+        window.setScene(new Scene(rootBorderPane, windowWidth, windowHight));
+        window.show();
     }
     //login screen
     public void screen3(Stage window){
@@ -418,6 +504,22 @@ public class Main extends Application {
         rootBorderPane.setCenter(centerBox);
         rootBorderPane.setBottom(bottomBox);
 
+        contactInfoButton.setOnAction(value -> {
+            Stage contactInfo = new Stage();
+            Label header = new Label("Contact Information");
+            Text forMoreInfo = new Text("For more information contact the coordinators");
+            Label phoneNum = new Label("Phone: +55119988776");
+            Label email = new Label("coordinator@gmail.com");
+            VBox mainBox = new VBox(header,forMoreInfo,phoneNum,email);
+
+            header.setFont(Font.font("Courier New",15));
+            mainBox.setPadding(new Insets(30));
+            mainBox.setSpacing(15);
+            mainBox.setAlignment(Pos.CENTER);
+
+            contactInfo.setScene(new Scene(mainBox,300,200));
+            contactInfo.show();
+        });
         logoutButton.setOnAction(value -> {
             screen1(window);
         });
