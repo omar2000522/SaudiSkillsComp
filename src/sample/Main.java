@@ -28,6 +28,7 @@ import javafx.geometry.Pos;
 import javafx.util.Duration;
 import jdk.internal.dynalink.support.BottomGuardingDynamicLinker;
 
+import java.beans.EventHandler;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.sql.*;
@@ -254,6 +255,9 @@ public class Main extends Application {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
+        });
+        competedBefore.setOnAction(value -> {
+            screen3(window);
         });
 
         window.setScene(new Scene(rootBorderPane, windowWidth, windowHight));
@@ -489,11 +493,14 @@ public class Main extends Application {
         HBox bottomBox = new HBox(countdownLabel);
         Label headerLabel = new Label("Register for an event");
         Label descLabel = new Label("Please fill out all of the following information to register for events");
-        VBox eventsBox = new VBox();
+        Label eventsLabel = new Label("Competition events");
         ScrollPane eventsScrollPane = new ScrollPane();
+        VBox topLeftBox = new VBox(eventsLabel,eventsScrollPane);
+        VBox checkBoxesBox = new VBox();
         int numOfEvents = 0;
+        final int[] finalAmount = {0};
 
-        //--------sql data-----------
+        //--------top-left-----------
         ResultSet eventsRS = sqlExe("SELECT * FROM Event;");
         while (eventsRS.next())numOfEvents++;
         eventsRS.beforeFirst();
@@ -502,12 +509,52 @@ public class Main extends Application {
         int eventId = 0;
         while (eventsRS.next()){
             CheckBox event = new CheckBox(eventsRS.getString("EventName")+" ($"+eventsRS.getString("Cost")+")");
-            eventsBox.getChildren().add(event);
+            checkBoxesBox.getChildren().add(event);
             eventsCheckBoxes[eventId] = event;
             eventId++;
         }
+        checkBoxesBox.setSpacing(5);
 
+        //--------bottom-left--------
+        ResultSet charitiesRS = sqlExe("SELECT * FROM Charity;");
+        Label sponsorTitleLabel = new Label("Sponsorship details");
+        Label charityLabel = new Label("Charity:");
+        ComboBox charities = new ComboBox();
+        Label amountToRaiseLabel = new Label("Target to raise");
+        TextField amountTextField = new TextField("0");
+        VBox labelsBox = new VBox(charityLabel,amountToRaiseLabel);
+        VBox fieldBox = new VBox(charities,amountTextField);
+        Button registerButton = new Button("Register");
+        Button cancelButton = new Button("Cancel");
+        HBox buttonsBox = new HBox(registerButton,cancelButton);
+        HBox labelFieldBox = new HBox(labelsBox,fieldBox);
+        VBox bottomLeftBox = new VBox(sponsorTitleLabel,labelFieldBox,buttonsBox);
 
+        while (charitiesRS.next()){
+            charities.getItems().add(charitiesRS.getString("CharityName"));
+        }
+        //--------top-left-----------
+        ResultSet optionsRS = sqlExe("SELECT * FROM RaceKitOption;");
+        Label raceKitTitle = new Label("Race kit options");
+        ToggleGroup options = new ToggleGroup();
+        VBox topRightBox = new VBox(raceKitTitle);
+
+        while (optionsRS.next()){
+            RadioButton option = new RadioButton("Option "+optionsRS.getString("RaceKitOptionId")+" ($"+optionsRS.getString("Cost")+"): "+optionsRS.getString("RaceKitOption"));
+            option.setToggleGroup(options);
+            topRightBox.getChildren().add(option);
+            if(optionsRS.getRow() == 1){
+                options.selectToggle(option);
+            }
+        }
+        //--------bottom-right-------
+        Label registrationTitle = new Label("Registration cost");
+        Label amountLabel = new Label("$0");
+        VBox bottomRightBox = new VBox(registrationTitle,amountLabel);
+
+        HBox topBoxes = new HBox(topLeftBox,topRightBox);
+        HBox bottomBoxes = new HBox(bottomLeftBox,bottomRightBox);
+        VBox mainBox = new VBox(headerLabel,descLabel,topBoxes,bottomBoxes);
         //--------Proprieties--------
         topBox.setStyle("-fx-background-color: #336699;");
         bottomBox.setStyle("-fx-background-color: #336699;");
@@ -515,12 +562,11 @@ public class Main extends Application {
         bottomBox.setPadding(new Insets(15));
         topBox.setPadding(new Insets(20));
         topBox.setSpacing(20);
-
         bottomBox.setAlignment(Pos.CENTER);
-        eventsScrollPane.setContent(eventsBox);
+        eventsScrollPane.setContent(checkBoxesBox);
         rootBorderPane.setTop(topBox);
         rootBorderPane.setBottom(bottomBox);
-        rootBorderPane.setCenter(eventsScrollPane);
+        rootBorderPane.setCenter(mainBox);
 
 //        for (int v = 0; v<eventsCheckBoxes.length;v++){
 //            RotateTransition rt = new RotateTransition(Duration.millis(100), eventsCheckBoxes[v]);
@@ -530,16 +576,41 @@ public class Main extends Application {
 //            rt.play();
 //        }
 
-
-        eventsScrollPane.setOnMouseMoved(value -> {
-            for (int v = 0; v<eventsCheckBoxes.length;v++){
-                if(eventsCheckBoxes[v].isSelected()){
-                    System.out.println(eventsCheckBoxes[v].getText());
-                }
-            }
-        });
         backButton.setOnAction(value -> {
             screen1(window);
+        });
+        checkBoxesBox.setOnMouseMoved(value -> {
+            if(amountTextField.getText().equals(""))amountTextField.setText("0");
+            finalAmount[0] = 0;
+            int numOfSelectedMarathons = 0;
+            for (int v = 0; v<eventsCheckBoxes.length;v++){
+                if(eventsCheckBoxes[v].isSelected()){
+                    float marathonCost = Float.parseFloat(eventsCheckBoxes[v].getText().substring(eventsCheckBoxes[v].getText().indexOf("$")+1,eventsCheckBoxes[v].getText().indexOf(")")));
+                    finalAmount[0] += marathonCost;
+                    numOfSelectedMarathons++;
+                }
+            }
+            float optionCost = Float.parseFloat(options.getSelectedToggle().toString().substring(options.getSelectedToggle().toString().indexOf("$")+1,options.getSelectedToggle().toString().indexOf(")")));
+            finalAmount[0] += optionCost*numOfSelectedMarathons;
+            finalAmount[0] += Integer.parseInt(amountTextField.getText());
+            amountLabel.setText("$"+finalAmount[0]);
+        });
+        amountTextField.setOnKeyReleased(value -> {
+            if(!amountTextField.getText().equals("")) {
+                finalAmount[0] = 0;
+                int numOfSelectedMarathons = 0;
+                for (int v = 0; v < eventsCheckBoxes.length; v++) {
+                    if (eventsCheckBoxes[v].isSelected()) {
+                        float marathonCost = Float.parseFloat(eventsCheckBoxes[v].getText().substring(eventsCheckBoxes[v].getText().indexOf("$") + 1, eventsCheckBoxes[v].getText().indexOf(")")));
+                        finalAmount[0] += marathonCost;
+                        numOfSelectedMarathons++;
+                    }
+                }
+                float optionCost = Float.parseFloat(options.getSelectedToggle().toString().substring(options.getSelectedToggle().toString().indexOf("$") + 1, options.getSelectedToggle().toString().indexOf(")")));
+                finalAmount[0] += optionCost * numOfSelectedMarathons;
+                finalAmount[0] += Integer.parseInt(amountTextField.getText());
+                amountLabel.setText("$" + finalAmount[0]);
+            }
         });
 
         Runnable countdown = new Runnable() {
@@ -1224,7 +1295,7 @@ public class Main extends Application {
     public ResultSet sqlExe(String query){
         try {
 
-            String URL = "jdbc:mysql://127.0.0.1:3306/cpt02?useSSL=False";
+            String URL = "jdbc:mysql://127.0.0.1:3306/cpt01?useSSL=False";
             String USER = "root";
             String PASS = "omar";
             conn = DriverManager.getConnection(URL, USER, PASS);
