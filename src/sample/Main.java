@@ -20,6 +20,8 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.scene.layout.*;
 import javafx.geometry.Pos;
+import jdk.internal.dynalink.support.BottomGuardingDynamicLinker;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.sql.*;
@@ -47,13 +49,18 @@ public class Main extends Application {
         BorderPane rootBorderPane = new BorderPane();
         Label countdownLabel = new Label();
         Label titleLabel = new Label("Marathon Skills 2015");
-        HBox topBox = new HBox(titleLabel);
+        Button backButton = new Button("Back");
+        HBox topBox = new HBox(backButton,titleLabel);
         HBox bottomBox = new HBox(countdownLabel);
 
         //--------Proprieties--------
         topBox.setStyle("-fx-background-color: #336699;");
         bottomBox.setStyle("-fx-background-color: #336699;");
         titleLabel.setFont(Font.font("Courier New",20));
+        bottomBox.setPadding(new Insets(15));
+        topBox.setPadding(new Insets(20));
+        topBox.setSpacing(20);
+        bottomBox.setAlignment(Pos.CENTER);
         rootBorderPane.setTop(topBox);
         rootBorderPane.setBottom(bottomBox);
 
@@ -159,6 +166,9 @@ public class Main extends Application {
         Thread thrd = new Thread(countdown);
         thrd.start();
 
+        runnerButton.setOnAction(value -> {
+            screen2(window);
+        });
         loginButton.setOnAction(value -> {
             screen3(window);
         });
@@ -179,13 +189,26 @@ public class Main extends Application {
         BorderPane rootBorderPane = new BorderPane();
         Label countdownLabel = new Label();
         Label titleLabel = new Label("Marathon Skills 2015");
-        HBox topBox = new HBox(titleLabel);
+        Button backButton = new Button("Back");
+        HBox topBox = new HBox(backButton,titleLabel);
         HBox bottomBox = new HBox(countdownLabel);
+        Button competedBefore = new Button("I have competed before");
+        Button newCompetitor = new Button("I am a new competitor");
+        VBox buttonsBox = new VBox(competedBefore,newCompetitor);
 
         //--------Proprieties--------
         topBox.setStyle("-fx-background-color: #336699;");
         bottomBox.setStyle("-fx-background-color: #336699;");
         titleLabel.setFont(Font.font("Courier New",20));
+        bottomBox.setPadding(new Insets(15));
+        topBox.setPadding(new Insets(20));
+        buttonsBox.setSpacing(20);
+        topBox.setSpacing(20);
+        buttonsBox.setAlignment(Pos.CENTER);
+        bottomBox.setAlignment(Pos.CENTER);
+        competedBefore.setMinSize(400,50);
+        newCompetitor.setMinSize(400,50);
+        rootBorderPane.setCenter(buttonsBox);
         rootBorderPane.setTop(topBox);
         rootBorderPane.setBottom(bottomBox);
 
@@ -215,6 +238,17 @@ public class Main extends Application {
         };
         Thread thrd = new Thread(countdown);
         thrd.start();
+
+        backButton.setOnAction(value -> {
+            screen1(window);
+        });
+        newCompetitor.setOnAction(value -> {
+            try {
+                screen4(window);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
 
         window.setScene(new Scene(rootBorderPane, windowWidth, windowHight));
         window.show();
@@ -288,6 +322,155 @@ public class Main extends Application {
         });
 
         window.setScene(new Scene(rootBorderPane,windowWidth,windowHight));
+        window.show();
+    }
+
+    public void screen4(Stage window) throws SQLException {
+        BorderPane rootBorderPane = new BorderPane();
+        Label countdownLabel = new Label();
+        Label titleLabel = new Label("Marathon Skills 2015");
+        Button backButton = new Button("Back");
+        HBox topBox = new HBox(backButton,titleLabel);
+        HBox bottomBox = new HBox(countdownLabel);
+        Label headerLabel = new Label("Register as a runner");
+        Label descLabel = new Label("Please fill out all of the following information to be registered as a runner");
+        Label emailLabel = new Label("Email:");
+        Label pwLabel = new Label("Password:");
+        Label pw2Label = new Label("Password Again:");
+        Label firstNameLabel = new Label("First Name:");
+        Label lastNameLabel = new Label("Last Name:");
+        TextField emailField = new TextField();
+        TextField pwField = new TextField();
+        TextField pw2Field = new TextField();
+        TextField firstNameField = new TextField();
+        TextField lastNameField = new TextField();
+        VBox leftLabelBox = new VBox(emailLabel,pwLabel,pw2Label,firstNameLabel,lastNameLabel);
+        VBox leftFieldBox = new VBox(emailField,pwField,pw2Field,firstNameField,lastNameField);
+        HBox leftBox = new HBox(leftLabelBox,leftFieldBox);
+        Label genderLabel = new Label("Gender:");
+        Label dobLabel = new Label("Date of Birth:");
+        Label countryLabel = new Label("Country:");
+        ComboBox genderCombo = new ComboBox();
+        TextField dobField = new TextField("YYYY-MM-DD");
+        ComboBox countryCombo = new ComboBox();
+        VBox rightLabelBox = new VBox(genderLabel,dobLabel,countryLabel);
+        VBox rightFieldBox = new VBox(genderCombo,dobField,countryCombo);
+        HBox rightBox = new HBox(rightLabelBox,rightFieldBox);
+        HBox inputElements = new HBox(leftBox,rightBox);
+        Button registerButton = new Button("Register");
+        Button cancelButton = new Button("Cancel");
+        HBox buttonsBox = new HBox(registerButton,cancelButton);
+        VBox headerBox = new VBox(headerLabel,descLabel);
+        VBox midBox = new VBox(headerBox,inputElements,buttonsBox);
+
+
+
+        //--------Proprieties--------
+        topBox.setStyle("-fx-background-color: #336699;");
+        bottomBox.setStyle("-fx-background-color: #336699;");
+        titleLabel.setFont(Font.font("Courier New",20));
+        headerLabel.setFont(Font.font(18));
+        descLabel.setFont(Font.font(14));
+        bottomBox.setPadding(new Insets(15));
+        topBox.setPadding(new Insets(20));
+        headerBox.setPadding(new Insets(20,10,50,10));
+        topBox.setSpacing(20);
+        midBox.setSpacing(20);
+        leftBox.setSpacing(20);
+        rightBox.setSpacing(20);
+        leftLabelBox.setSpacing(20);
+        leftFieldBox.setSpacing(10);
+        rightLabelBox.setSpacing(20);
+        rightFieldBox.setSpacing(10);
+        inputElements.setSpacing(40);
+        buttonsBox.setSpacing(20);
+        headerBox.setAlignment(Pos.CENTER);
+        headerLabel.setAlignment(Pos.CENTER);
+        inputElements.setAlignment(Pos.CENTER);
+        bottomBox.setAlignment(Pos.CENTER);
+        buttonsBox.setAlignment(Pos.CENTER);
+        rootBorderPane.setTop(topBox);
+        rootBorderPane.setCenter(midBox);
+        rootBorderPane.setBottom(bottomBox);
+
+        //---------sql-data-------------
+        ResultSet genders = sqlExe("SELECT * FROM Gender;");
+        while (genders.next()){
+            genderCombo.getItems().add(genders.getString("Gender"));
+        }
+        ResultSet countries = sqlExe("SELECT CountryName FROM Country;");
+        while (countries.next()){
+            countryCombo.getItems().add(countries.getString("CountryName"));
+        }
+
+        registerButton.setOnAction(value -> {
+            String pw =pwField.getText();
+            Calendar now = Calendar.getInstance();
+            Calendar dob = Calendar.getInstance();
+            now.setTimeInMillis(System.currentTimeMillis());
+
+            String[] dobValues = dobField.getText().split("-");
+            dob.set(Integer.parseInt(dobValues[0])+10, Integer.parseInt(dobValues[1]), Integer.parseInt(dobValues[2]));
+            if(dobValues[1].length() == 1){
+                dobValues[1] = "0"+dobValues[1];
+            }
+            if(dobValues[2].length() == 1){
+                dobValues[2] = "0"+dobValues[2];
+            }
+
+            boolean pwRequirements =
+                    (pw.contains("!")||pw.contains("@")||pw.contains("#")||pw.contains("$")||pw.contains("%")||pw.contains("^")) &&
+                    (!pw.toLowerCase().equals(pw) && !pw.toUpperCase().equals(pw)) &&
+                    (pw.contains("1")||pw.contains("2")||pw.contains("3")||pw.contains("4")||pw.contains("5")||pw.contains("6")||pw.contains("7")||pw.contains("8")||pw.contains("9")||pw.contains("0")) &&
+                    (pw.length()>=6);
+
+            if( emailField.getText().matches("(.*)@(.*)\\.(.*)") &&
+             pwField.getText().equals(pw2Field.getText()) &&
+             pwRequirements &&
+             !firstNameField.getText().equals("") &&
+             !lastNameField.getText().equals("") &&
+             !genderCombo.getSelectionModel().isEmpty() &&
+             !countryCombo.getSelectionModel().isEmpty() &&
+             dob.before(now)){
+                sqlExeIns("INSERT INTO User VALUES ('"+emailField.getText()+"','"+pwField.getText()+"','"+firstNameField.getText()+"','"+lastNameField.getText()+"','R');");
+                sqlExeIns("INSERT INTO Runner (Email,Gender,DateOfBirth,CountryCode) VALUES ('"+emailField.getText()+"','"+genderCombo.getSelectionModel().getSelectedItem().toString()+"','"+dobValues[0]+"-"+dobValues[1]+"-"+dobValues[2]+"', (SELECT CountryCode FROM Country WHERE CountryName = '"+countryCombo.getSelectionModel().getSelectedItem().toString()+"'));");
+            }
+        });
+        cancelButton.setOnAction(value -> {
+            screen1(window);
+        });
+        backButton.setOnAction(value -> {
+            screen1(window);
+        });
+
+        Runnable countdown = new Runnable() {
+            @Override
+            public void run() {
+                while(true){
+                    long countDownInMillis = marathonStart.getTimeInMillis() - System.currentTimeMillis();
+                    long days = countDownInMillis/86400000;
+                    long hours = (countDownInMillis%86400000)/3600000;
+                    long mins = ((countDownInMillis%86400000)%3600000)/60000;
+                    long secs = (((countDownInMillis%86400000)%3600000)%60000)/1000;
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            countdownLabel.setText(days+" days "+hours+" hours "+mins+" minutes "+secs+" seconds until marathon start.");
+                        }
+                    });
+
+                    try {
+                        Thread.sleep(interval);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        Thread thrd = new Thread(countdown);
+        thrd.start();
+
+        window.setScene(new Scene(rootBorderPane, windowWidth, windowHight));
         window.show();
     }
 
@@ -935,7 +1118,7 @@ public class Main extends Application {
     public ResultSet sqlExe(String query){
         try {
 
-            String URL = "jdbc:mysql://127.0.0.1:3306/cpt02?useSSL=False";
+            String URL = "jdbc:mysql://127.0.0.1:3306/cpt01?useSSL=False";
             String USER = "root";
             String PASS = "omar";
             conn = DriverManager.getConnection(URL, USER, PASS);
@@ -948,6 +1131,23 @@ public class Main extends Application {
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    public void sqlExeIns(String query){
+        try {
+
+            String URL = "jdbc:mysql://127.0.0.1:3306/cpt01?useSSL=False";
+            String USER = "root";
+            String PASS = "omar";
+            conn = DriverManager.getConnection(URL, USER, PASS);
+            System.out.println("connected");
+            Statement stmt = conn.createStatement();
+            stmt.execute(query);
+
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
