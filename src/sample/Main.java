@@ -1,9 +1,14 @@
 package sample;
 
 
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.RotateTransition;
+import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
+import javafx.geometry.NodeOrientation;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
@@ -20,6 +25,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.scene.layout.*;
 import javafx.geometry.Pos;
+import javafx.util.Duration;
 import jdk.internal.dynalink.support.BottomGuardingDynamicLinker;
 
 import java.io.FileInputStream;
@@ -485,10 +491,13 @@ public class Main extends Application {
         Label descLabel = new Label("Please fill out all of the following information to register for events");
         VBox eventsBox = new VBox();
         ScrollPane eventsScrollPane = new ScrollPane();
+        int numOfEvents = 0;
 
         //--------sql data-----------
         ResultSet eventsRS = sqlExe("SELECT * FROM Event;");
-        CheckBox[] eventsCheckBoxes = new CheckBox[100];
+        while (eventsRS.next())numOfEvents++;
+        eventsRS.beforeFirst();
+        CheckBox[] eventsCheckBoxes = new CheckBox[numOfEvents];
 
         int eventId = 0;
         while (eventsRS.next()){
@@ -506,15 +515,27 @@ public class Main extends Application {
         bottomBox.setPadding(new Insets(15));
         topBox.setPadding(new Insets(20));
         topBox.setSpacing(20);
+
         bottomBox.setAlignment(Pos.CENTER);
         eventsScrollPane.setContent(eventsBox);
         rootBorderPane.setTop(topBox);
         rootBorderPane.setBottom(bottomBox);
         rootBorderPane.setCenter(eventsScrollPane);
 
-        eventsScrollPane.setOnMouseClicked(value -> {
-            for (int v; v<eventsCheckBoxes.length;v++){
+//        for (int v = 0; v<eventsCheckBoxes.length;v++){
+//            RotateTransition rt = new RotateTransition(Duration.millis(100), eventsCheckBoxes[v]);
+//            rt.setByAngle(360);
+//            rt.setCycleCount(1000);
+//            rt.setAutoReverse(true);
+//            rt.play();
+//        }
 
+
+        eventsScrollPane.setOnMouseMoved(value -> {
+            for (int v = 0; v<eventsCheckBoxes.length;v++){
+                if(eventsCheckBoxes[v].isSelected()){
+                    System.out.println(eventsCheckBoxes[v].getText());
+                }
             }
         });
         backButton.setOnAction(value -> {
