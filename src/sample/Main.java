@@ -483,13 +483,21 @@ public class Main extends Application {
         HBox bottomBox = new HBox(countdownLabel);
         Label headerLabel = new Label("Register for an event");
         Label descLabel = new Label("Please fill out all of the following information to register for events");
-        CheckBoxTreeItem<String> checkBoxTreeItem = new CheckBoxTreeItem<>();
+        VBox eventsBox = new VBox();
+        ScrollPane eventsScrollPane = new ScrollPane();
 
         //--------sql data-----------
         ResultSet eventsRS = sqlExe("SELECT * FROM Event;");
-        while (eventsRS.next()){
+        CheckBox[] eventsCheckBoxes = new CheckBox[100];
 
+        int eventId = 0;
+        while (eventsRS.next()){
+            CheckBox event = new CheckBox(eventsRS.getString("EventName")+" ($"+eventsRS.getString("Cost")+")");
+            eventsBox.getChildren().add(event);
+            eventsCheckBoxes[eventId] = event;
+            eventId++;
         }
+
 
         //--------Proprieties--------
         topBox.setStyle("-fx-background-color: #336699;");
@@ -499,9 +507,16 @@ public class Main extends Application {
         topBox.setPadding(new Insets(20));
         topBox.setSpacing(20);
         bottomBox.setAlignment(Pos.CENTER);
+        eventsScrollPane.setContent(eventsBox);
         rootBorderPane.setTop(topBox);
         rootBorderPane.setBottom(bottomBox);
+        rootBorderPane.setCenter(eventsScrollPane);
 
+        eventsScrollPane.setOnMouseClicked(value -> {
+            for (int v; v<eventsCheckBoxes.length;v++){
+
+            }
+        });
         backButton.setOnAction(value -> {
             screen1(window);
         });
@@ -750,6 +765,13 @@ public class Main extends Application {
         rootBorderPane.setCenter(centerBox);
         rootBorderPane.setBottom(bottomBox);
 
+        registerButton.setOnAction(value -> {
+            try {
+                screen5(window);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
         contactInfoButton.setOnAction(value -> {
             Stage contactInfo = new Stage();
             Label header = new Label("Contact Information");
@@ -1181,7 +1203,7 @@ public class Main extends Application {
     public ResultSet sqlExe(String query){
         try {
 
-            String URL = "jdbc:mysql://127.0.0.1:3306/cpt01?useSSL=False";
+            String URL = "jdbc:mysql://127.0.0.1:3306/cpt02?useSSL=False";
             String USER = "root";
             String PASS = "omar";
             conn = DriverManager.getConnection(URL, USER, PASS);
