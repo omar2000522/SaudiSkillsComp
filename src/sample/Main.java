@@ -33,6 +33,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.sql.*;
 import java.util.Calendar;
+import java.util.FormatFlagsConversionMismatchException;
 
 
 public class Main extends Application {
@@ -514,6 +515,7 @@ public class Main extends Application {
             eventId++;
         }
         checkBoxesBox.setSpacing(5);
+        eventsLabel.setFont(Font.font(18));
 
         //--------bottom-left--------
         ResultSet charitiesRS = sqlExe("SELECT * FROM Charity;");
@@ -533,6 +535,9 @@ public class Main extends Application {
         while (charitiesRS.next()){
             charities.getItems().add(charitiesRS.getString("CharityName"));
         }
+        sponsorTitleLabel.setFont(Font.font(18));
+        fieldBox.setSpacing(10);
+        labelsBox.setSpacing(20);
         //--------top-left-----------
         ResultSet optionsRS = sqlExe("SELECT * FROM RaceKitOption;");
         Label raceKitTitle = new Label("Race kit options");
@@ -547,6 +552,8 @@ public class Main extends Application {
                 options.selectToggle(option);
             }
         }
+
+        raceKitTitle.setFont(Font.font(18));
         //--------bottom-right-------
         Label registrationTitle = new Label("Registration cost");
         Label amountLabel = new Label("$0");
@@ -555,18 +562,39 @@ public class Main extends Application {
         HBox topBoxes = new HBox(topLeftBox,topRightBox);
         HBox bottomBoxes = new HBox(bottomLeftBox,bottomRightBox);
         VBox mainBox = new VBox(headerLabel,descLabel,topBoxes,bottomBoxes);
+        registrationTitle.setFont(Font.font(18));
         //--------Proprieties--------
         topBox.setStyle("-fx-background-color: #336699;");
         bottomBox.setStyle("-fx-background-color: #336699;");
         titleLabel.setFont(Font.font("Courier New",20));
         bottomBox.setPadding(new Insets(15));
         topBox.setPadding(new Insets(20));
+        topLeftBox.setPadding(new Insets(50));
+        topRightBox.setPadding(new Insets(50));
+        bottomLeftBox.setPadding(new Insets(50,50,0,50));
+        bottomRightBox.setPadding(new Insets(50,50,0,50));
+        mainBox.setPadding(new Insets(20));
+
+        topLeftBox.setSpacing(15);
+        topRightBox.setSpacing(15);
+        bottomLeftBox.setSpacing(15);
+        bottomRightBox.setSpacing(15);
         topBox.setSpacing(20);
-        bottomBox.setAlignment(Pos.CENTER);
+        bottomBox.setAlignment(Pos.TOP_CENTER);
+        topLeftBox.setAlignment(Pos.TOP_CENTER);
+        bottomLeftBox.setAlignment(Pos.TOP_CENTER);
+        bottomRightBox.setAlignment(Pos.TOP_CENTER);
+        topBoxes.setAlignment(Pos.TOP_CENTER);
+        bottomBoxes.setAlignment(Pos.TOP_CENTER);
+        mainBox.setAlignment(Pos.CENTER);
+        eventsScrollPane.minWidth(300);
         eventsScrollPane.setContent(checkBoxesBox);
         rootBorderPane.setTop(topBox);
         rootBorderPane.setBottom(bottomBox);
         rootBorderPane.setCenter(mainBox);
+        headerLabel.setFont(Font.font(24));
+        headerLabel.setFont(Font.font(18));
+
 
 //        for (int v = 0; v<eventsCheckBoxes.length;v++){
 //            RotateTransition rt = new RotateTransition(Duration.millis(100), eventsCheckBoxes[v]);
@@ -577,6 +605,9 @@ public class Main extends Application {
 //        }
 
         backButton.setOnAction(value -> {
+            screen1(window);
+        });
+        cancelButton.setOnAction(value -> {
             screen1(window);
         });
         checkBoxesBox.setOnMouseMoved(value -> {
@@ -1295,7 +1326,7 @@ public class Main extends Application {
     public ResultSet sqlExe(String query){
         try {
 
-            String URL = "jdbc:mysql://127.0.0.1:3306/cpt01?useSSL=False";
+            String URL = "jdbc:mysql://127.0.0.1:3306/cpt02?useSSL=False";
             String USER = "root";
             String PASS = "omar";
             conn = DriverManager.getConnection(URL, USER, PASS);
