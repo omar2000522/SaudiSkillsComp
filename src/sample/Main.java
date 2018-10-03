@@ -1253,9 +1253,47 @@ public class Main extends Application {
         while (countries.next())countryCombo.getItems().add(countries.getString("CountryName"));
 
         saveButton.setOnAction(value -> {
-//            sqlExeIns("INSERT INTO User VALUES ('"+emailField.getText()+"','"+pwField.getText()+"','"+firstNameField.getText()+"','"+lastNameField.getText()+"','R');");
-//            sqlExeIns("INSERT INTO Runner (Email,Gender,DateOfBirth,CountryCode) VALUES ('"+emailField.getText()+"','"+genderCombo.getSelectionModel().getSelectedItem().toString()+"','"+dobValues[0]+"-"+dobValues[1]+"-"+dobValues[2]+"', (SELECT CountryCode FROM Country WHERE CountryName = '"+countryCombo.getSelectionModel().getSelectedItem().toString()+"'));");
-//
+            String pw =pwField.getText();
+            Calendar now = Calendar.getInstance();
+            Calendar dob = Calendar.getInstance();
+            now.setTimeInMillis(System.currentTimeMillis());
+
+            String[] dobValues = dobField.getText().split("-");
+            dob.set(Integer.parseInt(dobValues[0])+10, Integer.parseInt(dobValues[1]), Integer.parseInt(dobValues[2]));
+            if(dobValues[1].length() == 1){
+                dobValues[1] = "0"+dobValues[1];
+            }
+            if(dobValues[2].length() == 1){
+                dobValues[2] = "0"+dobValues[2];
+            }
+
+            boolean pwRequirements =
+                    (pw.contains("!")||pw.contains("@")||pw.contains("#")||pw.contains("$")||pw.contains("%")||pw.contains("^")) &&
+                            (!pw.toLowerCase().equals(pw) && !pw.toUpperCase().equals(pw)) &&
+                            (pw.contains("1")||pw.contains("2")||pw.contains("3")||pw.contains("4")||pw.contains("5")||pw.contains("6")||pw.contains("7")||pw.contains("8")||pw.contains("9")||pw.contains("0")) &&
+                            (pw.length()>=6);
+            System.out.println(pwRequirements);
+            if(pwField.getText().equals(pw2Field.getText()) &&
+                    pwRequirements &&
+                    !firstNameField.getText().equals("") &&
+                    !lastNameField.getText().equals("") &&
+                    !genderCombo.getSelectionModel().isEmpty() &&
+                    !countryCombo.getSelectionModel().isEmpty() &&
+                    dob.before(now)){
+                 sqlExeIns("UPDATE user SET Password = '"+pw+"' , FirstName = '"+firstNameField.getText()+"' , LastName = '"+lastNameField.getText()+"' WHERE Email = '"+currentEmail+"';");
+                 sqlExeIns("UPDATE runner SET Gender = '"+genderCombo.getSelectionModel().getSelectedItem().toString()+"' , DateOfBirth = '"+dobValues[0]+"-"+dobValues[1]+"-"+dobValues[2]+"', CountryCode = (SELECT CountryCode FROM Country WHERE CountryName = '"+countryCombo.getSelectionModel().getSelectedItem().toString()+"') WHERE Email = '"+currentEmail+"'");
+            }
+            else if(pwField.getText().equals(pw2Field.getText()) &&
+                    pwField.getText().equals("") &&
+                    !firstNameField.getText().equals("") &&
+                    !lastNameField.getText().equals("") &&
+                    !genderCombo.getSelectionModel().isEmpty() &&
+                    !countryCombo.getSelectionModel().isEmpty() &&
+                    dob.before(now)){
+                sqlExeIns("UPDATE user SET FirstName = '"+firstNameField.getText()+"' , LastName = '"+lastNameField.getText()+"' WHERE Email = '"+currentEmail+"';");
+                sqlExeIns("UPDATE runner SET Gender = '"+genderCombo.getSelectionModel().getSelectedItem().toString()+"' , DateOfBirth = '"+dobValues[0]+"-"+dobValues[1]+"-"+dobValues[2]+"', CountryCode = (SELECT CountryCode FROM Country WHERE CountryName = '"+countryCombo.getSelectionModel().getSelectedItem().toString()+"') WHERE Email = '"+currentEmail+"'");
+            }
+
         });
 
         Runnable countdown = new Runnable() {
@@ -1526,7 +1564,7 @@ public class Main extends Application {
     public ResultSet sqlExe(String query){
         try {
 
-            String URL = "jdbc:mysql://127.0.0.1:3306/cpt02?useSSL=False";
+            String URL = "jdbc:mysql://127.0.0.1:3306/cpt01?useSSL=False";
             String USER = "root";
             String PASS = "omar";
             conn = DriverManager.getConnection(URL, USER, PASS);
