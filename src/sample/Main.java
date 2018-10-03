@@ -19,6 +19,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.image.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Modality;
@@ -43,6 +44,7 @@ public class Main extends Application {
     Double windowHight = 600.0;
     Long interval = 1000L;
     Calendar marathonStart = Calendar.getInstance();
+    String currentEmail;
 
 
     @Override
@@ -310,12 +312,15 @@ public class Main extends Application {
                     switch (roleId) {
                         case "R" :
                             screen9(window);
+                            currentEmail = userField.getText();
                             break;
                         case "C" :
                             screen19(window);
+                            currentEmail = userField.getText();
                             break;
                         case "A" :
                             screen20(window);
+                            currentEmail = userField.getText();
                             break;
 
                     }
@@ -500,6 +505,7 @@ public class Main extends Application {
         VBox checkBoxesBox = new VBox();
         int numOfEvents = 0;
         final int[] finalAmount = {0};
+        final int[] numOfSelectedMarathons = {0};
 
         //--------top-left-----------
         ResultSet eventsRS = sqlExe("SELECT * FROM Event;");
@@ -538,6 +544,7 @@ public class Main extends Application {
         sponsorTitleLabel.setFont(Font.font(18));
         fieldBox.setSpacing(10);
         labelsBox.setSpacing(20);
+        buttonsBox.setSpacing(20);
         //--------top-left-----------
         ResultSet optionsRS = sqlExe("SELECT * FROM RaceKitOption;");
         Label raceKitTitle = new Label("Race kit options");
@@ -569,10 +576,10 @@ public class Main extends Application {
         titleLabel.setFont(Font.font("Courier New",20));
         bottomBox.setPadding(new Insets(15));
         topBox.setPadding(new Insets(20));
-        topLeftBox.setPadding(new Insets(50));
-        topRightBox.setPadding(new Insets(50));
-        bottomLeftBox.setPadding(new Insets(50,50,0,50));
-        bottomRightBox.setPadding(new Insets(50,50,0,50));
+        topLeftBox.setPadding(new Insets(50,50,10,50));
+        topRightBox.setPadding(new Insets(50,50,10,50));
+        bottomLeftBox.setPadding(new Insets(10,50,0,50));
+        bottomRightBox.setPadding(new Insets(10,50,0,50));
         mainBox.setPadding(new Insets(20));
 
         topLeftBox.setSpacing(15);
@@ -605,7 +612,7 @@ public class Main extends Application {
 //        }
 
         backButton.setOnAction(value -> {
-            screen1(window);
+            screen9(window);
         });
         cancelButton.setOnAction(value -> {
             screen1(window);
@@ -613,34 +620,39 @@ public class Main extends Application {
         checkBoxesBox.setOnMouseMoved(value -> {
             if(amountTextField.getText().equals(""))amountTextField.setText("0");
             finalAmount[0] = 0;
-            int numOfSelectedMarathons = 0;
+            numOfSelectedMarathons[0] = 0;
             for (int v = 0; v<eventsCheckBoxes.length;v++){
                 if(eventsCheckBoxes[v].isSelected()){
                     float marathonCost = Float.parseFloat(eventsCheckBoxes[v].getText().substring(eventsCheckBoxes[v].getText().indexOf("$")+1,eventsCheckBoxes[v].getText().indexOf(")")));
                     finalAmount[0] += marathonCost;
-                    numOfSelectedMarathons++;
+                    numOfSelectedMarathons[0]++;
                 }
             }
             float optionCost = Float.parseFloat(options.getSelectedToggle().toString().substring(options.getSelectedToggle().toString().indexOf("$")+1,options.getSelectedToggle().toString().indexOf(")")));
-            finalAmount[0] += optionCost*numOfSelectedMarathons;
+            finalAmount[0] += optionCost* numOfSelectedMarathons[0];
             finalAmount[0] += Integer.parseInt(amountTextField.getText());
             amountLabel.setText("$"+finalAmount[0]);
         });
         amountTextField.setOnKeyReleased(value -> {
             if(!amountTextField.getText().equals("")) {
                 finalAmount[0] = 0;
-                int numOfSelectedMarathons = 0;
+                numOfSelectedMarathons[0] = 0;
                 for (int v = 0; v < eventsCheckBoxes.length; v++) {
                     if (eventsCheckBoxes[v].isSelected()) {
                         float marathonCost = Float.parseFloat(eventsCheckBoxes[v].getText().substring(eventsCheckBoxes[v].getText().indexOf("$") + 1, eventsCheckBoxes[v].getText().indexOf(")")));
                         finalAmount[0] += marathonCost;
-                        numOfSelectedMarathons++;
+                        numOfSelectedMarathons[0]++;
                     }
                 }
                 float optionCost = Float.parseFloat(options.getSelectedToggle().toString().substring(options.getSelectedToggle().toString().indexOf("$") + 1, options.getSelectedToggle().toString().indexOf(")")));
-                finalAmount[0] += optionCost * numOfSelectedMarathons;
+                finalAmount[0] += optionCost * numOfSelectedMarathons[0];
                 finalAmount[0] += Integer.parseInt(amountTextField.getText());
                 amountLabel.setText("$" + finalAmount[0]);
+            }
+        });
+        registerButton.setOnAction(value -> {
+            if (numOfSelectedMarathons[0] != 0){
+                screen8(window);
             }
         });
 
@@ -838,6 +850,72 @@ public class Main extends Application {
             screen1(window);
         });
         window.setScene(new Scene(rootBorderPane,windowWidth,windowHight));
+        window.show();
+    }
+
+    public void screen8(Stage window){
+        BorderPane rootBorderPane = new BorderPane();
+        Label countdownLabel = new Label();
+        Label titleLabel = new Label("Marathon Skills 2015");
+        Button backButton = new Button("Back");
+        HBox topBox = new HBox(backButton,titleLabel);
+        HBox bottomBox = new HBox(countdownLabel);
+        Label tyLabel = new Label("Thank you for registering as a runner!");
+        Label smoltyLabel = new Label("Thank you for registering as a runner in Marathon skills 20XX!");
+        Label moneyContactLabel = new Label("You will be contacted soon about the payment.");
+        Button okButton = new Button("OK");
+        VBox mainBox = new VBox(tyLabel,smoltyLabel,moneyContactLabel,okButton);
+
+        //--------Proprieties--------
+        topBox.setStyle("-fx-background-color: #336699;");
+        bottomBox.setStyle("-fx-background-color: #336699;");
+        titleLabel.setFont(Font.font("Courier New",20));
+        tyLabel.setFont(Font.font(25));
+        smoltyLabel.setFont(Font.font(18));
+        moneyContactLabel.setFont(Font.font(15));
+        bottomBox.setPadding(new Insets(15));
+        topBox.setPadding(new Insets(20));
+        mainBox.setPadding(new Insets(40));
+        topBox.setSpacing(20);
+        mainBox.setSpacing(30);
+        bottomBox.setAlignment(Pos.CENTER);
+        mainBox.setAlignment(Pos.TOP_CENTER);
+        rootBorderPane.setTop(topBox);
+        rootBorderPane.setBottom(bottomBox);
+        rootBorderPane.setCenter(mainBox);
+
+        okButton.setOnAction(value -> {
+            screen9(window);
+        });
+
+        Runnable countdown = new Runnable() {
+            @Override
+            public void run() {
+                while(true){
+                    long countDownInMillis = marathonStart.getTimeInMillis() - System.currentTimeMillis();
+                    long days = countDownInMillis/86400000;
+                    long hours = (countDownInMillis%86400000)/3600000;
+                    long mins = ((countDownInMillis%86400000)%3600000)/60000;
+                    long secs = (((countDownInMillis%86400000)%3600000)%60000)/1000;
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            countdownLabel.setText(days+" days "+hours+" hours "+mins+" minutes "+secs+" seconds until marathon start.");
+                        }
+                    });
+
+                    try {
+                        Thread.sleep(interval);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        Thread thrd = new Thread(countdown);
+        thrd.start();
+
+        window.setScene(new Scene(rootBorderPane, windowWidth, windowHight));
         window.show();
     }
 
@@ -1086,6 +1164,77 @@ public class Main extends Application {
         Thread thrd = new Thread(countdown);
         thrd.start();
         window.setScene(new Scene(rootBorderPane,windowWidth,windowHight));
+        window.show();
+    }
+
+    public void screen16(Stage window) throws SQLException {
+        BorderPane rootBorderPane = new BorderPane();
+        Label countdownLabel = new Label();
+        Label titleLabel = new Label("Marathon Skills 2015");
+        Button backButton = new Button("Back");
+        HBox topBox = new HBox(backButton,titleLabel);
+        HBox bottomBox = new HBox(countdownLabel);
+        Label emailLabel = new Label("Email : ");
+        Label firstNameLabel = new Label("First Name:");
+        Label lastNameLabel = new Label("Last Name:");
+        Label genderLabel = new Label("Gender:");
+        Label dobLabel = new Label("Date of Birth:");
+        Label countryLabel = new Label("Country:");
+        Label emailBoldLabel = new Label(currentEmail);
+        ComboBox genderCombo = new ComboBox();
+        TextField dobField = new TextField("YYYY-MM-DD");
+        ComboBox countryCombo = new ComboBox();
+        VBox rightLabelsBox = new VBox(emailLabel,firstNameLabel,lastNameLabel,genderLabel,dobLabel,countryLabel);
+        VBox rightFieldsBox = new VBox();
+
+        //--------Proprieties--------
+        topBox.setStyle("-fx-background-color: #336699;");
+        bottomBox.setStyle("-fx-background-color: #336699;");
+        titleLabel.setFont(Font.font("Courier New",20));
+        emailLabel.setFont(Font.font(null, FontWeight.BOLD,12));
+        bottomBox.setPadding(new Insets(15));
+        topBox.setPadding(new Insets(20));
+        topBox.setSpacing(20);
+        bottomBox.setAlignment(Pos.CENTER);
+        rootBorderPane.setTop(topBox);
+        rootBorderPane.setBottom(bottomBox);
+
+        //---------sql-data-------------
+        ResultSet genders = sqlExe("SELECT * FROM Gender;");
+        while (genders.next()) genderCombo.getItems().add(genders.getString("Gender"));
+
+        ResultSet countries = sqlExe("SELECT CountryName FROM Country;");
+        while (countries.next())countryCombo.getItems().add(countries.getString("CountryName"));
+
+
+        Runnable countdown = new Runnable() {
+            @Override
+            public void run() {
+                while(true){
+                    long countDownInMillis = marathonStart.getTimeInMillis() - System.currentTimeMillis();
+                    long days = countDownInMillis/86400000;
+                    long hours = (countDownInMillis%86400000)/3600000;
+                    long mins = ((countDownInMillis%86400000)%3600000)/60000;
+                    long secs = (((countDownInMillis%86400000)%3600000)%60000)/1000;
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            countdownLabel.setText(days+" days "+hours+" hours "+mins+" minutes "+secs+" seconds until marathon start.");
+                        }
+                    });
+
+                    try {
+                        Thread.sleep(interval);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        Thread thrd = new Thread(countdown);
+        thrd.start();
+
+        window.setScene(new Scene(rootBorderPane, windowWidth, windowHight));
         window.show();
     }
 
