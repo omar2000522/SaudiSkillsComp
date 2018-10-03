@@ -989,6 +989,13 @@ public class Main extends Application {
             contactInfo.setScene(new Scene(mainBox,300,200));
             contactInfo.show();
         });
+        editProfileButton.setOnAction(value -> {
+            try {
+                screen16(window);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
         logoutButton.setOnAction(value -> {
             screen1(window);
         });
@@ -1174,6 +1181,7 @@ public class Main extends Application {
         Button backButton = new Button("Back");
         HBox topBox = new HBox(backButton,titleLabel);
         HBox bottomBox = new HBox(countdownLabel);
+        Label headerLabel = new Label("Edit your profile");
         Label emailLabel = new Label("Email : ");
         Label firstNameLabel = new Label("First Name:");
         Label lastNameLabel = new Label("Last Name:");
@@ -1181,23 +1189,61 @@ public class Main extends Application {
         Label dobLabel = new Label("Date of Birth:");
         Label countryLabel = new Label("Country:");
         Label emailBoldLabel = new Label(currentEmail);
+        TextField firstNameField = new TextField();
+        TextField lastNameField = new TextField();
         ComboBox genderCombo = new ComboBox();
         TextField dobField = new TextField("YYYY-MM-DD");
         ComboBox countryCombo = new ComboBox();
-        VBox rightLabelsBox = new VBox(emailLabel,firstNameLabel,lastNameLabel,genderLabel,dobLabel,countryLabel);
-        VBox rightFieldsBox = new VBox();
+        VBox leftLabelsBox = new VBox(emailLabel,firstNameLabel,lastNameLabel,genderLabel,dobLabel,countryLabel);
+        VBox leftFieldsBox = new VBox(emailBoldLabel,firstNameField,lastNameField,genderCombo,dobField,countryCombo);
+        HBox leftSide = new HBox(leftLabelsBox,leftFieldsBox);
+        Label changePwLabel = new Label("Change password");
+        Label pwDescLabel = new Label("Leave these fields blank if you do not\n want to change the password.");
+        Label pwLabel = new Label("Password: ");
+        Label pw2Label = new Label("Password Again: ");
+        TextField pwField = new TextField();
+        TextField pw2Field = new TextField();
+        VBox rightLabelsBox = new VBox(pwLabel,pw2Label);
+        VBox rightFieldsBox = new VBox(pwField,pw2Field);
+        HBox rightElements = new HBox(rightLabelsBox,rightFieldsBox);
+        VBox rightSide = new VBox(changePwLabel,pwDescLabel,rightElements);
+        Button saveButton = new Button("Save");
+        Button cancelButton = new Button("Cancel");
+        HBox buttonsBox = new HBox(saveButton,cancelButton);
+        HBox midBox = new HBox(leftSide,rightSide);
+        VBox mainBox = new VBox(headerLabel,midBox,buttonsBox);
+
 
         //--------Proprieties--------
         topBox.setStyle("-fx-background-color: #336699;");
         bottomBox.setStyle("-fx-background-color: #336699;");
         titleLabel.setFont(Font.font("Courier New",20));
-        emailLabel.setFont(Font.font(null, FontWeight.BOLD,12));
+        headerLabel.setFont(Font.font(18));
+        changePwLabel.setFont(Font.font(16));
+        pwDescLabel.setFont(Font.font(14));
+        emailBoldLabel.setFont(Font.font(null, FontWeight.BOLD,12));
         bottomBox.setPadding(new Insets(15));
         topBox.setPadding(new Insets(20));
+        mainBox.setPadding(new Insets(50));
+        midBox.setSpacing(100);
         topBox.setSpacing(20);
+        mainBox.setSpacing(40);
+        rightSide.setSpacing(20);
+        leftSide.setSpacing(20);
+        buttonsBox.setSpacing(20);
+        rightElements.setSpacing(20);
+        leftFieldsBox.setSpacing(8);
+        leftLabelsBox.setSpacing(15);
+        rightFieldsBox.setSpacing(9);
+        rightLabelsBox.setSpacing(15);
         bottomBox.setAlignment(Pos.CENTER);
+        mainBox.setAlignment(Pos.TOP_CENTER);
+        midBox.setAlignment(Pos.CENTER);
+        buttonsBox.setAlignment(Pos.CENTER);
+        rightSide.setAlignment(Pos.CENTER);
         rootBorderPane.setTop(topBox);
         rootBorderPane.setBottom(bottomBox);
+        rootBorderPane.setCenter(mainBox);
 
         //---------sql-data-------------
         ResultSet genders = sqlExe("SELECT * FROM Gender;");
@@ -1206,6 +1252,11 @@ public class Main extends Application {
         ResultSet countries = sqlExe("SELECT CountryName FROM Country;");
         while (countries.next())countryCombo.getItems().add(countries.getString("CountryName"));
 
+        saveButton.setOnAction(value -> {
+//            sqlExeIns("INSERT INTO User VALUES ('"+emailField.getText()+"','"+pwField.getText()+"','"+firstNameField.getText()+"','"+lastNameField.getText()+"','R');");
+//            sqlExeIns("INSERT INTO Runner (Email,Gender,DateOfBirth,CountryCode) VALUES ('"+emailField.getText()+"','"+genderCombo.getSelectionModel().getSelectedItem().toString()+"','"+dobValues[0]+"-"+dobValues[1]+"-"+dobValues[2]+"', (SELECT CountryCode FROM Country WHERE CountryName = '"+countryCombo.getSelectionModel().getSelectedItem().toString()+"'));");
+//
+        });
 
         Runnable countdown = new Runnable() {
             @Override
