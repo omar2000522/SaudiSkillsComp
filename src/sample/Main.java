@@ -1379,7 +1379,7 @@ public class Main extends Application {
         else if(age<=70) runnerAgeLabel.setText("55 to 70");
         else runnerAgeLabel.setText("Over 70");
 
-        ResultSet raceResults = sqlExe("");
+        ResultSet raceResults = sqlExe("SELECT RegistrationEvent.RaceTime,Event.EventName,Marathon.MarathonName FROM ((((()))))");
 
 
         //--------Proprieties--------
