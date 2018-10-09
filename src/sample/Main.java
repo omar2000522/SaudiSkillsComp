@@ -1379,8 +1379,10 @@ public class Main extends Application {
         else if(age<=70) runnerAgeLabel.setText("55 to 70");
         else runnerAgeLabel.setText("Over 70");
 
-        ResultSet raceResults = sqlExe("SELECT RegistrationEvent.RaceTime,Event.EventName,Marathon.MarathonName FROM ((((()))))");
-
+        ResultSet raceResults = sqlExe("SELECT RegistrationEvent.RaceTime,Event.EventName,Marathon.MarathonName FROM ((((runner INNER JOIN registration WHERE runner.RunnerId = registration.RunnerId) INNER JOIN registrationEvent WHERE registration.RegistrationId = registrationEvent.RegistrationId) INNER JOIN event WHERE registrationEvent.EventId = event.EventId) INNER JOIN marathon WHERE event.MarathonId = marathon.MarathonId) WHERE runner.Email ='"+currentEmail+"';");
+        while (raceResults.next()){
+            System.out.print(raceResults.getString(1)+"   "+raceResults.getString(2)+"  "+raceResults.getString(3));
+        }
 
         //--------Proprieties--------
         topBox.setStyle("-fx-background-color: #336699;");
