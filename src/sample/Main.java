@@ -33,8 +33,7 @@ import java.beans.EventHandler;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.sql.*;
-import java.util.Calendar;
-import java.util.FormatFlagsConversionMismatchException;
+import java.util.*;
 
 
 public class Main extends Application {
@@ -1379,9 +1378,26 @@ public class Main extends Application {
         else if(age<=70) runnerAgeLabel.setText("55 to 70");
         else runnerAgeLabel.setText("Over 70");
 
-        ResultSet raceResults = sqlExe("SELECT RegistrationEvent.RaceTime,Event.EventName,Marathon.MarathonName FROM ((((runner INNER JOIN registration WHERE runner.RunnerId = registration.RunnerId) INNER JOIN registrationEvent WHERE registration.RegistrationId = registrationEvent.RegistrationId) INNER JOIN event WHERE registrationEvent.EventId = event.EventId) INNER JOIN marathon WHERE event.MarathonId = marathon.MarathonId) WHERE runner.Email ='"+currentEmail+"';");
+        ResultSet raceResults = sqlExe("SELECT RegistrationEvent.bibNumber,Event.EventId,RegistrationEvent.RaceTime,Event.EventName,Marathon.MarathonName FROM ((((runner INNER JOIN registration ON runner.RunnerId = registration.RunnerId) INNER JOIN registrationEvent ON registration.RegistrationId = registrationEvent.RegistrationId) INNER JOIN event ON registrationEvent.EventId = event.EventId) INNER JOIN marathon ON event.MarathonId = marathon.MarathonId) WHERE runner.Email ='"+currentEmail+"';");
+        ArrayList<String> events = new ArrayList<>();
+        ArrayList<String> bibNums = new ArrayList<>();
         while (raceResults.next()){
-            System.out.print(raceResults.getString(1)+"   "+raceResults.getString(2)+"  "+raceResults.getString(3));
+            System.out.println(raceResults.getString(1)+"==="+raceResults.getString(2)+"==="+raceResults.getString(3)+"==="+raceResults.getString(4));
+            events.add(raceResults.getString("eventid"));
+            bibNums.add(raceResults.getString("bibNumber"));
+        }
+        for (String e : events) {
+            Dictionary<String,Integer> runnerTimes = null;
+
+            ResultSet runners = sqlExe("SELECT bibNumber, RaceTime FROM registrationEvent WHERE eventId = '"+e+"' ORDER BY RaceTime;");
+            int exemptRunners = 0;
+            while (runners.next()){
+                if (runners.getInt("RaceTime")==0) exemptRunners+=1;
+                if (runners.getString("bibNumber").equals(bibNums.get(events.indexOf(e)))){
+                    System.out.print((runners.getRow()-exemptRunners)+"==="+runners.getString("bibNumber")+"==="+runners.getString("RaceTime"));
+                    runnerTimes.put();
+                }
+            }
         }
 
         //--------Proprieties--------
