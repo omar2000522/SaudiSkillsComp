@@ -1180,6 +1180,10 @@ public class Main extends Application {
         window.show();
     }
 
+    public void screen15(Stage window){
+
+    }
+
     public void screen16(Stage window) throws SQLException {
         BorderPane rootBorderPane = new BorderPane();
         Label countdownLabel = new Label();
@@ -1338,6 +1342,7 @@ public class Main extends Application {
         Label countdownLabel = new Label();
         Label titleLabel = new Label("Marathon Skills 2015");
         Button backButton = new Button("Back");
+        Button viewAllButton = new Button("View all race results");
         HBox topBox = new HBox(backButton,titleLabel);
         HBox bottomBox = new HBox(countdownLabel);
         Label headerLabel = new Label("My race results");
@@ -1357,8 +1362,8 @@ public class Main extends Application {
         VBox timeBox = new VBox(timeLabel);
         VBox overallBox = new VBox(overallRankLabel);
         VBox categoryBox = new VBox(categoryRankLabel);
-
-        VBox mainBox = new VBox(headerLabel,descText,labelsBox);
+        HBox midBox = new HBox(marathonBox,eventBox,timeBox,overallBox,categoryBox);
+        VBox mainBox = new VBox(headerLabel,descText,labelsBox,midBox,viewAllButton);
 
         //--------sql-data-----------
         ResultSet genderAndAge = sqlExe("SELECT Gender, DateOfBirth FROM runner WHERE Email = '"+currentEmail+"';");
@@ -1379,36 +1384,67 @@ public class Main extends Application {
         else runnerAgeLabel.setText("Over 70");
 
         ResultSet raceResults = sqlExe("SELECT RegistrationEvent.bibNumber,Event.EventId,RegistrationEvent.RaceTime,Event.EventName,Marathon.MarathonName FROM ((((runner INNER JOIN registration ON runner.RunnerId = registration.RunnerId) INNER JOIN registrationEvent ON registration.RegistrationId = registrationEvent.RegistrationId) INNER JOIN event ON registrationEvent.EventId = event.EventId) INNER JOIN marathon ON event.MarathonId = marathon.MarathonId) WHERE runner.Email ='"+currentEmail+"';");
+        ArrayList<String> marathons = new ArrayList<>();
         ArrayList<String> events = new ArrayList<>();
         ArrayList<String> bibNums = new ArrayList<>();
+        ArrayList<Integer> runnerTimes = new ArrayList<>();
+        ArrayList<Integer> runnerRanks = new ArrayList<>();
+
         while (raceResults.next()){
             System.out.println(raceResults.getString(1)+"==="+raceResults.getString(2)+"==="+raceResults.getString(3)+"==="+raceResults.getString(4));
             events.add(raceResults.getString("eventid"));
             bibNums.add(raceResults.getString("bibNumber"));
+            marathons.add(raceResults.getString("MarathonName"));
         }
         for (String e : events) {
-            Dictionary<String,Integer> runnerTimes = null;
-
             ResultSet runners = sqlExe("SELECT bibNumber, RaceTime FROM registrationEvent WHERE eventId = '"+e+"' ORDER BY RaceTime;");
             int exemptRunners = 0;
+            int currentRank = 1;
+            ArrayList<Integer> allTimes = new ArrayList<>();
             while (runners.next()){
-                if (runners.getInt("RaceTime")==0) exemptRunners+=1;
-                if (runners.getString("bibNumber").equals(bibNums.get(events.indexOf(e)))){
-                    System.out.print((runners.getRow()-exemptRunners)+"==="+runners.getString("bibNumber")+"==="+runners.getString("RaceTime"));
-                    runnerTimes.put();
+                if (runners.getInt("RaceTime")==0) {
+                    exemptRunners+=1;
+                    continue;
                 }
+                else if (runners.getString("bibNumber").equals(bibNums.get(events.indexOf(e)))){
+                    System.out.print((runners.getRow()-exemptRunners)+"==="+runners.getString("bibNumber")+"==="+runners.getString("RaceTime"));
+                    runnerTimes.add(runners.getInt("RaceTime"));
+                    runnerRanks.add(currentRank-exemptRunners);
+                }
+                if (!allTimes.contains(Integer.parseInt(runners.getString("RaceTime")))){
+                    currentRank+=1;
+                }
+                allTimes.add(runners.getInt("RaceTime"));
             }
         }
 
+        for (int i = 0; i < events.size(); i++) {
+            int timeInSecs = runnerTimes.get(i);
+            int hours = timeInSecs/3600;
+            int mins = (timeInSecs%3600)/60;
+            int secs = ((timeInSecs%3600)%60);
+
+            marathonBox.getChildren().add(new Label(marathons.get(i)));
+            eventBox.getChildren().add(new Label(marathons.get(i)));
+            timeBox.getChildren().add(new Label(hours+"h "+mins+"m "+secs+"s"));
+            overallBox.getChildren().add(new Label(runnerRanks.get(i).toString()));
+            //categoryBox.getChildren().add(new Label(marathons.get(i)));
+        }
         //--------Proprieties--------
         topBox.setStyle("-fx-background-color: #336699;");
         bottomBox.setStyle("-fx-background-color: #336699;");
-        titleLabel.setFont(Font.font("Courier New",20));
-        headerLabel.setFont(Font.font(18));
+        titleLabel.setFont(Font.font("Courier New",30));
+        headerLabel.setFont(Font.font(24));
         bottomBox.setPadding(new Insets(15));
         topBox.setPadding(new Insets(20));
         topBox.setSpacing(20);
-        mainBox.setSpacing(20);
+        mainBox.setSpacing(50);
+        midBox.setSpacing(20);
+        marathonBox.setSpacing(10);
+        eventBox.setSpacing(10);
+        timeBox.setSpacing(10);
+        overallBox.setSpacing(10);
+        midBox.setAlignment(Pos.CENTER);
         mainBox.setAlignment(Pos.CENTER);
         labelsBox.setAlignment(Pos.CENTER);
         bottomBox.setAlignment(Pos.CENTER);
