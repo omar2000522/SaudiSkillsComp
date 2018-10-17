@@ -1348,12 +1348,17 @@ public class Main extends Application {
         Label ageLabel = new Label("Age category: ");
         Label runnerAgeLabel = new Label();
         HBox labelsBox = new HBox(genderLabel,runnerGenderLabel,ageLabel,runnerAgeLabel);
-        TableColumn marathonColumn = new TableColumn("Marathon");
-        TableColumn eventColumn = new TableColumn("Event");
-        TableColumn timeColumn = new TableColumn("Time");
-        TableColumn overallRankColumn = new TableColumn("Overall Rank");
-        TableColumn categoryRankColumn = new TableColumn("Category Rank");
-        TableView resultsTable = new TableView();
+        Label marathonLabel = new Label("Marathon");
+        Label eventLabel = new Label("Event");
+        Label timeLabel = new Label("Time");
+        Label overallRankLabel = new Label("Overall Rank");
+        Label categoryRankLabel = new Label("Category Rank");
+        VBox marathonBox = new VBox(marathonLabel);
+        VBox eventBox = new VBox(eventLabel);
+        VBox timeBox = new VBox(timeLabel);
+        VBox overallBox = new VBox(overallRankLabel);
+        VBox categoryBox = new VBox(categoryRankLabel);
+
         VBox mainBox = new VBox(headerLabel,descText,labelsBox);
 
         //--------sql-data-----------
@@ -1365,8 +1370,16 @@ public class Main extends Application {
         Calendar dob = Calendar.getInstance();
         dob.set(Integer.parseInt(dobValues[0]),Integer.parseInt(dobValues[1]),Integer.parseInt(dobValues[2]));
         int age = currentTime.get(Calendar.YEAR) - dob.get(Calendar.YEAR);
-        runnerAgeLabel.setText(String.valueOf(age));
         runnerGenderLabel.setText(genderAndAge.getString("Gender")+"    ");
+
+        if(age<18) runnerAgeLabel.setText("Under 18");
+        else if(age<=29) runnerAgeLabel.setText("18 to 29");
+        else if(age<=39) runnerAgeLabel.setText("30 to 39");
+        else if(age<=55) runnerAgeLabel.setText("40 to 55");
+        else if(age<=70) runnerAgeLabel.setText("55 to 70");
+        else runnerAgeLabel.setText("Over 70");
+
+        ResultSet raceResults = sqlExe("");
 
 
         //--------Proprieties--------
@@ -1384,7 +1397,6 @@ public class Main extends Application {
         rootBorderPane.setTop(topBox);
         rootBorderPane.setBottom(bottomBox);
         rootBorderPane.setCenter(mainBox);
-        resultsTable.getColumns().addAll(marathonColumn,eventColumn,timeColumn,overallRankColumn,categoryRankColumn);
 
         Runnable countdown = new Runnable() {
             @Override
