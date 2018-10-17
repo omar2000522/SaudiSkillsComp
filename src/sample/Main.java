@@ -1111,14 +1111,14 @@ public class Main extends Application {
             Image inputImage = new Image(inputStreamImage);
             ImageView image = new ImageView(inputImage);
             Label name = new Label(charitiesTable[x][0]);
-            Label description = new Label(charitiesTable[x][1]);
+            Text description = new Text(charitiesTable[x][1]);
             VBox labelsBox = new VBox(name,description);
             HBox charityElement = new HBox(image,labelsBox);
             image.setFitWidth(100);
             image.setFitHeight((100/inputImage.getWidth())*inputImage.getHeight());
-            description.setMaxWidth(600);
             labelsBox.setSpacing(10);
             charityElement.setSpacing(20);
+            description.setWrappingWidth(600);
             name.setFont(Font.font("Courier New",20));
             charityElement.setStyle("-fx-background-color: #ffffff;");
             charityElement.setPadding(new Insets(15));
@@ -1295,6 +1295,71 @@ public class Main extends Application {
             }
 
         });
+
+        Runnable countdown = new Runnable() {
+            @Override
+            public void run() {
+                while(true){
+                    long countDownInMillis = marathonStart.getTimeInMillis() - System.currentTimeMillis();
+                    long days = countDownInMillis/86400000;
+                    long hours = (countDownInMillis%86400000)/3600000;
+                    long mins = ((countDownInMillis%86400000)%3600000)/60000;
+                    long secs = (((countDownInMillis%86400000)%3600000)%60000)/1000;
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            countdownLabel.setText(days+" days "+hours+" hours "+mins+" minutes "+secs+" seconds until marathon start.");
+                        }
+                    });
+
+                    try {
+                        Thread.sleep(interval);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        Thread thrd = new Thread(countdown);
+        thrd.start();
+
+        window.setScene(new Scene(rootBorderPane, windowWidth, windowHight));
+        window.show();
+    }
+
+    public void screen17(Stage window) throws SQLException {
+        BorderPane rootBorderPane = new BorderPane();
+        Label countdownLabel = new Label();
+        Label titleLabel = new Label("Marathon Skills 2015");
+        Button backButton = new Button("Back");
+        HBox topBox = new HBox(backButton,titleLabel);
+        HBox bottomBox = new HBox(countdownLabel);
+        Label headerLabel = new Label("My race results");
+        Text descText = new Text("This is a list of all your past race results");
+        Label genderLabel = new Label("Gender: ");
+        Label runnerGenderLabel = new Label();
+        Label ageLabel = new Label("Age category: ");
+        Label runnerAgeLabel = new Label();
+
+        //--------sql-data-----------
+        ResultSet genderAndAge = sqlExe("SELECT Gender, DateOfBirth FROM runner WHERE Email = '"+currentEmail+"';");
+        String[] dobValues = genderAndAge.getString("DateOfBirth").substring(0,10).split("-");
+        Calendar currentTime = Calendar.getInstance();
+        currentTime.setTimeInMillis(System.currentTimeMillis());
+//        Calendar dob =
+//        int age =
+
+
+        //--------Proprieties--------
+        topBox.setStyle("-fx-background-color: #336699;");
+        bottomBox.setStyle("-fx-background-color: #336699;");
+        titleLabel.setFont(Font.font("Courier New",20));
+        bottomBox.setPadding(new Insets(15));
+        topBox.setPadding(new Insets(20));
+        topBox.setSpacing(20);
+        bottomBox.setAlignment(Pos.CENTER);
+        rootBorderPane.setTop(topBox);
+        rootBorderPane.setBottom(bottomBox);
 
         Runnable countdown = new Runnable() {
             @Override
@@ -1564,7 +1629,7 @@ public class Main extends Application {
     public ResultSet sqlExe(String query){
         try {
 
-            String URL = "jdbc:mysql://127.0.0.1:3306/cpt01?useSSL=False";
+            String URL = "jdbc:mysql://127.0.0.1:3306/cpt02?useSSL=False";
             String USER = "root";
             String PASS = "omar";
             conn = DriverManager.getConnection(URL, USER, PASS);
@@ -1583,7 +1648,7 @@ public class Main extends Application {
     public void sqlExeIns(String query){
         try {
 
-            String URL = "jdbc:mysql://127.0.0.1:3306/cpt01?useSSL=False";
+            String URL = "jdbc:mysql://127.0.0.1:3306/cpt02?useSSL=False";
             String USER = "root";
             String PASS = "omar";
             conn = DriverManager.getConnection(URL, USER, PASS);
