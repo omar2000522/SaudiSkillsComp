@@ -918,7 +918,7 @@ public class Main extends Application {
         window.setScene(new Scene(rootBorderPane, windowWidth, windowHight));
         window.show();
     }
-
+    //runner screen
     public void screen9(Stage window){
         BorderPane rootBorderPane = new BorderPane();
         Label titleLabel = new Label("Marathon Skills 2015");
@@ -992,6 +992,13 @@ public class Main extends Application {
         editProfileButton.setOnAction(value -> {
             try {
                 screen16(window);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+        raceResultsButton.setOnAction(value -> {
+            try {
+                screen17(window);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -1340,26 +1347,44 @@ public class Main extends Application {
         Label runnerGenderLabel = new Label();
         Label ageLabel = new Label("Age category: ");
         Label runnerAgeLabel = new Label();
+        HBox labelsBox = new HBox(genderLabel,runnerGenderLabel,ageLabel,runnerAgeLabel);
+        TableColumn marathonColumn = new TableColumn("Marathon");
+        TableColumn eventColumn = new TableColumn("Event");
+        TableColumn timeColumn = new TableColumn("Time");
+        TableColumn overallRankColumn = new TableColumn("Overall Rank");
+        TableColumn categoryRankColumn = new TableColumn("Category Rank");
+        TableView resultsTable = new TableView();
+        VBox mainBox = new VBox(headerLabel,descText,labelsBox);
 
         //--------sql-data-----------
         ResultSet genderAndAge = sqlExe("SELECT Gender, DateOfBirth FROM runner WHERE Email = '"+currentEmail+"';");
+        genderAndAge.next();
         String[] dobValues = genderAndAge.getString("DateOfBirth").substring(0,10).split("-");
         Calendar currentTime = Calendar.getInstance();
         currentTime.setTimeInMillis(System.currentTimeMillis());
-//        Calendar dob =
-//        int age =
+        Calendar dob = Calendar.getInstance();
+        dob.set(Integer.parseInt(dobValues[0]),Integer.parseInt(dobValues[1]),Integer.parseInt(dobValues[2]));
+        int age = currentTime.get(Calendar.YEAR) - dob.get(Calendar.YEAR);
+        runnerAgeLabel.setText(String.valueOf(age));
+        runnerGenderLabel.setText(genderAndAge.getString("Gender")+"    ");
 
 
         //--------Proprieties--------
         topBox.setStyle("-fx-background-color: #336699;");
         bottomBox.setStyle("-fx-background-color: #336699;");
         titleLabel.setFont(Font.font("Courier New",20));
+        headerLabel.setFont(Font.font(18));
         bottomBox.setPadding(new Insets(15));
         topBox.setPadding(new Insets(20));
         topBox.setSpacing(20);
+        mainBox.setSpacing(20);
+        mainBox.setAlignment(Pos.CENTER);
+        labelsBox.setAlignment(Pos.CENTER);
         bottomBox.setAlignment(Pos.CENTER);
         rootBorderPane.setTop(topBox);
         rootBorderPane.setBottom(bottomBox);
+        rootBorderPane.setCenter(mainBox);
+        resultsTable.getColumns().addAll(marathonColumn,eventColumn,timeColumn,overallRankColumn,categoryRankColumn);
 
         Runnable countdown = new Runnable() {
             @Override
