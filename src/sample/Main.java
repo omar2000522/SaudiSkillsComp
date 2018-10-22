@@ -1216,11 +1216,12 @@ public class Main extends Application {
         topBox.setPadding(new Insets(20));
         topBox.setSpacing(20);
         leftSide.setSpacing(50);
+        mainBox.setSpacing(100);
         itemImage.setFitWidth(300);
         speedDisPane.setMinWidth(300);
+        itemText.setTextAlignment(TextAlignment.CENTER);
         bottomBox.setAlignment(Pos.CENTER);
         leftSide.setAlignment(Pos.CENTER);
-        rightSide.setAlignment(Pos.CENTER_RIGHT);
         rootBorderPane.setTop(topBox);
         rootBorderPane.setBottom(bottomBox);
         speedPane.setContent(speedElements);
@@ -1228,6 +1229,7 @@ public class Main extends Application {
         itemImage.setPreserveRatio(true);
         speedTab.setClosable(false);
         distTab.setClosable(false);
+        distPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         speedDisPane.getTabs().add(speedTab);
         speedDisPane.getTabs().add(distTab);
         rootBorderPane.setCenter(mainBox);
@@ -1289,8 +1291,18 @@ public class Main extends Application {
             ImageView image = new ImageView(inputImage);
             Label itemName = new Label(dist[0]);
             HBox distElement = new HBox(image,itemName);
+            float itemDist = Float.parseFloat(dist[2].substring(0,dist[2].indexOf("m")));
 
-            distElement.setOnMouseClicked(value -> System.out.println(dist[2]));
+
+            distElement.setOnMouseClicked(value -> {
+                itemLabel.setText(dist[0]);
+                try {
+                    itemImage.setImage(new Image(new FileInputStream("src/sample/how-long-is-a-marathon-images/"+dist[1])));
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                itemText.setText("it is "+42.195/(itemDist/1000)+" "+dist[0]+"s");
+            });
 
             itemName.setFont(Font.font(20));
             distElement.setPadding(new Insets(20));
@@ -1300,6 +1312,7 @@ public class Main extends Application {
             distElement.setAlignment(Pos.CENTER_LEFT);
             distElements.getChildren().add(distElement);
         }
+        backButton.setOnAction(value -> screen10(window));
 
 
 
