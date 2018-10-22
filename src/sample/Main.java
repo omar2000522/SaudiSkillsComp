@@ -1038,7 +1038,7 @@ public class Main extends Application {
         window.setScene(new Scene(rootBorderPane,windowWidth,windowHight));
         window.show();
     }
-
+    //more info (6 buttons)
     public void screen10(Stage window){
         BorderPane rootBorderPane = new BorderPane();
         Label header = new Label("Find out more information");
@@ -1085,8 +1085,124 @@ public class Main extends Application {
                 e.printStackTrace();
             }
         });
+        marathon2015.setOnAction(value -> {
+            try {
+                screen11(window);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        });
         backButton.setOnAction(value -> screen1(window));
         window.setScene(new Scene(rootBorderPane,windowWidth,windowHight));
+        window.show();
+    }
+
+    public void screen11(Stage window) throws FileNotFoundException {
+        BorderPane rootBorderPane = new BorderPane();
+        Label countdownLabel = new Label();
+        Label titleLabel = new Label("Marathon Skills 2019");
+        Button backButton = new Button("Back");
+        HBox topBox = new HBox(backButton,titleLabel);
+        HBox bottomBox = new HBox(countdownLabel);
+        Label headerLabel = new Label("About Marathon Skills 2019");
+        Text maraInfoText = new Text();
+        VBox rightBox = new VBox(maraInfoText);
+        ImageView mapImage = new ImageView(new Image(new FileInputStream("src/sample/Images/marathon-skills-2015-marathon-map.jpg")));
+        ImageView image1 = new ImageView(new Image(new FileInputStream("src/sample/Images/ibirapuera-park-lake.jpg")));
+        ImageView image2 = new ImageView(new Image(new FileInputStream("src/sample/Images/banco-banespa.jpg")));
+        ImageView image3 = new ImageView(new Image(new FileInputStream("src/sample/Images/marathon-image.jpg")));
+        ImageView image4 = new ImageView(new Image(new FileInputStream("src/sample/Images/teatro-municipal.jpg")));
+        HBox imageRow1 = new HBox(image1,image2);
+        HBox imageRow2 = new HBox(image3,image4);
+        VBox leftBox = new VBox(mapImage,imageRow1,imageRow2);
+        HBox mainHBox = new HBox(leftBox,rightBox);
+        VBox mainBox = new VBox(headerLabel,mainHBox);
+
+        //--------Proprieties--------
+        topBox.setStyle("-fx-background-color: #336699;");
+        bottomBox.setStyle("-fx-background-color: #336699;");
+        titleLabel.setFont(Font.font("Courier New",20));
+        image1.setFitWidth(100);
+        image1.setFitHeight(100);
+        image2.setFitWidth(100);
+        image2.setFitHeight(100);
+        image3.setFitWidth(100);
+        image3.setFitHeight(100);
+        image4.setFitWidth(100);
+        image4.setFitHeight(100);
+        mapImage.setFitWidth(210);
+        bottomBox.setPadding(new Insets(15));
+        topBox.setPadding(new Insets(20));
+        leftBox.setPadding(new Insets(20));
+        rightBox.setPadding(new Insets(20));
+        topBox.setSpacing(30);
+        mainBox.setSpacing(30);
+        mainHBox.setSpacing(30);
+        imageRow1.setSpacing(10);
+        imageRow2.setSpacing(10);
+        leftBox.setSpacing(30);
+        image1.setPreserveRatio(true);
+        image2.setPreserveRatio(true);
+        image3.setPreserveRatio(true);
+        image4.setPreserveRatio(true);
+        mapImage.setPreserveRatio(true);
+        bottomBox.setAlignment(Pos.CENTER);
+        rootBorderPane.setTop(topBox);
+        rootBorderPane.setBottom(bottomBox);
+        rootBorderPane.setCenter(mainBox);
+
+
+
+        maraInfoText.setText("About Marathon Skills 2015\n" +
+                "\n" +
+                "Marathon Skills is a running festival held every year in a different part of the world. There can be three events: a Full Marathon, Half Marathon and a Fun Run - so the festival caters to all abilities and experience.\n" +
+                "\n" +
+                "In past years, marathons have been held in Osaka, Japan (2014); Leipzig, Germany (2013); Hanoi, Vietnam (2012) and York, England (2011).\n" +
+                "\n" +
+                "This year, Marathon Skills is very excited to be partnering with São Paulo, Brazil to put on the biggest running festival yet. Brazil's financial centre and the biggest city in South America, São Paulo will be on display to the thousands of runners who will weave their way past skyscrapers, green parks and magnificent architecture.\n" +
+                "\n" +
+                "This festival has attracted a record number of runners from all over the world. Attention will be on the contingents from Kenya and Jamaica as we hope to see Dawit Admasu's 2014 São Silvestre time broken. (The Ethiopian completed the race in 45 minutes 4 seconds.)\n" +
+                "\n" +
+                "The carnival atmosphere promises entertainment for all spectators as well as a party to round off the festivities in Ibirapuera Park.\n" +
+                "\n" +
+                "The events:\n" +
+                "\n" +
+                "- The \"Samba\" Full Marathon will start at Rua dos Americanos at 6am on 5 September 2015.\n" +
+                "\n" +
+                "- The \"Jongo\" Half Marathon will start at 7am on 6 September 2015. Runners will depart from near the intersection of Rua Ciniciata Braga and Avenida Brigadeiro Luís Antõnio.\n" +
+                "\n" +
+                "- The \"Capoeira\" 5km Fun Run will start at 3 pm on 6 September 2015. Our fun runners will start from the UNINOVE Memorial.\n" +
+                "\n" +
+                "Thank you to all the volunteers who will be helping!\n");
+
+        Runnable countdown = new Runnable() {
+            @Override
+            public void run() {
+                while(true){
+                    long countDownInMillis = marathonStart.getTimeInMillis() - System.currentTimeMillis();
+                    long days = countDownInMillis/86400000;
+                    long hours = (countDownInMillis%86400000)/3600000;
+                    long mins = ((countDownInMillis%86400000)%3600000)/60000;
+                    long secs = (((countDownInMillis%86400000)%3600000)%60000)/1000;
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            countdownLabel.setText(days+" days "+hours+" hours "+mins+" minutes "+secs+" seconds until marathon start.");
+                        }
+                    });
+
+                    try {
+                        Thread.sleep(interval);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        Thread thrd = new Thread(countdown);
+        thrd.start();
+
+        window.setScene(new Scene(rootBorderPane, windowWidth, windowHight));
         window.show();
     }
 
