@@ -27,7 +27,6 @@ import javafx.stage.Stage;
 import javafx.scene.layout.*;
 import javafx.geometry.Pos;
 import javafx.util.Duration;
-import jdk.internal.dynalink.support.BottomGuardingDynamicLinker;
 
 import java.beans.EventHandler;
 import java.io.FileInputStream;
@@ -1079,7 +1078,13 @@ public class Main extends Application {
                 e.printStackTrace();
             }
         });
-        howLong.setOnAction(value -> screen15(window));
+        howLong.setOnAction(value -> {
+            try {
+                screen15(window);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        });
         backButton.setOnAction(value -> screen1(window));
         window.setScene(new Scene(rootBorderPane,windowWidth,windowHight));
         window.show();
@@ -1179,7 +1184,7 @@ public class Main extends Application {
         window.show();
     }
 
-    public void screen15(Stage window){
+    public void screen15(Stage window) throws FileNotFoundException {
         BorderPane rootBorderPane = new BorderPane();
         Label countdownLabel = new Label();
         Label titleLabel = new Label("Marathon Skills 2015");
@@ -1187,26 +1192,117 @@ public class Main extends Application {
         HBox topBox = new HBox(backButton,titleLabel);
         HBox bottomBox = new HBox(countdownLabel);
         Label headerLabel = new Label("How long is a marathon?");
+        Label itemLabel = new Label();
+        ImageView itemImage = new ImageView();
+        Text itemText = new Text();
         TabPane speedDisPane = new TabPane();
         VBox rightSide = new VBox(speedDisPane);
-        VBox leftSide = new VBox();
+        VBox leftSide = new VBox(itemLabel,itemImage,itemText);
         VBox speedElements = new VBox();
         VBox distElements = new VBox();
         HBox mainBox = new HBox(leftSide,rightSide);
+        ScrollPane speedPane = new ScrollPane();
+        ScrollPane distPane = new ScrollPane();
+        Tab speedTab = new Tab("Speed",speedPane);
+        Tab distTab = new Tab("Distance",distPane);
 
         //--------Proprieties--------
         topBox.setStyle("-fx-background-color: #336699;");
         bottomBox.setStyle("-fx-background-color: #336699;");
         titleLabel.setFont(Font.font("Courier New",20));
+        itemLabel.setFont(Font.font("Arial",FontWeight.BOLD,20));
+        itemText.setWrappingWidth(400);
         bottomBox.setPadding(new Insets(15));
         topBox.setPadding(new Insets(20));
         topBox.setSpacing(20);
+        leftSide.setSpacing(50);
+        itemImage.setFitWidth(300);
+        speedDisPane.setMinWidth(300);
         bottomBox.setAlignment(Pos.CENTER);
+        leftSide.setAlignment(Pos.CENTER);
+        rightSide.setAlignment(Pos.CENTER_RIGHT);
         rootBorderPane.setTop(topBox);
         rootBorderPane.setBottom(bottomBox);
-        speedDisPane.getTabs().add(new Tab("Speed",speedElements));
-        speedDisPane.getTabs().add(new Tab("Distance",distElements));
+        speedPane.setContent(speedElements);
+        distPane.setContent(distElements);
+        itemImage.setPreserveRatio(true);
+        speedTab.setClosable(false);
+        distTab.setClosable(false);
+        speedDisPane.getTabs().add(speedTab);
+        speedDisPane.getTabs().add(distTab);
         rootBorderPane.setCenter(mainBox);
+
+        //------------Code----------------
+        String unparsedSpeed = "F1 Car\tf1-car.jpg\t345km/h\n" +
+                "Slug\tslug.jpg\t0.01km/h\n" +
+                "Horse\thorse.png\t15km/h\n" +
+                "Sloth\tsloth.jpg\t0.12km/h\n" +
+                "Capybara\tcapybara.jpg\t35km/h\n" +
+                "Jaguar\tjaguar.jpg\t80km/h\n" +
+                "Worm\tworm.jpg\t0.03km/h";
+        String unparsedDist = "Bus\tbus.jpg\t10m\n" +
+                "Pair of Havaianas\tpair-of-havaianas.jpg\t0.245m\n" +
+                "Airbus A380\tairbus-a380.jpg\t73m\n" +
+                "Football Field\tfootball-field.jpg\t105m\n" +
+                "Ronaldinho\tronaldinho.jpg\t1.81m";
+        String[] semiParsedSpeed = unparsedSpeed.split("\n");
+        String[] semiParsedDist = unparsedDist.split("\n");
+        String[][] parsedSpeed = new String[semiParsedSpeed.length][];
+        String[][] parsedDist  = new String[semiParsedDist.length][];
+        for (int i = 0; i < semiParsedSpeed.length; i++) {
+            parsedSpeed[i] = semiParsedSpeed[i].split("\t");
+        }
+        for (int i = 0; i < semiParsedDist.length ; i++) {
+            parsedDist[i] = semiParsedDist[i].split("\t");
+        }
+
+
+        for (String[] speed:parsedSpeed){
+            FileInputStream inputStreamImage = new FileInputStream("src/sample/how-long-is-a-marathon-images/"+speed[1]);
+            Image inputImage = new Image(inputStreamImage);
+            ImageView image = new ImageView(inputImage);
+            Label itemName = new Label(speed[0]);
+            HBox speedElement = new HBox(image,itemName);
+            float itemSpeed = Float.parseFloat(speed[2].substring(0,(speed[2].indexOf("k"))));
+
+            speedElement.setOnMouseClicked(value -> {
+                itemLabel.setText(speed[0]);
+                try {
+                    itemImage.setImage(new Image(new FileInputStream("src/sample/how-long-is-a-marathon-images/"+speed[1])));
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                itemText.setText("it will take "+42.195/itemSpeed+" hours");
+            });
+
+            itemName.setFont(Font.font(20));
+            speedElement.setPadding(new Insets(20));
+            image.setFitWidth(75);
+            image.setPreserveRatio(true);
+            speedElement.setSpacing(30);
+            speedElement.setAlignment(Pos.CENTER_LEFT);
+            speedElements.getChildren().add(speedElement);
+        }
+        for (String[] dist:parsedDist){
+            FileInputStream inputStreamImage = new FileInputStream("src/sample/how-long-is-a-marathon-images/"+dist[1]);
+            Image inputImage = new Image(inputStreamImage);
+            ImageView image = new ImageView(inputImage);
+            Label itemName = new Label(dist[0]);
+            HBox distElement = new HBox(image,itemName);
+
+            distElement.setOnMouseClicked(value -> System.out.println(dist[2]));
+
+            itemName.setFont(Font.font(20));
+            distElement.setPadding(new Insets(20));
+            image.setFitWidth(75);
+            image.setPreserveRatio(true);
+            distElement.setSpacing(30);
+            distElement.setAlignment(Pos.CENTER_LEFT);
+            distElements.getChildren().add(distElement);
+        }
+
+
+
 
         Runnable countdown = new Runnable() {
             @Override
