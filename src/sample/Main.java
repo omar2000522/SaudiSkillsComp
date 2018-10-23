@@ -1187,6 +1187,12 @@ public class Main extends Application {
         HBox topBox = new HBox(backButton,titleLabel);
         HBox bottomBox = new HBox(countdownLabel);
         Label headerLabel = new Label("How long is a marathon?");
+        TabPane speedDisPane = new TabPane();
+        VBox rightSide = new VBox(speedDisPane);
+        VBox leftSide = new VBox();
+        VBox speedElements = new VBox();
+        VBox distElements = new VBox();
+        HBox mainBox = new HBox(leftSide,rightSide);
 
         //--------Proprieties--------
         topBox.setStyle("-fx-background-color: #336699;");
@@ -1198,6 +1204,9 @@ public class Main extends Application {
         bottomBox.setAlignment(Pos.CENTER);
         rootBorderPane.setTop(topBox);
         rootBorderPane.setBottom(bottomBox);
+        speedDisPane.getTabs().add(new Tab("Speed",speedElements));
+        speedDisPane.getTabs().add(new Tab("Distance",distElements));
+        rootBorderPane.setCenter(mainBox);
 
         Runnable countdown = new Runnable() {
             @Override
