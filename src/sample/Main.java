@@ -1230,7 +1230,9 @@ public class Main extends Application {
         HBox topBox = new HBox(backButton,titleLabel);
         HBox bottomBox = new HBox(countdownLabel);
         ImageView mapImage = new ImageView(new Image(new FileInputStream("src/sample/Images/marathon-skills-2015-marathon-map.jpg")));
-        HBox mainBox = new HBox(mapImage);
+        Pane circlesPane = new Pane();
+        StackPane mapPane = new StackPane(mapImage,circlesPane);
+        HBox mainBox = new HBox(mapPane);
 
 
         //--------Proprieties--------
@@ -1244,16 +1246,33 @@ public class Main extends Application {
         topBox.setSpacing(20);
         bottomBox.setAlignment(Pos.CENTER);
         mainBox.setAlignment(Pos.CENTER_LEFT);
+        circlesPane.setMinSize(400,400);
+        circlesPane.setMaxSize(400,400);
         mapImage.setPreserveRatio(true);
         rootBorderPane.setTop(topBox);
         rootBorderPane.setBottom(bottomBox);
         rootBorderPane.setCenter(mainBox);
 
+
         //--------Checkpoints---------
-        Circle start1 = new Circle(mapImage.getX(),mapImage.getY(),10,Color.LAWNGREEN);
 
+        Circle start1 = new Circle(circlesPane.getLayoutX()+255,circlesPane.getLayoutY()+23,15,Color.LAWNGREEN);
+        Circle start2 = new Circle(circlesPane.getLayoutX()+224,circlesPane.getLayoutY()+375,15,Color.GREEN);
+        Circle start3 = new Circle(circlesPane.getLayoutX()+139,circlesPane.getLayoutY()+94,15,Color.DARKGREEN);
+        Circle checkpoint1 = new Circle(circlesPane.getLayoutX()+324,circlesPane.getLayoutY()+82,15,Color.GOLD);
+        Circle checkpoint2 = new Circle(circlesPane.getLayoutX()+368,circlesPane.getLayoutY()+167,15,Color.GOLD);
+        Circle checkpoint3 = new Circle(circlesPane.getLayoutX()+277,circlesPane.getLayoutY()+216,15,Color.GOLD);
+        Circle checkpoint4 = new Circle(circlesPane.getLayoutX()+251,circlesPane.getLayoutY()+334,15,Color.GOLD);
+        Circle checkpoint5 = new Circle(circlesPane.getLayoutX()+162,circlesPane.getLayoutY()+307,15,Color.GOLD);
+        Circle checkpoint6 = new Circle(circlesPane.getLayoutX()+85,circlesPane.getLayoutY()+222,15,Color.GOLD);
+        Circle checkpoint7 = new Circle(circlesPane.getLayoutX()+38,circlesPane.getLayoutY()+133,15,Color.GOLD);
+        Circle checkpoint8 = new Circle(circlesPane.getLayoutX()+101,circlesPane.getLayoutY()+72,15,Color.GOLD);
+        circlesPane.getChildren().addAll(start1,start2,start3,checkpoint1,checkpoint2,checkpoint3,checkpoint4,checkpoint5,checkpoint6,checkpoint7,checkpoint8);
 
-        mapImage.setOnMouseClicked(value -> {
+        //circlesPane.add(start1,20,20);
+        checkpoint1.setOnMouseClicked(value -> {});
+
+        circlesPane.setOnMouseClicked(value -> {
             System.out.println(value.getX()+","+value.getY());
         });
 
