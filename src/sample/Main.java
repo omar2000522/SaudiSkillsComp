@@ -18,6 +18,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.image.*;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -1117,23 +1118,23 @@ public class Main extends Application {
         VBox leftBox = new VBox(mapImage,imageRow1,imageRow2);
         HBox mainHBox = new HBox(leftBox,rightBox);
         VBox mainBox = new VBox(headerLabel,mainHBox);
+        ScrollPane mainPane = new ScrollPane();
 
         //--------Proprieties--------
         topBox.setStyle("-fx-background-color: #336699;");
         bottomBox.setStyle("-fx-background-color: #336699;");
         titleLabel.setFont(Font.font("Courier New",20));
+        headerLabel.setFont(Font.font("Arial",FontWeight.BOLD,18));
+        maraInfoText.setWrappingWidth(400);
         image1.setFitWidth(100);
-        image1.setFitHeight(100);
-        image2.setFitWidth(100);
         image2.setFitHeight(100);
         image3.setFitWidth(100);
-        image3.setFitHeight(100);
         image4.setFitWidth(100);
-        image4.setFitHeight(100);
         mapImage.setFitWidth(210);
         bottomBox.setPadding(new Insets(15));
         topBox.setPadding(new Insets(20));
-        leftBox.setPadding(new Insets(20));
+        mainBox.setPadding(new Insets(20));
+        leftBox.setPadding(new Insets(20,20,50,50));
         rightBox.setPadding(new Insets(20));
         topBox.setSpacing(30);
         mainBox.setSpacing(30);
@@ -1147,14 +1148,20 @@ public class Main extends Application {
         image4.setPreserveRatio(true);
         mapImage.setPreserveRatio(true);
         bottomBox.setAlignment(Pos.CENTER);
+        mainBox.setAlignment(Pos.CENTER);
+        imageRow1.setAlignment(Pos.CENTER);
+        imageRow2.setAlignment(Pos.CENTER);
+        leftBox.setAlignment(Pos.TOP_CENTER);
+        rightBox.setAlignment(Pos.CENTER);
+        mainPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         rootBorderPane.setTop(topBox);
         rootBorderPane.setBottom(bottomBox);
-        rootBorderPane.setCenter(mainBox);
+        mainPane.setContent(mainBox);
+        rootBorderPane.setCenter(mainPane);
 
 
 
-        maraInfoText.setText("About Marathon Skills 2015\n" +
-                "\n" +
+        maraInfoText.setText(
                 "Marathon Skills is a running festival held every year in a different part of the world. There can be three events: a Full Marathon, Half Marathon and a Fun Run - so the festival caters to all abilities and experience.\n" +
                 "\n" +
                 "In past years, marathons have been held in Osaka, Japan (2014); Leipzig, Germany (2013); Hanoi, Vietnam (2012) and York, England (2011).\n" +
@@ -1174,6 +1181,81 @@ public class Main extends Application {
                 "- The \"Capoeira\" 5km Fun Run will start at 3 pm on 6 September 2015. Our fun runners will start from the UNINOVE Memorial.\n" +
                 "\n" +
                 "Thank you to all the volunteers who will be helping!\n");
+
+
+        mapImage.setOnMouseClicked(value -> {
+            try {
+                screen12(window);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        });
+
+        Runnable countdown = new Runnable() {
+            @Override
+            public void run() {
+                while(true){
+                    long countDownInMillis = marathonStart.getTimeInMillis() - System.currentTimeMillis();
+                    long days = countDownInMillis/86400000;
+                    long hours = (countDownInMillis%86400000)/3600000;
+                    long mins = ((countDownInMillis%86400000)%3600000)/60000;
+                    long secs = (((countDownInMillis%86400000)%3600000)%60000)/1000;
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            countdownLabel.setText(days+" days "+hours+" hours "+mins+" minutes "+secs+" seconds until marathon start.");
+                        }
+                    });
+
+                    try {
+                        Thread.sleep(interval);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        Thread thrd = new Thread(countdown);
+        thrd.start();
+
+        window.setScene(new Scene(rootBorderPane, windowWidth, windowHight));
+        window.show();
+    }
+
+    public void screen12(Stage window) throws FileNotFoundException {
+        BorderPane rootBorderPane = new BorderPane();
+        Label countdownLabel = new Label();
+        Label titleLabel = new Label("Marathon Skills 2015");
+        Button backButton = new Button("Back");
+        HBox topBox = new HBox(backButton,titleLabel);
+        HBox bottomBox = new HBox(countdownLabel);
+        ImageView mapImage = new ImageView(new Image(new FileInputStream("src/sample/Images/marathon-skills-2015-marathon-map.jpg")));
+        HBox mainBox = new HBox(mapImage);
+
+
+        //--------Proprieties--------
+        topBox.setStyle("-fx-background-color: #336699;");
+        bottomBox.setStyle("-fx-background-color: #336699;");
+        titleLabel.setFont(Font.font("Courier New",20));
+        bottomBox.setPadding(new Insets(15));
+        topBox.setPadding(new Insets(20));
+        mainBox.setPadding(new Insets(40));
+        mapImage.setFitWidth(400);
+        topBox.setSpacing(20);
+        bottomBox.setAlignment(Pos.CENTER);
+        mainBox.setAlignment(Pos.CENTER_LEFT);
+        mapImage.setPreserveRatio(true);
+        rootBorderPane.setTop(topBox);
+        rootBorderPane.setBottom(bottomBox);
+        rootBorderPane.setCenter(mainBox);
+
+        //--------Checkpoints---------
+        Circle start1 = new Circle(mapImage.getX(),mapImage.getY(),10,Color.LAWNGREEN);
+
+
+        mapImage.setOnMouseClicked(value -> {
+            System.out.println(value.getX()+","+value.getY());
+        });
 
         Runnable countdown = new Runnable() {
             @Override
