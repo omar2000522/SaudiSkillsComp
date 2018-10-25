@@ -7,8 +7,7 @@ import javafx.animation.RotateTransition;
 import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.geometry.Insets;
-import javafx.geometry.NodeOrientation;
+import javafx.geometry.*;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
@@ -26,7 +25,6 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.scene.layout.*;
-import javafx.geometry.Pos;
 import javafx.util.Duration;
 
 import java.beans.EventHandler;
@@ -1232,7 +1230,12 @@ public class Main extends Application {
         ImageView mapImage = new ImageView(new Image(new FileInputStream("src/sample/Images/marathon-skills-2015-marathon-map.jpg")));
         Pane circlesPane = new Pane();
         StackPane mapPane = new StackPane(mapImage,circlesPane);
-        HBox mainBox = new HBox(mapPane);
+        TabPane infoPane = new TabPane();
+        Label infoTitle = new Label("Samba full marathon");
+        FlowPane iconsPane = new FlowPane();
+        VBox infoBox = new VBox(infoTitle,iconsPane);
+        Tab infoTab = new Tab("Race start");
+        HBox mainBox = new HBox(mapPane,infoPane);
 
 
         //--------Proprieties--------
@@ -1244,14 +1247,25 @@ public class Main extends Application {
         mainBox.setPadding(new Insets(40));
         mapImage.setFitWidth(400);
         topBox.setSpacing(20);
+        infoBox.setSpacing(30);
         bottomBox.setAlignment(Pos.CENTER);
+        infoBox.setAlignment(Pos.CENTER);
         mainBox.setAlignment(Pos.CENTER_LEFT);
         circlesPane.setMinSize(400,400);
         circlesPane.setMaxSize(400,400);
         mapImage.setPreserveRatio(true);
+        infoTab.setClosable(false);
         rootBorderPane.setTop(topBox);
         rootBorderPane.setBottom(bottomBox);
         rootBorderPane.setCenter(mainBox);
+        infoTab.setContent(infoBox);
+        infoPane.getTabs().add(infoTab);
+        iconsPane.setOrientation(Orientation.VERTICAL);
+        iconsPane.setVgap(10);
+        iconsPane.setHgap(20);
+        mainBox.setSpacing(80);
+        infoPane.setMinSize(200,400);
+        infoPane.setStyle("-fx-border-width:3; -fx-border-radius:2;  -fx-border-color:black;");
 
 
         //--------Checkpoints---------
@@ -1284,10 +1298,28 @@ public class Main extends Application {
         Circle checkpoint8 = new Circle(circlesPane.getLayoutX()+101,circlesPane.getLayoutY()+72,15,Color.GOLD);
         circlesPane.getChildren().addAll(start1,start2,start3,checkpoint1,checkpoint2,checkpoint3,checkpoint4,checkpoint5,checkpoint6,checkpoint7,checkpoint8);
 
+        circlesPane.setOnMouseClicked(value -> {
+
+        });
+
         //circlesPane.add(start1,20,20);
         checkpoint1.setOnMouseClicked(value -> {
+            infoTab.setText("Checkpoint 1");
+            if (iconsPane.getChildren().size()>0)iconsPane.getChildren().remove(0,iconsPane.getChildren().size());
             for (int i = 1; i < parsedCheckpointData[0].length; i++) {
-                if (parsedCheckpointData[0][i].equals("Yes")) System.out.println(icons[i-1]);
+                if (parsedCheckpointData[0][i].equals("Yes")) {
+                    try {
+                        ImageView currentIcon = new ImageView(new Image(new FileInputStream("src/sample/Images/"+icons[i-1])));
+                        currentIcon.setFitWidth(50);
+                        currentIcon.setPreserveRatio(true);
+                        Label currentIconName = new Label(icons[i-1].substring(8,icons[i-1].indexOf(".")).replace("-"," "));
+                        VBox currentIconElement = new VBox(currentIcon,currentIconName);
+                        currentIconElement.setSpacing(5);
+                        iconsPane.getChildren().add(currentIconElement);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                }
                 else System.out.println("No "+icons[i-1]);
             }
         });
