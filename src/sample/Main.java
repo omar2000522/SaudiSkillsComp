@@ -1255,6 +1255,21 @@ public class Main extends Application {
 
 
         //--------Checkpoints---------
+        String unparsedCheckpointData = "Avenida Rudge\tYes\tYes\tNo\tNo\tNo\n" +
+                "Theatro Municipal\tYes\tYes\tYes\tYes\tYes\n" +
+                "Parque do Ibirapuera\tYes\tYes\tYes\tNo\tNo\n" +
+                "Jardim Luzitania\tYes\tYes\tYes\tNo\tYes\n" +
+                "Iguatemi\tYes\tYes\tYes\tYes\tNo\n" +
+                "Rua Lisboa\tYes\tYes\tYes\tNo\tNo\n" +
+                "Cemitério da Consolação\tYes\tYes\tYes\tYes\tYes\n" +
+                "Cemitério da Consolação\tYes\tYes\tYes\tYes\tYes\n";
+        String[] icons = {"map-icon-drinks.png","map-icon-energy-bars.png","map-icon-toilets.png","map-icon-information.png","map-icon-medical.png"};
+        String[] semiParsedCeckpointData = unparsedCheckpointData.split("\n");
+        String[][] parsedCheckpointData = new String[semiParsedCeckpointData.length][];
+        for (int i = 0; i < semiParsedCeckpointData.length; i++) {
+            parsedCheckpointData[i] = semiParsedCeckpointData[i].split("\t");
+        }
+
 
         Circle start1 = new Circle(circlesPane.getLayoutX()+255,circlesPane.getLayoutY()+23,15,Color.LAWNGREEN);
         Circle start2 = new Circle(circlesPane.getLayoutX()+224,circlesPane.getLayoutY()+375,15,Color.GREEN);
@@ -1270,7 +1285,54 @@ public class Main extends Application {
         circlesPane.getChildren().addAll(start1,start2,start3,checkpoint1,checkpoint2,checkpoint3,checkpoint4,checkpoint5,checkpoint6,checkpoint7,checkpoint8);
 
         //circlesPane.add(start1,20,20);
-        checkpoint1.setOnMouseClicked(value -> {});
+        checkpoint1.setOnMouseClicked(value -> {
+            for (int i = 1; i < parsedCheckpointData[0].length; i++) {
+                if (parsedCheckpointData[0][i].equals("Yes")) System.out.println(icons[i-1]);
+                else System.out.println("No "+icons[i-1]);
+            }
+        });
+        checkpoint2.setOnMouseClicked(value -> {
+            for (int i = 1; i < parsedCheckpointData[1].length; i++) {
+                if (parsedCheckpointData[1][i].equals("Yes")) System.out.println(icons[i-1]);
+                else System.out.println("No "+icons[i-1]);
+            }
+        });
+        checkpoint3.setOnMouseClicked(value -> {
+            for (int i = 1; i < parsedCheckpointData[0].length; i++) {
+                if (parsedCheckpointData[2][i].equals("Yes")) System.out.println(icons[i-1]);
+                else System.out.println("No "+icons[i-1]);
+            }
+        });
+        checkpoint4.setOnMouseClicked(value -> {
+            for (int i = 1; i < parsedCheckpointData[0].length; i++) {
+                if (parsedCheckpointData[3][i].equals("Yes")) System.out.println(icons[i-1]);
+                else System.out.println("No "+icons[i-1]);
+            }
+        });
+        checkpoint5.setOnMouseClicked(value -> {
+            for (int i = 1; i < parsedCheckpointData[0].length; i++) {
+                if (parsedCheckpointData[4][i].equals("Yes")) System.out.println(icons[i-1]);
+                else System.out.println("No "+icons[i-1]);
+            }
+        });
+        checkpoint6.setOnMouseClicked(value -> {
+            for (int i = 1; i < parsedCheckpointData[0].length; i++) {
+                if (parsedCheckpointData[5][i].equals("Yes")) System.out.println(icons[i-1]);
+                else System.out.println("No "+icons[i-1]);
+            }
+        });
+        checkpoint7.setOnMouseClicked(value -> {
+            for (int i = 1; i < parsedCheckpointData[0].length; i++) {
+                if (parsedCheckpointData[6][i].equals("Yes")) System.out.println(icons[i-1]);
+                else System.out.println("No "+icons[i-1]);
+            }
+        });
+        checkpoint8.setOnMouseClicked(value -> {
+            for (int i = 1; i < parsedCheckpointData[0].length; i++) {
+                if (parsedCheckpointData[7][i].equals("Yes")) System.out.println(icons[i-1]);
+                else System.out.println("No "+icons[i-1]);
+            }
+        });
 
         circlesPane.setOnMouseClicked(value -> {
             System.out.println(value.getX()+","+value.getY());
