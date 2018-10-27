@@ -1189,6 +1189,8 @@ public class Main extends Application {
             }
         });
 
+        backButton.setOnAction(value -> screen10(window));
+
         Runnable countdown = new Runnable() {
             @Override
             public void run() {
@@ -1231,10 +1233,10 @@ public class Main extends Application {
         Pane circlesPane = new Pane();
         StackPane mapPane = new StackPane(mapImage,circlesPane);
         TabPane infoPane = new TabPane();
-        Label infoTitle = new Label("Samba full marathon");
+        Text infoTitle = new Text("Samba Full Marathon");
         FlowPane iconsPane = new FlowPane();
         VBox infoBox = new VBox(infoTitle,iconsPane);
-        Tab infoTab = new Tab("Race start");
+        Tab infoTab = new Tab("Race Start");
         HBox mainBox = new HBox(mapPane,infoPane);
 
 
@@ -1242,9 +1244,11 @@ public class Main extends Application {
         topBox.setStyle("-fx-background-color: #336699;");
         bottomBox.setStyle("-fx-background-color: #336699;");
         titleLabel.setFont(Font.font("Courier New",20));
+        infoTitle.setFont(Font.font("Arial",FontWeight.BOLD,18));
         bottomBox.setPadding(new Insets(15));
         topBox.setPadding(new Insets(20));
         mainBox.setPadding(new Insets(40));
+        infoBox.setPadding(new Insets(20));
         mapImage.setFitWidth(400);
         topBox.setSpacing(20);
         infoBox.setSpacing(30);
@@ -1266,6 +1270,7 @@ public class Main extends Application {
         mainBox.setSpacing(80);
         infoPane.setMinSize(200,400);
         infoPane.setStyle("-fx-border-width:3; -fx-border-radius:2;  -fx-border-color:black;");
+        mapPane.setStyle("-fx-border-width:3; -fx-border-radius:2;  -fx-border-color:black;");
 
 
         //--------Checkpoints---------
@@ -1292,28 +1297,42 @@ public class Main extends Application {
         Circle checkpoint2 = new Circle(circlesPane.getLayoutX()+368,circlesPane.getLayoutY()+167,15,Color.GOLD);
         Circle checkpoint3 = new Circle(circlesPane.getLayoutX()+277,circlesPane.getLayoutY()+216,15,Color.GOLD);
         Circle checkpoint4 = new Circle(circlesPane.getLayoutX()+251,circlesPane.getLayoutY()+334,15,Color.GOLD);
-        Circle checkpoint5 = new Circle(circlesPane.getLayoutX()+162,circlesPane.getLayoutY()+307,15,Color.GOLD);
-        Circle checkpoint6 = new Circle(circlesPane.getLayoutX()+85,circlesPane.getLayoutY()+222,15,Color.GOLD);
-        Circle checkpoint7 = new Circle(circlesPane.getLayoutX()+38,circlesPane.getLayoutY()+133,15,Color.GOLD);
+        Circle checkpoint5 = new Circle(circlesPane.getLayoutX()+163,circlesPane.getLayoutY()+373,15,Color.GOLD);
+        Circle checkpoint6 = new Circle(circlesPane.getLayoutX()+87,circlesPane.getLayoutY()+288,15,Color.GOLD);
+        Circle checkpoint7 = new Circle(circlesPane.getLayoutX()+85,circlesPane.getLayoutY()+149,15,Color.GOLD);
         Circle checkpoint8 = new Circle(circlesPane.getLayoutX()+101,circlesPane.getLayoutY()+72,15,Color.GOLD);
         circlesPane.getChildren().addAll(start1,start2,start3,checkpoint1,checkpoint2,checkpoint3,checkpoint4,checkpoint5,checkpoint6,checkpoint7,checkpoint8);
 
-        circlesPane.setOnMouseClicked(value -> {
 
+        start1.setOnMouseClicked(value -> {
+            infoTitle.setText("Samba Full Marathon");
+            infoTab.setText("Race Start");
+            if (iconsPane.getChildren().size()>0)iconsPane.getChildren().remove(0,iconsPane.getChildren().size());
+        });
+        start2.setOnMouseClicked(value -> {
+            infoTitle.setText("Jongo Half Marathon");
+            infoTab.setText("Race Start");
+            if (iconsPane.getChildren().size()>0)iconsPane.getChildren().remove(0,iconsPane.getChildren().size());
+        });
+        start3.setOnMouseClicked(value -> {
+            infoTitle.setText("Capoeira 5km Fun Run");
+            infoTab.setText("Race Start");
+            if (iconsPane.getChildren().size()>0)iconsPane.getChildren().remove(0,iconsPane.getChildren().size());
         });
 
-        //circlesPane.add(start1,20,20);
+
         checkpoint1.setOnMouseClicked(value -> {
+            infoTitle.setText("Landmark : \n"+parsedCheckpointData[0][0]);
             infoTab.setText("Checkpoint 1");
             if (iconsPane.getChildren().size()>0)iconsPane.getChildren().remove(0,iconsPane.getChildren().size());
             for (int i = 1; i < parsedCheckpointData[0].length; i++) {
                 if (parsedCheckpointData[0][i].equals("Yes")) {
                     try {
                         ImageView currentIcon = new ImageView(new Image(new FileInputStream("src/sample/Images/"+icons[i-1])));
-                        currentIcon.setFitWidth(50);
+                        currentIcon.setFitWidth(35);
                         currentIcon.setPreserveRatio(true);
                         Label currentIconName = new Label(icons[i-1].substring(8,icons[i-1].indexOf(".")).replace("-"," "));
-                        VBox currentIconElement = new VBox(currentIcon,currentIconName);
+                        HBox currentIconElement = new HBox(currentIcon,currentIconName);
                         currentIconElement.setSpacing(5);
                         iconsPane.getChildren().add(currentIconElement);
                     } catch (FileNotFoundException e) {
@@ -1324,50 +1343,162 @@ public class Main extends Application {
             }
         });
         checkpoint2.setOnMouseClicked(value -> {
+            infoTitle.setText("Landmark : \n"+parsedCheckpointData[1][0]);
+            infoTab.setText("Checkpoint 2");
+            if (iconsPane.getChildren().size()>0)iconsPane.getChildren().remove(0,iconsPane.getChildren().size());
             for (int i = 1; i < parsedCheckpointData[1].length; i++) {
-                if (parsedCheckpointData[1][i].equals("Yes")) System.out.println(icons[i-1]);
+                if (parsedCheckpointData[1][i].equals("Yes")) {
+                    try {
+                        ImageView currentIcon = new ImageView(new Image(new FileInputStream("src/sample/Images/"+icons[i-1])));
+                        currentIcon.setFitWidth(35);
+                        currentIcon.setPreserveRatio(true);
+                        Label currentIconName = new Label(icons[i-1].substring(8,icons[i-1].indexOf(".")).replace("-"," "));
+                        HBox currentIconElement = new HBox(currentIcon,currentIconName);
+                        currentIconElement.setSpacing(5);
+                        iconsPane.getChildren().add(currentIconElement);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                }
                 else System.out.println("No "+icons[i-1]);
             }
         });
         checkpoint3.setOnMouseClicked(value -> {
-            for (int i = 1; i < parsedCheckpointData[0].length; i++) {
-                if (parsedCheckpointData[2][i].equals("Yes")) System.out.println(icons[i-1]);
+            infoTitle.setText("Landmark : \n"+parsedCheckpointData[2][0]);
+            infoTab.setText("Checkpoint 3");
+            if (iconsPane.getChildren().size()>0)iconsPane.getChildren().remove(0,iconsPane.getChildren().size());
+            for (int i = 1; i < parsedCheckpointData[2].length; i++) {
+                if (parsedCheckpointData[2][i].equals("Yes")) {
+                    try {
+                        ImageView currentIcon = new ImageView(new Image(new FileInputStream("src/sample/Images/"+icons[i-1])));
+                        currentIcon.setFitWidth(35);
+                        currentIcon.setPreserveRatio(true);
+                        Label currentIconName = new Label(icons[i-1].substring(8,icons[i-1].indexOf(".")).replace("-"," "));
+                        HBox currentIconElement = new HBox(currentIcon,currentIconName);
+                        currentIconElement.setSpacing(5);
+                        iconsPane.getChildren().add(currentIconElement);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                }
                 else System.out.println("No "+icons[i-1]);
             }
         });
         checkpoint4.setOnMouseClicked(value -> {
-            for (int i = 1; i < parsedCheckpointData[0].length; i++) {
-                if (parsedCheckpointData[3][i].equals("Yes")) System.out.println(icons[i-1]);
+            infoTitle.setText("Landmark : \n"+parsedCheckpointData[3][0]);
+            infoTab.setText("Checkpoint 4");
+            if (iconsPane.getChildren().size()>0)iconsPane.getChildren().remove(0,iconsPane.getChildren().size());
+            for (int i = 1; i < parsedCheckpointData[3].length; i++) {
+                if (parsedCheckpointData[3][i].equals("Yes")) {
+                    try {
+                        ImageView currentIcon = new ImageView(new Image(new FileInputStream("src/sample/Images/"+icons[i-1])));
+                        currentIcon.setFitWidth(35);
+                        currentIcon.setPreserveRatio(true);
+                        Label currentIconName = new Label(icons[i-1].substring(8,icons[i-1].indexOf(".")).replace("-"," "));
+                        HBox currentIconElement = new HBox(currentIcon,currentIconName);
+                        currentIconElement.setSpacing(5);
+                        iconsPane.getChildren().add(currentIconElement);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                }
                 else System.out.println("No "+icons[i-1]);
             }
         });
         checkpoint5.setOnMouseClicked(value -> {
-            for (int i = 1; i < parsedCheckpointData[0].length; i++) {
-                if (parsedCheckpointData[4][i].equals("Yes")) System.out.println(icons[i-1]);
+            infoTitle.setText("Landmark : \n"+parsedCheckpointData[4][0]);
+            infoTab.setText("Checkpoint 5");
+            if (iconsPane.getChildren().size()>0)iconsPane.getChildren().remove(0,iconsPane.getChildren().size());
+            for (int i = 1; i < parsedCheckpointData[4].length; i++) {
+                if (parsedCheckpointData[4][i].equals("Yes")) {
+                    try {
+                        ImageView currentIcon = new ImageView(new Image(new FileInputStream("src/sample/Images/"+icons[i-1])));
+                        currentIcon.setFitWidth(35);
+                        currentIcon.setPreserveRatio(true);
+                        Label currentIconName = new Label(icons[i-1].substring(8,icons[i-1].indexOf(".")).replace("-"," "));
+                        HBox currentIconElement = new HBox(currentIcon,currentIconName);
+                        currentIconElement.setSpacing(5);
+                        iconsPane.getChildren().add(currentIconElement);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                }
                 else System.out.println("No "+icons[i-1]);
             }
         });
         checkpoint6.setOnMouseClicked(value -> {
-            for (int i = 1; i < parsedCheckpointData[0].length; i++) {
-                if (parsedCheckpointData[5][i].equals("Yes")) System.out.println(icons[i-1]);
+            infoTitle.setText("Landmark : \n"+parsedCheckpointData[5][0]);
+            infoTab.setText("Checkpoint 6");
+            if (iconsPane.getChildren().size()>0)iconsPane.getChildren().remove(0,iconsPane.getChildren().size());
+            for (int i = 1; i < parsedCheckpointData[5].length; i++) {
+                if (parsedCheckpointData[5][i].equals("Yes")) {
+                    try {
+                        ImageView currentIcon = new ImageView(new Image(new FileInputStream("src/sample/Images/"+icons[i-1])));
+                        currentIcon.setFitWidth(35);
+                        currentIcon.setPreserveRatio(true);
+                        Label currentIconName = new Label(icons[i-1].substring(8,icons[i-1].indexOf(".")).replace("-"," "));
+                        HBox currentIconElement = new HBox(currentIcon,currentIconName);
+                        currentIconElement.setSpacing(5);
+                        iconsPane.getChildren().add(currentIconElement);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                }
                 else System.out.println("No "+icons[i-1]);
             }
         });
         checkpoint7.setOnMouseClicked(value -> {
-            for (int i = 1; i < parsedCheckpointData[0].length; i++) {
-                if (parsedCheckpointData[6][i].equals("Yes")) System.out.println(icons[i-1]);
+            infoTitle.setText("Landmark : \n"+parsedCheckpointData[6][0]);
+            infoTab.setText("Checkpoint 7");
+            if (iconsPane.getChildren().size()>0)iconsPane.getChildren().remove(0,iconsPane.getChildren().size());
+            for (int i = 1; i < parsedCheckpointData[6].length; i++) {
+                if (parsedCheckpointData[6][i].equals("Yes")) {
+                    try {
+                        ImageView currentIcon = new ImageView(new Image(new FileInputStream("src/sample/Images/"+icons[i-1])));
+                        currentIcon.setFitWidth(35);
+                        currentIcon.setPreserveRatio(true);
+                        Label currentIconName = new Label(icons[i-1].substring(8,icons[i-1].indexOf(".")).replace("-"," "));
+                        HBox currentIconElement = new HBox(currentIcon,currentIconName);
+                        currentIconElement.setSpacing(5);
+                        iconsPane.getChildren().add(currentIconElement);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                }
                 else System.out.println("No "+icons[i-1]);
             }
         });
         checkpoint8.setOnMouseClicked(value -> {
-            for (int i = 1; i < parsedCheckpointData[0].length; i++) {
-                if (parsedCheckpointData[7][i].equals("Yes")) System.out.println(icons[i-1]);
+            infoTitle.setText("Landmark : \n"+parsedCheckpointData[7][0]);
+            infoTab.setText("Checkpoint 8");
+            if (iconsPane.getChildren().size()>0)iconsPane.getChildren().remove(0,iconsPane.getChildren().size());
+            for (int i = 1; i < parsedCheckpointData[7].length; i++) {
+                if (parsedCheckpointData[7][i].equals("Yes")) {
+                    try {
+                        ImageView currentIcon = new ImageView(new Image(new FileInputStream("src/sample/Images/"+icons[i-1])));
+                        currentIcon.setFitWidth(35);
+                        currentIcon.setPreserveRatio(true);
+                        Label currentIconName = new Label(icons[i-1].substring(8,icons[i-1].indexOf(".")).replace("-"," "));
+                        HBox currentIconElement = new HBox(currentIcon,currentIconName);
+                        currentIconElement.setSpacing(5);
+                        iconsPane.getChildren().add(currentIconElement);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                }
                 else System.out.println("No "+icons[i-1]);
             }
         });
 
         circlesPane.setOnMouseClicked(value -> {
             System.out.println(value.getX()+","+value.getY());
+        });
+        backButton.setOnAction(value -> {
+            try {
+                screen11(window);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
         });
 
         Runnable countdown = new Runnable() {
