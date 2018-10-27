@@ -1091,6 +1091,7 @@ public class Main extends Application {
                 e.printStackTrace();
             }
         });
+        prevResults.setOnAction(value -> screen14(window));
         backButton.setOnAction(value -> screen1(window));
         window.setScene(new Scene(rootBorderPane,windowWidth,windowHight));
         window.show();
@@ -1626,6 +1627,95 @@ public class Main extends Application {
         window.show();
     }
 
+    public void screen14(Stage window){
+        BorderPane rootBorderPane = new BorderPane();
+        Label countdownLabel = new Label();
+        Label titleLabel = new Label("Marathon Skills 2015");
+        Button backButton = new Button("Back");
+        HBox topBox = new HBox(backButton,titleLabel);
+        HBox bottomBox = new HBox(countdownLabel);
+        Label headerLabel = new Label("Previous race results");
+        ComboBox marathonComboBox = new ComboBox();
+        ComboBox raceEventComboBox = new ComboBox();
+        ComboBox genderComboBox = new ComboBox();
+        ComboBox ageCategoryComboBox = new ComboBox();
+        Label marathonLabel = new Label("Marathon: ");
+        Label raceEventLabel = new Label("Race event: ");
+        Label genderLabel = new Label("Gender: ");
+        Label ageCategoryLabel = new Label("Age category: ");
+        Button searchButton = new Button("Search");
+        HBox marathonElement = new HBox(marathonLabel,marathonComboBox);
+        HBox raceEventElement = new HBox(raceEventLabel,raceEventComboBox);
+        HBox genderElement = new HBox(genderLabel,genderComboBox);
+        HBox ageCategoryElement = new HBox(ageCategoryLabel,ageCategoryComboBox);
+        VBox filterLeft = new VBox(marathonElement,raceEventElement);
+        VBox filterRight = new VBox(genderElement,ageCategoryElement);
+        HBox filterBox = new HBox(filterLeft,filterRight,searchButton);
+        ScrollPane resultsPane = new ScrollPane();
+        HBox resultsBox = new HBox();
+        VBox mainBox = new VBox(headerLabel,filterBox,resultsPane);
+
+        //--------Proprieties--------
+        topBox.setStyle("-fx-background-color: #336699;");
+        bottomBox.setStyle("-fx-background-color: #336699;");
+        resultsBox.setStyle("-fx-background-color: #eeeeee;");
+        titleLabel.setFont(Font.font("Courier New",20));
+        headerLabel.setFont(Font.font("Arial",18));
+        bottomBox.setPadding(new Insets(15));
+        topBox.setPadding(new Insets(20));
+        filterBox.setPadding(new Insets(20));
+        topBox.setSpacing(20);
+        filterLeft.setSpacing(10);
+        filterRight.setSpacing(10);
+        filterBox.setSpacing(50);
+        filterBox.setMinWidth(windowWidth);
+        marathonComboBox.setMinWidth(100);
+        raceEventComboBox.setMinWidth(100);
+        genderComboBox.setMinWidth(100);
+        ageCategoryComboBox.setMinWidth(100);
+        bottomBox.setAlignment(Pos.CENTER);
+        filterBox.setAlignment(Pos.CENTER);
+        mainBox.setAlignment(Pos.CENTER);
+        marathonElement.setAlignment(Pos.CENTER_RIGHT);
+        raceEventElement.setAlignment(Pos.CENTER_RIGHT);
+        genderElement.setAlignment(Pos.CENTER_RIGHT);
+        ageCategoryElement.setAlignment(Pos.CENTER_RIGHT);
+        resultsPane.setContent(resultsBox);
+        rootBorderPane.setTop(topBox);
+        rootBorderPane.setBottom(bottomBox);
+        rootBorderPane.setCenter(mainBox);
+
+        Runnable countdown = new Runnable() {
+            @Override
+            public void run() {
+                while(true){
+                    long countDownInMillis = marathonStart.getTimeInMillis() - System.currentTimeMillis();
+                    long days = countDownInMillis/86400000;
+                    long hours = (countDownInMillis%86400000)/3600000;
+                    long mins = ((countDownInMillis%86400000)%3600000)/60000;
+                    long secs = (((countDownInMillis%86400000)%3600000)%60000)/1000;
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            countdownLabel.setText(days+" days "+hours+" hours "+mins+" minutes "+secs+" seconds until marathon start.");
+                        }
+                    });
+
+                    try {
+                        Thread.sleep(interval);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        Thread thrd = new Thread(countdown);
+        thrd.start();
+
+        window.setScene(new Scene(rootBorderPane, windowWidth, windowHight));
+        window.show();
+    }
+
     public void screen15(Stage window) throws FileNotFoundException {
         BorderPane rootBorderPane = new BorderPane();
         Label countdownLabel = new Label();
@@ -1970,6 +2060,7 @@ public class Main extends Application {
         VBox categoryBox = new VBox(categoryRankLabel);
         HBox midBox = new HBox(marathonBox,eventBox,timeBox,overallBox,categoryBox);
         VBox mainBox = new VBox(headerLabel,descText,labelsBox,midBox,viewAllButton);
+        int[] ageCategory = new int[2];
 
         //--------sql-data-----------
         ResultSet genderAndAge = sqlExe("SELECT Gender, DateOfBirth FROM runner WHERE Email = '"+currentEmail+"';");
@@ -1982,12 +2073,12 @@ public class Main extends Application {
         int age = currentTime.get(Calendar.YEAR) - dob.get(Calendar.YEAR);
         runnerGenderLabel.setText(genderAndAge.getString("Gender")+"    ");
 
-        if(age<18) runnerAgeLabel.setText("Under 18");
-        else if(age<=29) runnerAgeLabel.setText("18 to 29");
-        else if(age<=39) runnerAgeLabel.setText("30 to 39");
-        else if(age<=55) runnerAgeLabel.setText("40 to 55");
-        else if(age<=70) runnerAgeLabel.setText("55 to 70");
-        else runnerAgeLabel.setText("Over 70");
+        if(age<18){runnerAgeLabel.setText("Under 18"); ageCategory[0] = 0; ageCategory[1] = 18;}
+        else if(age<=29){runnerAgeLabel.setText("18 to 29"); ageCategory[0] = 18; ageCategory[1] = 29;}
+        else if(age<=39){runnerAgeLabel.setText("30 to 39"); ageCategory[0] = 30; ageCategory[1] = 39;}
+        else if(age<=55){runnerAgeLabel.setText("40 to 55"); ageCategory[0] = 40; ageCategory[1] = 55;}
+        else if(age<=70){runnerAgeLabel.setText("55 to 70"); ageCategory[0] = 55; ageCategory[1] = 70;}
+        else {runnerAgeLabel.setText("Over 70"); ageCategory[0] = 0; ageCategory[1] = 18;}
 
         ResultSet raceResults = sqlExe("SELECT RegistrationEvent.bibNumber,Event.EventId,RegistrationEvent.RaceTime,Event.EventName,Marathon.MarathonName FROM ((((runner INNER JOIN registration ON runner.RunnerId = registration.RunnerId) INNER JOIN registrationEvent ON registration.RegistrationId = registrationEvent.RegistrationId) INNER JOIN event ON registrationEvent.EventId = event.EventId) INNER JOIN marathon ON event.MarathonId = marathon.MarathonId) WHERE runner.Email ='"+currentEmail+"';");
         ArrayList<String> marathons = new ArrayList<>();
@@ -1995,6 +2086,7 @@ public class Main extends Application {
         ArrayList<String> bibNums = new ArrayList<>();
         ArrayList<Integer> runnerTimes = new ArrayList<>();
         ArrayList<Integer> runnerRanks = new ArrayList<>();
+        ArrayList<Integer> runnerCategoryRanks = new ArrayList<>();
 
         while (raceResults.next()){
             System.out.println(raceResults.getString(1)+"==="+raceResults.getString(2)+"==="+raceResults.getString(3)+"==="+raceResults.getString(4));
@@ -2003,9 +2095,10 @@ public class Main extends Application {
             marathons.add(raceResults.getString("MarathonName"));
         }
         for (String e : events) {
-            ResultSet runners = sqlExe("SELECT bibNumber, RaceTime FROM registrationEvent WHERE eventId = '"+e+"' ORDER BY RaceTime;");
+            ResultSet runners = sqlExe("SELECT bibNumber, RaceTime, runner.DateOfBirth FROM ((registrationEvent INNER JOIN registration ON registration.registrationId = registrationEvent.registrationId) INNER JOIN runner ON registration.runnerId = runner.runnerId) WHERE eventId = '"+e+"' ORDER BY RaceTime;");
             int exemptRunners = 0;
             int currentRank = 1;
+            int currentCategoryRank = 1;
             ArrayList<Integer> allTimes = new ArrayList<>();
             while (runners.next()){
                 if (runners.getInt("RaceTime")==0) {
@@ -2016,10 +2109,15 @@ public class Main extends Application {
                     System.out.print((runners.getRow()-exemptRunners)+"==="+runners.getString("bibNumber")+"==="+runners.getString("RaceTime"));
                     runnerTimes.add(runners.getInt("RaceTime"));
                     runnerRanks.add(currentRank-exemptRunners);
+                    runnerCategoryRanks.add(currentCategoryRank);
                 }
-                if (!allTimes.contains(Integer.parseInt(runners.getString("RaceTime")))){
-                    currentRank+=1;
-                }
+                if (!allTimes.contains(Integer.parseInt(runners.getString("RaceTime"))))currentRank+=1;
+
+                String[] currentRunnerDob = runners.getString("DateOfBirth").substring(0,10).split("-");
+                int currentAgeOfRunner = currentTime.get(Calendar.YEAR) - Integer.parseInt(currentRunnerDob[0]);
+
+                if (currentAgeOfRunner>=ageCategory[0] && currentAgeOfRunner<=ageCategory[1])currentCategoryRank+=1;
+
                 allTimes.add(runners.getInt("RaceTime"));
             }
         }
@@ -2034,7 +2132,7 @@ public class Main extends Application {
             eventBox.getChildren().add(new Label(marathons.get(i)));
             timeBox.getChildren().add(new Label(hours+"h "+mins+"m "+secs+"s"));
             overallBox.getChildren().add(new Label(runnerRanks.get(i).toString()));
-            //categoryBox.getChildren().add(new Label(marathons.get(i)));
+            categoryBox.getChildren().add(new Label(runnerCategoryRanks.get(i).toString()));
         }
         //--------Proprieties--------
         topBox.setStyle("-fx-background-color: #336699;");
@@ -2050,6 +2148,7 @@ public class Main extends Application {
         eventBox.setSpacing(10);
         timeBox.setSpacing(10);
         overallBox.setSpacing(10);
+        categoryBox.setSpacing(10);
         midBox.setAlignment(Pos.CENTER);
         mainBox.setAlignment(Pos.CENTER);
         labelsBox.setAlignment(Pos.CENTER);
@@ -2326,7 +2425,7 @@ public class Main extends Application {
     public ResultSet sqlExe(String query){
         try {
 
-            String URL = "jdbc:mysql://127.0.0.1:3306/cpt02?useSSL=False";
+            String URL = "jdbc:mysql://127.0.0.1:3306/cpt01?useSSL=False";
             String USER = "root";
             String PASS = "omar";
             conn = DriverManager.getConnection(URL, USER, PASS);
@@ -2345,7 +2444,7 @@ public class Main extends Application {
     public void sqlExeIns(String query){
         try {
 
-            String URL = "jdbc:mysql://127.0.0.1:3306/cpt02?useSSL=False";
+            String URL = "jdbc:mysql://127.0.0.1:3306/cpt01?useSSL=False";
             String USER = "root";
             String PASS = "omar";
             conn = DriverManager.getConnection(URL, USER, PASS);
