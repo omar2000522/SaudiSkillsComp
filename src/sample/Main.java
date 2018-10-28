@@ -1658,7 +1658,15 @@ public class Main extends Application {
         VBox filterRight = new VBox(genderElement,ageCategoryElement);
         HBox filterBox = new HBox(filterLeft,filterRight,searchButton);
         ScrollPane resultsPane = new ScrollPane();
-        HBox resultsBox = new HBox();
+        Label ranksLabel = new Label("Rank");
+        Label raceTimeLabel = new Label("Race time");
+        Label runnerNamesLabel = new Label("Runner name");
+        Label countryLabel = new Label("Country");
+        VBox ranksBox = new VBox(ranksLabel);
+        VBox raceTimeBox = new VBox(raceTimeLabel);
+        VBox runnerNamesBox = new VBox(runnerNamesLabel);
+        VBox countrtyBox = new VBox(countryLabel);
+        HBox resultsBox = new HBox(ranksBox,raceTimeBox,runnerNamesBox,countrtyBox);
         VBox mainBox = new VBox(headerLabel,filterBox,resultsPane);
 
         //--------Proprieties--------
@@ -1675,11 +1683,14 @@ public class Main extends Application {
         filterLeft.setSpacing(10);
         filterRight.setSpacing(10);
         filterBox.setSpacing(50);
-        filterBox.setMinWidth(windowWidth);
+        resultsBox.setSpacing(20);
+        filterBox.setMinWidth(windowWidth-200);
         marathonComboBox.setMinWidth(100);
         raceEventComboBox.setMinWidth(100);
         genderComboBox.setMinWidth(100);
         ageCategoryComboBox.setMinWidth(100);
+        resultsBox.setMaxWidth(windowWidth-200);
+        resultsBox.setAlignment(Pos.CENTER);
         bottomBox.setAlignment(Pos.CENTER);
         filterBox.setAlignment(Pos.CENTER);
         mainBox.setAlignment(Pos.TOP_CENTER);
@@ -1722,14 +1733,19 @@ public class Main extends Application {
             }catch (Exception e){e.printStackTrace();}
         });
         searchButton.setOnAction(value -> {
-            ResultSet queryRunners = sqlExe("SELECT * FROM (((registrationevent INNER JOIN registration ON registrationevent.registrationId = registration.registrationId) INNER JOIN runner ON registration.runnerId = runner.runnerId) INNER JOIN user ON user.Email = runner.Email) WHERE registrationevent.EventId = '"+currentEventIds.get(raceEventComboBox.getSelectionModel().getSelectedIndex())+"' AND runner.gender = '"+genderComboBox.getSelectionModel().getSelectedItem().toString()+"' ORDER BY registrationevent.RaceTime;");
+            int rank = 1;
+            ResultSet queryRunners = sqlExe("SELECT user.firstName, user.lastName, runner.countryCode, registrationevent.raceTime FROM (((registrationevent INNER JOIN registration ON registrationevent.registrationId = registration.registrationId) INNER JOIN runner ON registration.runnerId = runner.runnerId) INNER JOIN user ON user.Email = runner.Email) WHERE registrationevent.EventId = '"+currentEventIds.get(raceEventComboBox.getSelectionModel().getSelectedIndex())+"' AND runner.gender = '"+genderComboBox.getSelectionModel().getSelectedItem().toString()+"' ORDER BY registrationevent.RaceTime;");
             try {
-                ScrollPane nib = new ScrollPane();
-                VBox rez = new VBox();
-                nib.setContent(rez);
-                resultsBox.getChildren().add(nib);
-                while (queryRunners.next()) {
 
+                while (queryRunners.next()) {
+                    ranksBox.getChildren().add(new Label(String.valueOf(rank)));
+                    int timeInSecs = queryRunners.getInt("RaceTime");
+                    int hours = timeInSecs/3600;
+                    int mins = (timeInSecs%3600)/60;
+                    int secs = ((timeInSecs%3600)%60);
+                    raceTimeBox.getChildren().add(new Label(hours+"h "+mins+"m "+secs+"s"));
+                    runnerNamesBox.getChildren().add(new Label(queryRunners.getString("firstName")+" "+queryRunners.getString("lastName")));
+                    countrtyBox.getChildren().add(new Label(queryRunners.getString("CountryCode")));
                 }
             }catch (Exception e){e.printStackTrace();}
 //            System.out.println("SELECT * FROM (((registrationevent INNER JOIN registration ON registrationevent.registrationId = registration.registrationId) INNER JOIN runner ON registration.runnerId = runner.runnerId) INNER JOIN user ON user.Email = runner.Email) WHERE registrationevent.EventId = '"+currentEventIds.get(raceEventComboBox.getSelectionModel().getSelectedIndex())+"' AND runner.gender = '"+genderComboBox.getSelectionModel().getSelectedItem().toString()+"' ORDER BY registrationevent.RaceTime;");
