@@ -1697,6 +1697,7 @@ public class Main extends Application {
         //----------code------------------
         ResultSet marathons = sqlExe("SELECT * FROM marathon;");
         ArrayList<Integer> marathonIds = new ArrayList<>();
+        ArrayList<String> currentEventIds = new ArrayList<>();
         while (marathons.next()){
             marathonComboBox.getItems().add(marathons.getString("MarathonName"));
             marathonIds.add(marathons.getInt("MarathonId"));
@@ -1709,13 +1710,29 @@ public class Main extends Application {
 
 
         marathonComboBox.setOnAction(value -> {
+            raceEventComboBox.getItems().remove(0,raceEventComboBox.getItems().size());
+            currentEventIds.clear();
             System.out.println(marathonComboBox.getSelectionModel().getSelectedItem().toString());
             ResultSet raceEvents = sqlExe("SELECT * FROM event WHERE MarathonId = "+(1+marathonComboBox.getSelectionModel().getSelectedIndex())+";");
             try{
                 while (raceEvents.next()){
                     raceEventComboBox.getItems().add(raceEvents.getString("EventName"));
+                    currentEventIds.add(raceEvents.getString("EventId"));
                 }
             }catch (Exception e){e.printStackTrace();}
+        });
+        searchButton.setOnAction(value -> {
+            ResultSet queryRunners = sqlExe("SELECT * FROM (((registrationevent INNER JOIN registration ON registrationevent.registrationId = registration.registrationId) INNER JOIN runner ON registration.runnerId = runner.runnerId) INNER JOIN user ON user.Email = runner.Email) WHERE registrationevent.EventId = '"+currentEventIds.get(raceEventComboBox.getSelectionModel().getSelectedIndex())+"' AND runner.gender = '"+genderComboBox.getSelectionModel().getSelectedItem().toString()+"' ORDER BY registrationevent.RaceTime;");
+            try {
+                ScrollPane nib = new ScrollPane();
+                VBox rez = new VBox();
+                nib.setContent(rez);
+                resultsBox.getChildren().add(nib);
+                while (queryRunners.next()) {
+
+                }
+            }catch (Exception e){e.printStackTrace();}
+//            System.out.println("SELECT * FROM (((registrationevent INNER JOIN registration ON registrationevent.registrationId = registration.registrationId) INNER JOIN runner ON registration.runnerId = runner.runnerId) INNER JOIN user ON user.Email = runner.Email) WHERE registrationevent.EventId = '"+currentEventIds.get(raceEventComboBox.getSelectionModel().getSelectedIndex())+"' AND runner.gender = '"+genderComboBox.getSelectionModel().getSelectedItem().toString()+"' ORDER BY registrationevent.RaceTime;");
         });
 
         Runnable countdown = new Runnable() {
