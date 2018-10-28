@@ -1091,7 +1091,13 @@ public class Main extends Application {
                 e.printStackTrace();
             }
         });
-        prevResults.setOnAction(value -> screen14(window));
+        prevResults.setOnAction(value -> {
+            try {
+                screen14(window);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
         backButton.setOnAction(value -> screen1(window));
         window.setScene(new Scene(rootBorderPane,windowWidth,windowHight));
         window.show();
@@ -1627,7 +1633,7 @@ public class Main extends Application {
         window.show();
     }
 
-    public void screen14(Stage window){
+    public void screen14(Stage window) throws SQLException {
         BorderPane rootBorderPane = new BorderPane();
         Label countdownLabel = new Label();
         Label titleLabel = new Label("Marathon Skills 2015");
@@ -1664,6 +1670,7 @@ public class Main extends Application {
         bottomBox.setPadding(new Insets(15));
         topBox.setPadding(new Insets(20));
         filterBox.setPadding(new Insets(20));
+        mainBox.setPadding(new Insets(30));
         topBox.setSpacing(20);
         filterLeft.setSpacing(10);
         filterRight.setSpacing(10);
@@ -1675,7 +1682,7 @@ public class Main extends Application {
         ageCategoryComboBox.setMinWidth(100);
         bottomBox.setAlignment(Pos.CENTER);
         filterBox.setAlignment(Pos.CENTER);
-        mainBox.setAlignment(Pos.CENTER);
+        mainBox.setAlignment(Pos.TOP_CENTER);
         marathonElement.setAlignment(Pos.CENTER_RIGHT);
         raceEventElement.setAlignment(Pos.CENTER_RIGHT);
         genderElement.setAlignment(Pos.CENTER_RIGHT);
@@ -1684,6 +1691,32 @@ public class Main extends Application {
         rootBorderPane.setTop(topBox);
         rootBorderPane.setBottom(bottomBox);
         rootBorderPane.setCenter(mainBox);
+
+
+
+        //----------code------------------
+        ResultSet marathons = sqlExe("SELECT * FROM marathon;");
+        ArrayList<Integer> marathonIds = new ArrayList<>();
+        while (marathons.next()){
+            marathonComboBox.getItems().add(marathons.getString("MarathonName"));
+            marathonIds.add(marathons.getInt("MarathonId"));
+        }
+        ResultSet twoGenders = sqlExe("SELECT * FROM gender;");
+        while (twoGenders.next()){
+            genderComboBox.getItems().add(twoGenders.getString("Gender"));
+        }
+        ageCategoryComboBox.getItems().addAll("10-18","18-29","30-39","40-55","56-70","70+");
+
+
+        marathonComboBox.setOnAction(value -> {
+            System.out.println(marathonComboBox.getSelectionModel().getSelectedItem().toString());
+            ResultSet raceEvents = sqlExe("SELECT * FROM event WHERE MarathonId = "+(1+marathonComboBox.getSelectionModel().getSelectedIndex())+";");
+            try{
+                while (raceEvents.next()){
+                    raceEventComboBox.getItems().add(raceEvents.getString("EventName"));
+                }
+            }catch (Exception e){e.printStackTrace();}
+        });
 
         Runnable countdown = new Runnable() {
             @Override
@@ -2425,7 +2458,7 @@ public class Main extends Application {
     public ResultSet sqlExe(String query){
         try {
 
-            String URL = "jdbc:mysql://127.0.0.1:3306/cpt01?useSSL=False";
+            String URL = "jdbc:mysql://127.0.0.1:3306/cpt02?useSSL=False";
             String USER = "root";
             String PASS = "omar";
             conn = DriverManager.getConnection(URL, USER, PASS);
@@ -2444,7 +2477,7 @@ public class Main extends Application {
     public void sqlExeIns(String query){
         try {
 
-            String URL = "jdbc:mysql://127.0.0.1:3306/cpt01?useSSL=False";
+            String URL = "jdbc:mysql://127.0.0.1:3306/cpt02?useSSL=False";
             String USER = "root";
             String PASS = "omar";
             conn = DriverManager.getConnection(URL, USER, PASS);
