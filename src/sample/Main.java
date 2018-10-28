@@ -1666,7 +1666,8 @@ public class Main extends Application {
         VBox raceTimeBox = new VBox(raceTimeLabel);
         VBox runnerNamesBox = new VBox(runnerNamesLabel);
         VBox countrtyBox = new VBox(countryLabel);
-        HBox resultsBox = new HBox(ranksBox,raceTimeBox,runnerNamesBox,countrtyBox);
+        VBox statsBox = new VBox();
+        HBox resultsBox = new HBox(ranksBox,raceTimeBox,runnerNamesBox,countrtyBox,statsBox);
         VBox mainBox = new VBox(headerLabel,filterBox,resultsPane);
 
         //--------Proprieties--------
@@ -1675,6 +1676,10 @@ public class Main extends Application {
         resultsBox.setStyle("-fx-background-color: #eeeeee;");
         titleLabel.setFont(Font.font("Courier New",20));
         headerLabel.setFont(Font.font("Arial",18));
+        ranksLabel.setFont(Font.font("Arial",FontWeight.BOLD,16));
+        raceTimeLabel.setFont(Font.font("Arial",FontWeight.BOLD,16));
+        runnerNamesLabel.setFont(Font.font("Arial",FontWeight.BOLD,16));
+        countryLabel.setFont(Font.font("Arial",FontWeight.BOLD,16));
         bottomBox.setPadding(new Insets(15));
         topBox.setPadding(new Insets(20));
         filterBox.setPadding(new Insets(20));
@@ -1690,6 +1695,7 @@ public class Main extends Application {
         genderComboBox.setMinWidth(100);
         ageCategoryComboBox.setMinWidth(100);
         resultsBox.setMaxWidth(windowWidth-200);
+        resultsPane.setMinHeight(windowHight/2);
         resultsBox.setAlignment(Pos.CENTER);
         bottomBox.setAlignment(Pos.CENTER);
         filterBox.setAlignment(Pos.CENTER);
@@ -1733,23 +1739,69 @@ public class Main extends Application {
             }catch (Exception e){e.printStackTrace();}
         });
         searchButton.setOnAction(value -> {
+            if (ranksBox.getChildren().size()>1){
+                ranksBox.getChildren().remove(1,ranksBox.getChildren().size());
+                raceTimeBox.getChildren().remove(1,raceTimeBox.getChildren().size());
+                runnerNamesBox.getChildren().remove(1,runnerNamesBox.getChildren().size());
+                countrtyBox.getChildren().remove(1,countrtyBox.getChildren().size());
+                statsBox.getChildren().remove(0,statsBox.getChildren().size());
+            }
+            String unparsedAgeGroup = ageCategoryComboBox.getSelectionModel().getSelectedItem().toString();
+            int[] ageConstraints = new int[2];
+            if (!unparsedAgeGroup.equals("70+")){
+                ageConstraints[0] = Integer.parseInt(unparsedAgeGroup.substring(0,2));
+                ageConstraints[1] = Integer.parseInt(unparsedAgeGroup.substring(3));
+            }else{
+                ageConstraints[0] = Integer.parseInt(unparsedAgeGroup.substring(0,2));
+                ageConstraints[1] = 100;
+            }
+
+            ArrayList<Integer> raceTimes = new ArrayList<>();
             int rank = 1;
-            ResultSet queryRunners = sqlExe("SELECT user.firstName, user.lastName, runner.countryCode, registrationevent.raceTime FROM (((registrationevent INNER JOIN registration ON registrationevent.registrationId = registration.registrationId) INNER JOIN runner ON registration.runnerId = runner.runnerId) INNER JOIN user ON user.Email = runner.Email) WHERE registrationevent.EventId = '"+currentEventIds.get(raceEventComboBox.getSelectionModel().getSelectedIndex())+"' AND runner.gender = '"+genderComboBox.getSelectionModel().getSelectedItem().toString()+"' ORDER BY registrationevent.RaceTime;");
+            int excemptRunners = 0;
+            long totalTime = 0;
+
+            ResultSet queryRunners = sqlExe("SELECT user.firstName, user.lastName, runner.countryCode, registrationevent.raceTime, runner.DateOfBirth FROM (((registrationevent INNER JOIN registration ON registrationevent.registrationId = registration.registrationId) INNER JOIN runner ON registration.runnerId = runner.runnerId) INNER JOIN user ON user.Email = runner.Email) WHERE registrationevent.EventId = '"+currentEventIds.get(raceEventComboBox.getSelectionModel().getSelectedIndex())+"' AND runner.gender = '"+genderComboBox.getSelectionModel().getSelectedItem().toString()+"' ORDER BY registrationevent.RaceTime;");
             try {
 
                 while (queryRunners.next()) {
-                    ranksBox.getChildren().add(new Label(String.valueOf(rank)));
+                    String[] currentRunnerDob = queryRunners.getString("DateOfBirth").substring(0,10).split("-");
+                    Calendar currentDate = Calendar.getInstance();
+                    currentDate.setTimeInMillis(System.currentTimeMillis());
+                    int currentAge = currentDate.get(Calendar.YEAR) - Integer.parseInt(currentRunnerDob[0]);
                     int timeInSecs = queryRunners.getInt("RaceTime");
                     int hours = timeInSecs/3600;
                     int mins = (timeInSecs%3600)/60;
                     int secs = ((timeInSecs%3600)%60);
-                    raceTimeBox.getChildren().add(new Label(hours+"h "+mins+"m "+secs+"s"));
-                    runnerNamesBox.getChildren().add(new Label(queryRunners.getString("firstName")+" "+queryRunners.getString("lastName")));
-                    countrtyBox.getChildren().add(new Label(queryRunners.getString("CountryCode")));
+
+
+                    if (ageConstraints[0]<currentAge && currentAge<ageConstraints[1] && timeInSecs!=0){
+                        ranksBox.getChildren().add(new Label(String.valueOf(rank)));
+                        raceTimeBox.getChildren().add(new Label(hours+"h "+mins+"m "+secs+"s"));
+                        runnerNamesBox.getChildren().add(new Label(queryRunners.getString("firstName")+" "+queryRunners.getString("lastName")));
+                        countrtyBox.getChildren().add(new Label(queryRunners.getString("CountryCode")));
+                    }
+                    if(timeInSecs != 0 && !raceTimes.contains(timeInSecs)) rank++;
+                    if(timeInSecs != 0) {
+                        raceTimes.add(timeInSecs);
+                        totalTime+=timeInSecs;
+                    }
+                    if(timeInSecs == 0) excemptRunners++;
                 }
+                System.out.println(excemptRunners+rank);
+                System.out.println(rank);
+                System.out.println(excemptRunners);
+                statsBox.getChildren().add(new Label("Total number of runners: "+(excemptRunners+rank)));
+                statsBox.getChildren().add(new Label("Total number of runners that finished: "+rank));
+                long avgTimeInSecs = totalTime/raceTimes.size();
+                long avgHours = avgTimeInSecs/3600;
+                long avgMins = (avgTimeInSecs%3600)/60;
+                long avgSecs = ((avgTimeInSecs%3600)%60);
+                statsBox.getChildren().add(new Label("Average race time: "+avgHours+"h "+avgMins+"m "+avgSecs+"s"));
             }catch (Exception e){e.printStackTrace();}
 //            System.out.println("SELECT * FROM (((registrationevent INNER JOIN registration ON registrationevent.registrationId = registration.registrationId) INNER JOIN runner ON registration.runnerId = runner.runnerId) INNER JOIN user ON user.Email = runner.Email) WHERE registrationevent.EventId = '"+currentEventIds.get(raceEventComboBox.getSelectionModel().getSelectedIndex())+"' AND runner.gender = '"+genderComboBox.getSelectionModel().getSelectedItem().toString()+"' ORDER BY registrationevent.RaceTime;");
         });
+        backButton.setOnAction(value -> screen10(window));
 
         Runnable countdown = new Runnable() {
             @Override
@@ -2491,7 +2543,7 @@ public class Main extends Application {
     public ResultSet sqlExe(String query){
         try {
 
-            String URL = "jdbc:mysql://127.0.0.1:3306/cpt02?useSSL=False";
+            String URL = "jdbc:mysql://127.0.0.1:3306/cpt01?useSSL=False";
             String USER = "root";
             String PASS = "omar";
             conn = DriverManager.getConnection(URL, USER, PASS);
@@ -2510,7 +2562,7 @@ public class Main extends Application {
     public void sqlExeIns(String query){
         try {
 
-            String URL = "jdbc:mysql://127.0.0.1:3306/cpt02?useSSL=False";
+            String URL = "jdbc:mysql://127.0.0.1:3306/cpt01?useSSL=False";
             String USER = "root";
             String PASS = "omar";
             conn = DriverManager.getConnection(URL, USER, PASS);
