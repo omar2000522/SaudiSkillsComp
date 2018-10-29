@@ -1000,6 +1000,15 @@ public class Main extends Application {
                 e.printStackTrace();
             }
         });
+        sponsorshipsButton.setOnAction(value -> {
+            try {
+                screen18(window);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        });
         logoutButton.setOnAction(value -> {
             screen1(window);
         });
@@ -2274,6 +2283,122 @@ public class Main extends Application {
         rootBorderPane.setTop(topBox);
         rootBorderPane.setBottom(bottomBox);
         rootBorderPane.setCenter(mainBox);
+
+        Runnable countdown = new Runnable() {
+            @Override
+            public void run() {
+                while(true){
+                    long countDownInMillis = marathonStart.getTimeInMillis() - System.currentTimeMillis();
+                    long days = countDownInMillis/86400000;
+                    long hours = (countDownInMillis%86400000)/3600000;
+                    long mins = ((countDownInMillis%86400000)%3600000)/60000;
+                    long secs = (((countDownInMillis%86400000)%3600000)%60000)/1000;
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            countdownLabel.setText(days+" days "+hours+" hours "+mins+" minutes "+secs+" seconds until marathon start.");
+                        }
+                    });
+
+                    try {
+                        Thread.sleep(interval);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        Thread thrd = new Thread(countdown);
+        thrd.start();
+
+        window.setScene(new Scene(rootBorderPane, windowWidth, windowHight));
+        window.show();
+    }
+
+    public void screen18(Stage window) throws SQLException, FileNotFoundException {
+        BorderPane rootBorderPane = new BorderPane();
+        Label countdownLabel = new Label();
+        Label titleLabel = new Label("Marathon Skills 2015");
+        Button backButton = new Button("Back");
+        HBox topBox = new HBox(backButton,titleLabel);
+        HBox bottomBox = new HBox(countdownLabel);
+        Label headerLabel = new Label("My sponsorships");
+        Label charityLabel = new Label("CHARITY");
+        ImageView charityImage = new ImageView();
+        Text charityDesc = new Text();
+        Label sponsorLabel = new Label("Sponsor");
+        Label amountLabel = new Label("Amount");
+        VBox sponsorsNamesBox = new VBox(sponsorLabel);
+        VBox amountsBox = new VBox(amountLabel);
+        HBox contributorsBox = new HBox(sponsorsNamesBox,amountsBox);
+        ScrollPane sponsorsPane = new ScrollPane();
+        VBox leftSide = new VBox(charityLabel,charityImage,charityDesc);
+        VBox rightSide = new VBox(sponsorsPane);
+        ScrollPane leftSidePane = new ScrollPane();
+        HBox bothSides = new HBox(leftSidePane,rightSide);
+        VBox mainBox = new VBox(headerLabel,bothSides);
+
+        //--------Proprieties--------
+        topBox.setStyle("-fx-background-color: #336699;");
+        bottomBox.setStyle("-fx-background-color: #336699;");
+        titleLabel.setFont(Font.font("Courier New",20));
+        charityLabel.setFont(Font.font("Arial",FontWeight.SEMI_BOLD,16));
+        headerLabel.setFont(Font.font("Arial",FontWeight.BOLD,18));
+        amountLabel.setFont(Font.font("Arial",FontWeight.BOLD,16));
+        sponsorLabel.setFont(Font.font("Arial",FontWeight.BOLD,16));
+        bottomBox.setPadding(new Insets(15));
+        topBox.setPadding(new Insets(20));
+        contributorsBox.setPadding(new Insets(20));
+        sponsorsPane.setMinSize(200,300);
+        leftSidePane.setMinWidth(400);
+        leftSide.setMinWidth(380);
+        leftSidePane.setMaxHeight(400);
+        charityImage.setFitWidth(200);
+        charityDesc.setWrappingWidth(300);
+        topBox.setSpacing(20);
+        mainBox.setSpacing(20);
+        bothSides.setSpacing(10);
+        contributorsBox.setSpacing(100);
+        rightSide.setSpacing(20);
+        leftSide.setSpacing(20);
+        bottomBox.setAlignment(Pos.CENTER);
+        mainBox.setAlignment(Pos.CENTER);
+        bothSides.setAlignment(Pos.CENTER);
+        leftSide.setAlignment(Pos.CENTER);
+        rightSide.setAlignment(Pos.CENTER);
+        leftSidePane.setContent(leftSide);
+        sponsorsPane.setContent(contributorsBox);
+        rootBorderPane.setTop(topBox);
+        rootBorderPane.setBottom(bottomBox);
+        rootBorderPane.setCenter(mainBox);
+        charityImage.setPreserveRatio(true);
+
+        //---------getting-charity-info--------------
+        ResultSet charityInfo = sqlExe("SELECT charity.charityId, charity.charityName, charity.charityLogo, charity.charityDescription FROM ((charity INNER JOIN registration ON charity.charityId = registration.charityId) INNER JOIN runner ON runner.runnerId = registration.runnerId) WHERE Email ='"+currentEmail+"';");
+        charityInfo.next();
+        charityLabel.setText(charityInfo.getString("charityName"));
+        charityImage.setImage(new Image(new FileInputStream("src/sample/Images/"+charityInfo.getString("charityLogo"))));
+        charityDesc.setText(charityInfo.getString("charityDescription"));
+
+        //---------getting-sponsors-info-------------
+        ResultSet sponsors = sqlExe("SELECT sponsorship.sponsorName, sponsorship.amount FROM ((sponsorship INNER JOIN registration ON registration.registrationId = sponsorship.registrationId) INNER JOIN runner ON registration.runnerId = runner.runnerId) WHERE Email ='"+currentEmail+"';");
+        int total = 0;
+        while (sponsors.next()){
+            sponsorsNamesBox.getChildren().add(new Label(sponsors.getString("sponsorName")));
+            amountsBox.getChildren().add(new Label(sponsors.getString("amount")));
+            total += sponsors.getInt("amount");
+        }
+        Label totalLabel = new Label("Total: ");
+        Label totalAmount = new Label(String.valueOf(total));
+        totalLabel.setFont(Font.font("Arial",FontWeight.BOLD,14));
+        totalAmount.setFont(Font.font("Arial",FontWeight.BOLD,14));
+
+        sponsorsNamesBox.getChildren().addAll(new Label(),totalLabel);
+        amountsBox.getChildren().addAll(new Label(),totalAmount);
+        System.out.println(total);
+
+
+        backButton.setOnAction(value -> screen9(window));
 
         Runnable countdown = new Runnable() {
             @Override
