@@ -2478,7 +2478,13 @@ public class Main extends Application {
         backButton.setOnAction(value -> {
             screen3(window);
         });
-        runnersButton.setOnAction(value ->screen22(window));
+        runnersButton.setOnAction(value -> {
+            try {
+                screen22(window);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
 
         Runnable countdown = new Runnable() {
             @Override
@@ -2594,7 +2600,7 @@ public class Main extends Application {
         window.show();
     }
 
-    public void screen22(Stage window){
+    public void screen22(Stage window) throws SQLException {
         BorderPane rootBorderPane = new BorderPane();
         Label countdownLabel = new Label();
         Label titleLabel = new Label("Marathon Skills 2015");
@@ -2639,12 +2645,59 @@ public class Main extends Application {
         titleLabel.setFont(Font.font("Courier New",20));
         bottomBox.setPadding(new Insets(15));
         topBox.setPadding(new Insets(20));
+        mainBox.setPadding(new Insets(20));
         topBox.setSpacing(20);
+        resultsBox.setSpacing(20);
+        filterAndExportBox.setSpacing(80);
+        filterBox.setSpacing(10);
+        exportBox.setSpacing(10);
+        raceEventCombo.setMinWidth(150);
+        sortByCombo.setMinWidth(150);
+        statusCombo.setMinWidth(150);
+        resultsPane.setMaxWidth(windowWidth-100);
+        resultsBox.setMinWidth(windowWidth-110);
         bottomBox.setAlignment(Pos.CENTER);
+        mainBox.setAlignment(Pos.TOP_CENTER);
+        resultsBox.setAlignment(Pos.CENTER);
+        filterAndExportBox.setAlignment(Pos.CENTER);
+        filterBox.setAlignment(Pos.CENTER);
+        exportBox.setAlignment(Pos.CENTER);
+        raceEventElement.setAlignment(Pos.CENTER_RIGHT);
+        sortElement.setAlignment(Pos.CENTER_RIGHT);
+        statusElement.setAlignment(Pos.CENTER_RIGHT);
         resultsPane.setContent(resultsBox);
         rootBorderPane.setTop(topBox);
         rootBorderPane.setBottom(bottomBox);
         rootBorderPane.setCenter(mainBox);
+
+        //---------code------------------
+        statusCombo.getItems().addAll("Registered","Payment Confirmed","Race Kit Sent","Race Attended");
+        sortByCombo.getItems().addAll("First name","Last name","Email");
+
+        refreshButton.setOnAction(value -> {
+            String sortBy = " ORDER BY ";
+            int statusNum = statusCombo.getSelectionModel().getSelectedIndex() + 1;
+
+            switch (sortByCombo.getSelectionModel().getSelectedItem().toString()) {
+                case "First name":
+                    sortBy+="user.firstName";
+                    break;
+                case "Last name":
+                    sortBy+="user.lastName";
+                    break;
+                case "Email":
+                    sortBy+="user.email";
+            }
+
+        });
+
+
+        //-------sql-events-info---------
+        ResultSet eventsInfo = sqlExe("SELECT * FROM event WHERE marathonId = 5;");
+        while (eventsInfo.next()){
+            raceEventCombo.getItems().add(eventsInfo.getString("EventName"));
+        }
+
 
         Runnable countdown = new Runnable() {
             @Override
