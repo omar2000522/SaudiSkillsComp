@@ -2693,7 +2693,7 @@ public class Main extends Application {
                     sortBy+="user.email";
             }
 
-            ResultSet runners = sqlExe("SELECT user.firstName, user.lastName, user.Email, registrationStatus.registrationStatus FROM (((((user INNER JOIN runner ON user.Email = runner.Email) INNER JOIN registration ON registration.runnerId = runner.runnerId ) INNER JOIN registrationStatus ON registrationStatus.registrationStatusId = registration.registrationStatusId) INNER JOIN registrationEvent ON registrationEvent.registrationId = registration.registrationId) INNER JOIN event ON event.eventId = registrationEvent.eventId) WHERE registrationStatus.registrationStatusId = "+statusNum+" "+sortBy+";");
+            ResultSet runners = sqlExe("SELECT user.firstName, user.lastName, user.Email, registrationStatus.registrationStatus FROM (((((user INNER JOIN runner ON user.Email = runner.Email) INNER JOIN registration ON registration.runnerId = runner.runnerId ) INNER JOIN registrationStatus ON registrationStatus.registrationStatusId = registration.registrationStatusId) INNER JOIN registrationEvent ON registrationEvent.registrationId = registration.registrationId) INNER JOIN event ON event.eventId = registrationEvent.eventId) WHERE registrationStatus.registrationStatusId = "+statusNum+" AND event.eventName = '"+raceEventCombo.getSelectionModel().getSelectedItem().toString()+"' "+sortBy+";");
             try{
                 while (runners.next()){
                     firstNameBox.getChildren().add(new Label(runners.getString("firstName")));
@@ -2703,6 +2703,18 @@ public class Main extends Application {
                 }
             }
             catch (Exception e){e.printStackTrace();}
+        });
+        exportCSVButton.setOnAction(value -> {
+            Stage pathWindow = new Stage();
+            Label pathLabel = new Label("Please enter a valid path for the output file.");
+            TextField pathField = new TextField("C:\\Users\\USER\\Desktop\\SS");
+            Button doneButton = new Button(" Next ");
+            VBox pathBox = new VBox(pathLabel,pathField,doneButton);
+            pathBox.setAlignment(Pos.CENTER);
+            pathBox.setSpacing(20);
+            Scene pathScene = new Scene(pathBox,300,200);
+            pathWindow.setScene(pathScene);
+            pathWindow.show();
         });
 
 
