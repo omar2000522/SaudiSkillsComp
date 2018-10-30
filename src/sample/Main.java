@@ -2655,7 +2655,7 @@ public class Main extends Application {
         sortByCombo.setMinWidth(150);
         statusCombo.setMinWidth(150);
         resultsPane.setMaxWidth(windowWidth-100);
-        resultsBox.setMinWidth(windowWidth-110);
+        resultsBox.setMinWidth(windowWidth-120);
         bottomBox.setAlignment(Pos.CENTER);
         mainBox.setAlignment(Pos.TOP_CENTER);
         resultsBox.setAlignment(Pos.CENTER);
@@ -2675,7 +2675,11 @@ public class Main extends Application {
         sortByCombo.getItems().addAll("First name","Last name","Email");
 
         refreshButton.setOnAction(value -> {
-            String sortBy = " ORDER BY ";
+            firstNameBox.getChildren().remove(1,firstNameBox.getChildren().size());
+            lastNameBox.getChildren().remove(1,lastNameBox.getChildren().size());
+            emailBox.getChildren().remove(1,emailBox.getChildren().size());
+            statusBox.getChildren().remove(1,statusBox.getChildren().size());
+            String sortBy = "ORDER BY ";
             int statusNum = statusCombo.getSelectionModel().getSelectedIndex() + 1;
 
             switch (sortByCombo.getSelectionModel().getSelectedItem().toString()) {
@@ -2689,6 +2693,16 @@ public class Main extends Application {
                     sortBy+="user.email";
             }
 
+            ResultSet runners = sqlExe("SELECT user.firstName, user.lastName, user.Email, registrationStatus.registrationStatus FROM (((((user INNER JOIN runner ON user.Email = runner.Email) INNER JOIN registration ON registration.runnerId = runner.runnerId ) INNER JOIN registrationStatus ON registrationStatus.registrationStatusId = registration.registrationStatusId) INNER JOIN registrationEvent ON registrationEvent.registrationId = registration.registrationId) INNER JOIN event ON event.eventId = registrationEvent.eventId) WHERE registrationStatus.registrationStatusId = "+statusNum+" "+sortBy+";");
+            try{
+                while (runners.next()){
+                    firstNameBox.getChildren().add(new Label(runners.getString("firstName")));
+                    lastNameBox.getChildren().add(new Label(runners.getString("lastName")));
+                    emailBox.getChildren().add(new Label(runners.getString("Email")));
+                    statusBox.getChildren().add(new Label(runners.getString("registrationStatus")));
+                }
+            }
+            catch (Exception e){e.printStackTrace();}
         });
 
 
