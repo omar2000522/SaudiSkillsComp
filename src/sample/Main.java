@@ -270,8 +270,8 @@ public class Main extends Application {
         Label loginLabel = new Label("Login Form");
         Label userLabel = new Label("Email: ");
         Label passLabel = new Label("Password: ");
-        TextField userField = new TextField("a.wenzinger@gmail.com");
-        TextField passField = new TextField("u!!CqiDD");
+        TextField userField = new TextField("w.bubash@manda.com");
+        TextField passField = new TextField("eWq16ALB");
         Button loginButton = new Button("Login");
         Button cancelButton = new Button("Cancel");
         Label errLabel = new Label();
@@ -2430,7 +2430,7 @@ public class Main extends Application {
         window.setScene(new Scene(rootBorderPane, windowWidth, windowHight));
         window.show();
     }
-
+    //coordinator menu
     public void screen19(Stage window){
         BorderPane rootBorderPane = new BorderPane();
         Label titleLabel = new Label("Marathon Skills 2015");
@@ -2478,6 +2478,7 @@ public class Main extends Application {
         backButton.setOnAction(value -> {
             screen3(window);
         });
+        runnersButton.setOnAction(value ->screen22(window));
 
         Runnable countdown = new Runnable() {
             @Override
@@ -2593,6 +2594,89 @@ public class Main extends Application {
         window.show();
     }
 
+    public void screen22(Stage window){
+        BorderPane rootBorderPane = new BorderPane();
+        Label countdownLabel = new Label();
+        Label titleLabel = new Label("Marathon Skills 2015");
+        Button backButton = new Button("Back");
+        HBox topBox = new HBox(backButton,titleLabel);
+        HBox bottomBox = new HBox(countdownLabel);
+        Label headerLabel = new Label("Runner management");
+        Label h2Label = new Label("Sort and filter");
+        Label h3Label = new Label("Export");
+        Label statusLabel = new Label("Status: ");
+        Label raceEventLabel = new Label("Race event: ");
+        Label sortLabel = new Label("Sort by: ");
+        ComboBox statusCombo = new ComboBox();
+        ComboBox raceEventCombo = new ComboBox();
+        ComboBox sortByCombo = new ComboBox();
+        HBox statusElement = new HBox(statusLabel,statusCombo);
+        HBox raceEventElement = new HBox(raceEventLabel,raceEventCombo);
+        HBox sortElement = new HBox(sortLabel,sortByCombo);
+        Button exportCSVButton = new Button("Runner details (CSV)");
+        Button emailButton = new Button("Email address list");
+        VBox filterBox = new VBox(h2Label,statusElement,raceEventElement,sortElement);
+        VBox exportBox = new VBox(h3Label,exportCSVButton,emailButton);
+        Button refreshButton = new Button(" Refresh ");
+        HBox filterAndExportBox = new HBox(filterBox,refreshButton,exportBox);
+        Label firstNameLabel = new Label("First name");
+        Label lastNameLabel = new Label("Last name");
+        Label emailLabel = new Label("Email");
+        Label statLabel = new Label("Status");
+        Label totalRunners = new Label();
+        VBox firstNameBox = new VBox(firstNameLabel);
+        VBox lastNameBox = new VBox(lastNameLabel);
+        VBox emailBox = new VBox(emailLabel);
+        VBox statusBox = new VBox(statLabel);
+        VBox editButtonsBox = new VBox();
+        ScrollPane resultsPane = new ScrollPane();
+        HBox resultsBox = new HBox(firstNameBox,lastNameBox,emailBox,statusBox,editButtonsBox);
+        VBox mainBox = new VBox(headerLabel,filterAndExportBox,new Label(),totalRunners,resultsPane);
+
+        //--------Proprieties--------
+        topBox.setStyle("-fx-background-color: #336699;");
+        bottomBox.setStyle("-fx-background-color: #336699;");
+        titleLabel.setFont(Font.font("Courier New",20));
+        bottomBox.setPadding(new Insets(15));
+        topBox.setPadding(new Insets(20));
+        topBox.setSpacing(20);
+        bottomBox.setAlignment(Pos.CENTER);
+        resultsPane.setContent(resultsBox);
+        rootBorderPane.setTop(topBox);
+        rootBorderPane.setBottom(bottomBox);
+        rootBorderPane.setCenter(mainBox);
+
+        Runnable countdown = new Runnable() {
+            @Override
+            public void run() {
+                while(true){
+                    long countDownInMillis = marathonStart.getTimeInMillis() - System.currentTimeMillis();
+                    long days = countDownInMillis/86400000;
+                    long hours = (countDownInMillis%86400000)/3600000;
+                    long mins = ((countDownInMillis%86400000)%3600000)/60000;
+                    long secs = (((countDownInMillis%86400000)%3600000)%60000)/1000;
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            countdownLabel.setText(days+" days "+hours+" hours "+mins+" minutes "+secs+" seconds until marathon start.");
+                        }
+                    });
+
+                    try {
+                        Thread.sleep(interval);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        Thread thrd = new Thread(countdown);
+        thrd.start();
+
+        window.setScene(new Scene(rootBorderPane, windowWidth, windowHight));
+        window.show();
+    }
+
     public void loginScreen3(Stage window){
         //---------DEFINITIONS--------
         BorderPane borderPane = new BorderPane();
@@ -2668,7 +2752,7 @@ public class Main extends Application {
     public ResultSet sqlExe(String query){
         try {
 
-            String URL = "jdbc:mysql://127.0.0.1:3306/cpt01?useSSL=False";
+            String URL = "jdbc:mysql://127.0.0.1:3306/cpt02?useSSL=False";
             String USER = "root";
             String PASS = "omar";
             conn = DriverManager.getConnection(URL, USER, PASS);
@@ -2687,7 +2771,7 @@ public class Main extends Application {
     public void sqlExeIns(String query){
         try {
 
-            String URL = "jdbc:mysql://127.0.0.1:3306/cpt01?useSSL=False";
+            String URL = "jdbc:mysql://127.0.0.1:3306/cpt02?useSSL=False";
             String USER = "root";
             String PASS = "omar";
             conn = DriverManager.getConnection(URL, USER, PASS);
