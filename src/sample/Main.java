@@ -28,8 +28,7 @@ import javafx.scene.layout.*;
 import javafx.util.Duration;
 
 import java.beans.EventHandler;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.sql.*;
 import java.util.*;
 
@@ -2693,13 +2692,16 @@ public class Main extends Application {
                     sortBy+="user.email";
             }
 
-            ResultSet runners = sqlExe("SELECT user.firstName, user.lastName, user.Email, registrationStatus.registrationStatus FROM (((((user INNER JOIN runner ON user.Email = runner.Email) INNER JOIN registration ON registration.runnerId = runner.runnerId ) INNER JOIN registrationStatus ON registrationStatus.registrationStatusId = registration.registrationStatusId) INNER JOIN registrationEvent ON registrationEvent.registrationId = registration.registrationId) INNER JOIN event ON event.eventId = registrationEvent.eventId) WHERE registrationStatus.registrationStatusId = "+statusNum+" AND event.eventName = '"+raceEventCombo.getSelectionModel().getSelectedItem().toString()+"' "+sortBy+";");
+            ResultSet runners = sqlExe("SELECT user.firstName, user.lastName, user.Email, runner.gender, country.countryName, registrationStatus.registrationStatus FROM ((((((user INNER JOIN runner ON user.Email = runner.Email) INNER JOIN registration ON registration.runnerId = runner.runnerId ) INNER JOIN registrationStatus ON registrationStatus.registrationStatusId = registration.registrationStatusId) INNER JOIN registrationEvent ON registrationEvent.registrationId = registration.registrationId) INNER JOIN event ON event.eventId = registrationEvent.eventId) INNER JOIN country ON runner.countryCode = country.countryCode) WHERE registrationStatus.registrationStatusId = "+statusNum+" AND event.eventName = '"+raceEventCombo.getSelectionModel().getSelectedItem().toString()+"' "+sortBy+";");
+            ArrayList<String[]> runnersTable = new ArrayList<>();
+
             try{
                 while (runners.next()){
                     firstNameBox.getChildren().add(new Label(runners.getString("firstName")));
                     lastNameBox.getChildren().add(new Label(runners.getString("lastName")));
                     emailBox.getChildren().add(new Label(runners.getString("Email")));
                     statusBox.getChildren().add(new Label(runners.getString("registrationStatus")));
+
                 }
             }
             catch (Exception e){e.printStackTrace();}
@@ -2707,7 +2709,7 @@ public class Main extends Application {
         exportCSVButton.setOnAction(value -> {
             Stage pathWindow = new Stage();
             Label pathLabel = new Label("Please enter a valid path for the output file.");
-            TextField pathField = new TextField("C:\\Users\\USER\\Desktop\\SS");
+            TextField pathField = new TextField("C:\\Users\\USER\\Desktop\\SS\\runnersInfo.csv");
             Button doneButton = new Button(" Next ");
             VBox pathBox = new VBox(pathLabel,pathField,doneButton);
             pathBox.setAlignment(Pos.CENTER);
@@ -2715,6 +2717,20 @@ public class Main extends Application {
             Scene pathScene = new Scene(pathBox,300,200);
             pathWindow.setScene(pathScene);
             pathWindow.show();
+
+            doneButton.setOnAction(lol -> {
+                File runnersInfoFile = new File(pathField.getText());
+                String data = "firstName,lastName,Email,Gender,Country,DOB,RegistrationStatus,RaceEvents\n";
+                try {
+                    FileWriter fr = new FileWriter(runnersInfoFile);
+                    Label[] emailsArray = (Label[]) emailBox.getChildren().toArray();
+                    for (int i = 1; i < emailsArray.length; i++) {
+                        //emailsArray[i].get;
+                    }
+                }
+                catch (IOException e) { e.printStackTrace(); }
+
+            });
         });
 
 
