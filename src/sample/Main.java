@@ -2771,6 +2771,7 @@ public class Main extends Application {
             emailsMainBox.setSpacing(20);
             emailsMainBox.setPadding(new Insets(30));
             mainPane.setContent(emailsMainBox);
+            emails.setWrappingWidth(300);
 
             //get emails
             for (int i = 1; i < emailBox.getChildren().size(); i++) {
@@ -2783,6 +2784,7 @@ public class Main extends Application {
                 emailsString.append(currentEmailLabel.getText() + ">;");
 
             }
+            emails.setText(emailsString.toString());
 
             copyButton.setOnAction(e -> {
                 Clipboard cb = Clipboard.getSystemClipboard();
