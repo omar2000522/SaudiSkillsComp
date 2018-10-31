@@ -41,11 +41,16 @@ public class Main extends Application {
     Long interval = 1000L;
     Calendar marathonStart = Calendar.getInstance();
     String currentEmail;
+    String URL = "jdbc:mysql://127.0.0.1:3306/cpt02?useSSL=False";
+    String USER = "root";
+    String PASS = "omar";
+
 
 
     @Override
     public void start(Stage primaryStage) throws Exception{
         primaryStage.setTitle("Brazil Marathon");
+        conn = DriverManager.getConnection(URL, USER, PASS);
         marathonStart.set(2019,8,5,6,0);
         //textParse();
         screen1(primaryStage);
@@ -2719,16 +2724,31 @@ public class Main extends Application {
             pathWindow.show();
 
             doneButton.setOnAction(lol -> {
+                pathWindow.close();
                 File runnersInfoFile = new File(pathField.getText());
-                String data = "firstName,lastName,Email,Gender,Country,DOB,RegistrationStatus,RaceEvents\n";
+                StringBuilder data = new StringBuilder("firstName,lastName,Email,Gender,Country,DOB,RegistrationStatus,RaceEvents\n");
                 try {
                     FileWriter fr = new FileWriter(runnersInfoFile);
-                    Label[] emailsArray = (Label[]) emailBox.getChildren().toArray();
-                    for (int i = 1; i < emailsArray.length; i++) {
-                        //emailsArray[i].get;
+                    ArrayList<String> emailsArray = new ArrayList<>();
+
+                    for (Object e:emailBox.getChildren().toArray()) {
+                        Label tempLabel = (Label) e;
+                        emailsArray.add(tempLabel.getText());
                     }
+
+                    for (int i = 1; i < emailsArray.size(); i++) {
+                        ResultSet runnerInfo = sqlExe("SELECT user.firstName, user.lastName, user.Email, runner.gender, country.countryName, runner.dateOfBirth, registrationStatus.registrationStatus, event.eventName FROM ((((((user INNER JOIN runner ON user.Email = runner.Email) INNER JOIN registration ON registration.runnerId = runner.runnerId ) INNER JOIN registrationStatus ON registrationStatus.registrationStatusId = registration.registrationStatusId) INNER JOIN registrationEvent ON registrationEvent.registrationId = registration.registrationId) INNER JOIN event ON event.eventId = registrationEvent.eventId) INNER JOIN country ON runner.countryCode = country.countryCode) WHERE user.Email = '"+emailsArray.get(i)+"';");
+                        runnerInfo.next();
+                        data.append(runnerInfo.getString("firstName")+","+runnerInfo.getString("lastName")+","+runnerInfo.getString("Email")+","+runnerInfo.getString("gender")+","+runnerInfo.getString("countryName")+","+runnerInfo.getString("dateOfBirth")+","+runnerInfo.getString("registrationStatus")+",\""+runnerInfo.getString("eventName"));
+                        while (runnerInfo.next()){
+                            data.append(","+runnerInfo.getString("eventName"));
+                        }
+                        data.append("\"\n");
+                    }
+                    fr.write(data.toString());
+
                 }
-                catch (IOException e) { e.printStackTrace(); }
+                catch (IOException | SQLException e) { e.printStackTrace(); }
 
             });
         });
@@ -2847,10 +2867,6 @@ public class Main extends Application {
     public ResultSet sqlExe(String query){
         try {
 
-            String URL = "jdbc:mysql://127.0.0.1:3306/cpt02?useSSL=False";
-            String USER = "root";
-            String PASS = "omar";
-            conn = DriverManager.getConnection(URL, USER, PASS);
             System.out.println("connected");
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
