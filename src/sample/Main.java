@@ -14,6 +14,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.image.*;
 import javafx.scene.paint.Color;
@@ -2710,6 +2712,8 @@ public class Main extends Application {
                 }
             }
             catch (Exception e){e.printStackTrace();}
+            totalRunners.setText("Total runners: "+(emailBox.getChildren().size()-1));
+
         });
         exportCSVButton.setOnAction(value -> {
             Stage pathWindow = new Stage();
@@ -2751,6 +2755,45 @@ public class Main extends Application {
                 catch (IOException | SQLException e) { e.printStackTrace(); }
 
             });
+        });
+        emailButton.setOnAction(value -> {
+            Stage emailsStage = new Stage();
+            ScrollPane mainPane = new ScrollPane();
+            Text emails = new Text();
+            Button copyButton = new Button("Copy to Clipboard");
+            VBox emailsMainBox = new VBox(copyButton,emails);
+            StringBuilder emailsString = new StringBuilder();
+
+
+            //proprieties
+            emails.setText(emailsString.toString());
+            emailsMainBox.setAlignment(Pos.CENTER);
+            emailsMainBox.setSpacing(20);
+            emailsMainBox.setPadding(new Insets(30));
+            mainPane.setContent(emailsMainBox);
+
+            //get emails
+            for (int i = 1; i < emailBox.getChildren().size(); i++) {
+                Label currentFirstNameLabel = (Label) firstNameBox.getChildren().get(i);
+                Label currentLastNameLabel = (Label) lastNameBox.getChildren().get(i);
+                Label currentEmailLabel = (Label) emailBox.getChildren().get(i);
+
+                emailsString.append("\"" + currentFirstNameLabel.getText() + " ");
+                emailsString.append(currentLastNameLabel.getText() + "\" <");
+                emailsString.append(currentEmailLabel.getText() + ">;");
+
+            }
+
+            copyButton.setOnAction(e -> {
+                Clipboard cb = Clipboard.getSystemClipboard();
+                ClipboardContent emailToCopy = new ClipboardContent();
+                emailToCopy.putString(emailsString.toString());
+                cb.setContent(emailToCopy);
+
+            });
+
+            emailsStage.setScene(new Scene(mainPane,400,400));
+            emailsStage.show();
         });
 
 
