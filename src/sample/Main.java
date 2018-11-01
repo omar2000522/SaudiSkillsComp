@@ -2635,12 +2635,13 @@ public class Main extends Application {
         Label lastNameLabel = new Label("Last name");
         Label emailLabel = new Label("Email");
         Label statLabel = new Label("Status");
+        Label editLabel = new Label("Edit");
         Label totalRunners = new Label();
         VBox firstNameBox = new VBox(firstNameLabel);
         VBox lastNameBox = new VBox(lastNameLabel);
         VBox emailBox = new VBox(emailLabel);
         VBox statusBox = new VBox(statLabel);
-        VBox editButtonsBox = new VBox();
+        VBox editButtonsBox = new VBox(editLabel);
         ScrollPane resultsPane = new ScrollPane();
         HBox resultsBox = new HBox(firstNameBox,lastNameBox,emailBox,statusBox,editButtonsBox);
         VBox mainBox = new VBox(headerLabel,filterAndExportBox,new Label(),totalRunners,resultsPane);
@@ -2708,6 +2709,16 @@ public class Main extends Application {
                     lastNameBox.getChildren().add(new Label(runners.getString("lastName")));
                     emailBox.getChildren().add(new Label(runners.getString("Email")));
                     statusBox.getChildren().add(new Label(runners.getString("registrationStatus")));
+                    String tempEmail = runners.getString("Email");
+
+                    Label tempEditButton = new Label(" Edit ");
+                    tempEditButton.setTextFill(Color.DARKBLUE);
+                    tempEditButton.setOnMouseClicked(val -> {
+                        screen23(window,tempEmail);
+                    });
+
+
+                    editButtonsBox.getChildren().add(tempEditButton);
 
                 }
             }
@@ -2806,6 +2817,106 @@ public class Main extends Application {
         }
 
 
+        Runnable countdown = new Runnable() {
+            @Override
+            public void run() {
+                while(true){
+                    long countDownInMillis = marathonStart.getTimeInMillis() - System.currentTimeMillis();
+                    long days = countDownInMillis/86400000;
+                    long hours = (countDownInMillis%86400000)/3600000;
+                    long mins = ((countDownInMillis%86400000)%3600000)/60000;
+                    long secs = (((countDownInMillis%86400000)%3600000)%60000)/1000;
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            countdownLabel.setText(days+" days "+hours+" hours "+mins+" minutes "+secs+" seconds until marathon start.");
+                        }
+                    });
+
+                    try {
+                        Thread.sleep(interval);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        Thread thrd = new Thread(countdown);
+        thrd.start();
+
+        window.setScene(new Scene(rootBorderPane, windowWidth, windowHight));
+        window.show();
+    }
+
+    public void screen23(Stage window, String email){
+        BorderPane rootBorderPane = new BorderPane();
+        Label countdownLabel = new Label();
+        Label titleLabel = new Label("Marathon Skills 2015");
+        Button backButton = new Button("Back");
+        HBox topBox = new HBox(backButton,titleLabel);
+        HBox bottomBox = new HBox(countdownLabel);
+        Label emailLabel = new Label("Email:");
+        Label firstNameLabel = new Label("First Name:");
+        Label lastNameLabel = new Label("Last Name:");
+        Label genderLabel = new Label("Gender:");
+        Label dobLabel = new Label("Date Of Birth:");
+        Label countryLabel = new Label("Country:");
+        Label charityLabel = new Label("Charity:");
+        Label targetLabel = new Label("Target to Raise:");
+        Label raceKitLabel = new Label("Race Kit Option:");
+        Label eventLabel = new Label("Race Events:");
+        Label runneremailLabel = new Label();
+        Label runnerfirstNameLabel = new Label();
+        Label runnerlastNameLabel = new Label();
+        Label runnergenderLabel = new Label();
+        Label runnerdobLabel = new Label();
+        Label runnercountryLabel = new Label();
+        Label runnercharityLabel = new Label();
+        Label runnertargetLabel = new Label();
+        Label runnerraceKitLabel = new Label();
+        Label runnereventLabel = new Label();
+        VBox labelsBox = new VBox(emailLabel,firstNameLabel,lastNameLabel,genderLabel,dobLabel,countryLabel,charityLabel,targetLabel,raceKitLabel,eventLabel);
+        VBox runnerLabelsBox = new VBox(runneremailLabel,runnerfirstNameLabel,runnerlastNameLabel,runnergenderLabel,runnerdobLabel,runnercountryLabel,runnercharityLabel,runnertargetLabel,runnerraceKitLabel,runnereventLabel);
+        VBox leftSide = new VBox(labelsBox,runnerLabelsBox);
+        Label regStatusLabel = new Label("Registration status");
+        Label regStatLabel = new Label("Registered");
+        Label payStatLabel = new Label("Payment Confirmed");
+        Label kitStatLabel = new Label("Race Kit Sent");
+        Label attStatLabel = new Label("Race Attended");
+        VBox statusLabelsBox = new VBox(regStatLabel,payStatLabel,kitStatLabel,attStatLabel);
+        Button previewCert = new Button("Preview certificate");
+        Button editProfButton = new Button("Edit profile");
+        HBox buttonsBox = new HBox(previewCert,editProfButton);
+        ImageView tick1 = new ImageView();
+        ImageView tick2 = new ImageView();
+        ImageView tick3 = new ImageView();
+        ImageView tick4 = new ImageView();
+        VBox imagesBox = new VBox(tick1,tick2,tick3,tick4);
+        StackPane imagePanes = new StackPane(imagesBox);
+        HBox statusBox = new HBox(statusLabelsBox,imagePanes);
+        VBox rightSide = new VBox(regStatusLabel,statusBox,buttonsBox);
+
+
+        //--------Proprieties--------
+        topBox.setStyle("-fx-background-color: #336699;");
+        bottomBox.setStyle("-fx-background-color: #336699;");
+        titleLabel.setFont(Font.font("Courier New",20));
+        bottomBox.setPadding(new Insets(15));
+        topBox.setPadding(new Insets(20));
+        topBox.setSpacing(20);
+        bottomBox.setAlignment(Pos.CENTER);
+        rootBorderPane.setTop(topBox);
+        rootBorderPane.setBottom(bottomBox);
+
+        System.out.println("\n\n"+email+"\n\n");
+
+        backButton.setOnAction(val -> {
+            try {
+                screen22(window);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
         Runnable countdown = new Runnable() {
             @Override
             public void run() {
