@@ -2714,7 +2714,13 @@ public class Main extends Application {
                     Label tempEditButton = new Label(" Edit ");
                     tempEditButton.setTextFill(Color.DARKBLUE);
                     tempEditButton.setOnMouseClicked(val -> {
-                        screen23(window,tempEmail);
+                        try {
+                            screen23(window,tempEmail);
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
                     });
 
 
@@ -2848,13 +2854,14 @@ public class Main extends Application {
         window.show();
     }
 
-    public void screen23(Stage window, String email){
+    public void screen23(Stage window, String email) throws FileNotFoundException, SQLException {
         BorderPane rootBorderPane = new BorderPane();
         Label countdownLabel = new Label();
         Label titleLabel = new Label("Marathon Skills 2015");
         Button backButton = new Button("Back");
         HBox topBox = new HBox(backButton,titleLabel);
         HBox bottomBox = new HBox(countdownLabel);
+        Label headerLabel = new Label("Manage a runner");
         Label emailLabel = new Label("Email:");
         Label firstNameLabel = new Label("First Name:");
         Label lastNameLabel = new Label("Last Name:");
@@ -2895,18 +2902,70 @@ public class Main extends Application {
         StackPane imagePanes = new StackPane(imagesBox);
         HBox statusBox = new HBox(statusLabelsBox,imagePanes);
         VBox rightSide = new VBox(regStatusLabel,statusBox,buttonsBox);
+        HBox bothSides = new HBox(leftSide,rightSide);
+        VBox mainBox = new VBox(headerLabel,bothSides);
 
 
         //--------Proprieties--------
         topBox.setStyle("-fx-background-color: #336699;");
         bottomBox.setStyle("-fx-background-color: #336699;");
         titleLabel.setFont(Font.font("Courier New",20));
+        headerLabel.setFont(Font.font("Arial",FontWeight.BOLD,18));
+        regStatusLabel.setFont(Font.font("Arial",FontWeight.SEMI_BOLD,16));
         bottomBox.setPadding(new Insets(15));
         topBox.setPadding(new Insets(20));
+        mainBox.setPadding(new Insets(40,40,0,40));
+        rightSide.setPadding(new Insets(20));
+        leftSide.setPadding(new Insets(20));
+        mainBox.setMaxHeight(windowHight-bottomBox.getHeight());
         topBox.setSpacing(20);
+        mainBox.setSpacing(20);
+        labelsBox.setSpacing(10);
+        runnerLabelsBox.setSpacing(10);
+        bothSides.setSpacing(200);
+        rightSide.setSpacing(30);
+        buttonsBox.setSpacing(20);
+        statusLabelsBox.setSpacing(50);
+        imagesBox.setSpacing(15);
+        statusBox.setSpacing(15);
+        imagePanes.setAlignment(Pos.CENTER);
+        rightSide.setAlignment(Pos.TOP_CENTER);
+        labelsBox.setAlignment(Pos.CENTER_RIGHT);
+        bothSides.setAlignment(Pos.CENTER);
+        runnerLabelsBox.setAlignment(Pos.CENTER_LEFT);
         bottomBox.setAlignment(Pos.CENTER);
+        mainBox.setAlignment(Pos.TOP_CENTER);
+        statusLabelsBox.setAlignment(Pos.CENTER_RIGHT);
         rootBorderPane.setTop(topBox);
         rootBorderPane.setBottom(bottomBox);
+        rootBorderPane.setCenter(mainBox);
+        tick1.setImage(new Image(new FileInputStream("src/sample/Images/tick-icon.png")));
+        tick2.setImage(new Image(new FileInputStream("src/sample/Images/tick-icon.png")));
+        tick3.setImage(new Image(new FileInputStream("src/sample/Images/tick-icon.png")));
+        tick4.setImage(new Image(new FileInputStream("src/sample/Images/tick-icon.png")));
+        tick1.setFitWidth(50);
+        tick2.setFitWidth(50);
+        tick3.setFitWidth(50);
+        tick4.setFitWidth(50);
+        tick1.setPreserveRatio(true);
+        tick2.setPreserveRatio(true);
+        tick3.setPreserveRatio(true);
+        tick4.setPreserveRatio(true);
+
+        //----getting-runner-info------
+        ResultSet runnerInfo = sqlExe("SELECT user.firstName, user.lastName, user.Email, runner.gender, country.countryName, registrationStatus.registrationStatus, runner.dateOfBirth, charity.charityName, registration.sponsorshipTarget, raceKitOption.raceKitOption, event.eventName FROM ((((((((user INNER JOIN runner ON user.Email = runner.Email) INNER JOIN registration ON registration.runnerId = runner.runnerId ) INNER JOIN registrationStatus ON registrationStatus.registrationStatusId = registration.registrationStatusId) INNER JOIN registrationEvent ON registrationEvent.registrationId = registration.registrationId) INNER JOIN event ON event.eventId = registrationEvent.eventId) INNER JOIN country ON runner.countryCode = country.countryCode) INNER JOIN raceKitOption ON registration.raceKitOptionId = raceKitOption.raceKitOptionId) INNER JOIN charity ON registration.charityId = charity.charityId) WHERE user.Email ='"+email+"';");
+        runnerInfo.next();
+        runneremailLabel.setText(runnerInfo.getString("Email"));
+        runnerfirstNameLabel.setText(runnerInfo.getString("firstName"));
+        runnerlastNameLabel.setText(runnerInfo.getString("lastName"));
+        runnergenderLabel.setText(runnerInfo.getString("gender"));
+        runnerdobLabel.setText(runnerInfo.getString("dateOfBirth"));
+        runnercountryLabel.setText(runnerInfo.getString("countryName"));
+        runnercharityLabel.setText(runnerInfo.getString("charityName"));
+        runnertargetLabel.setText(runnerInfo.getString("sponsorshipTarget"));
+        runnerraceKitLabel.setText(runnerInfo.getString("raceKitOption"));
+        runnereventLabel.setText(runnerInfo.getString("eventName"));
+
 
         System.out.println("\n\n"+email+"\n\n");
 
