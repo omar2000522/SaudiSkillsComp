@@ -7,6 +7,7 @@ import javafx.animation.RotateTransition;
 import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.property.ObjectProperty;
 import javafx.geometry.*;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -20,6 +21,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.image.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -43,7 +45,7 @@ public class Main extends Application {
     Long interval = 1000L;
     Calendar marathonStart = Calendar.getInstance();
     String currentEmail;
-    String URL = "jdbc:mysql://127.0.0.1:3306/cpt02?useSSL=False";
+    String URL = "jdbc:mysql://127.0.0.1:3306/cpt01?useSSL=False";
     String USER = "root";
     String PASS = "omar";
 
@@ -2814,6 +2816,7 @@ public class Main extends Application {
             emailsStage.setScene(new Scene(mainPane,400,400));
             emailsStage.show();
         });
+        backButton.setOnAction(value -> screen19(window));
 
 
         //-------sql-events-info---------
@@ -2884,7 +2887,7 @@ public class Main extends Application {
         Label runnereventLabel = new Label();
         VBox labelsBox = new VBox(emailLabel,firstNameLabel,lastNameLabel,genderLabel,dobLabel,countryLabel,charityLabel,targetLabel,raceKitLabel,eventLabel);
         VBox runnerLabelsBox = new VBox(runneremailLabel,runnerfirstNameLabel,runnerlastNameLabel,runnergenderLabel,runnerdobLabel,runnercountryLabel,runnercharityLabel,runnertargetLabel,runnerraceKitLabel,runnereventLabel);
-        VBox leftSide = new VBox(labelsBox,runnerLabelsBox);
+        HBox leftSide = new HBox(labelsBox,runnerLabelsBox);
         Label regStatusLabel = new Label("Registration status");
         Label regStatLabel = new Label("Registered");
         Label payStatLabel = new Label("Payment Confirmed");
@@ -2904,6 +2907,7 @@ public class Main extends Application {
         VBox rightSide = new VBox(regStatusLabel,statusBox,buttonsBox);
         HBox bothSides = new HBox(leftSide,rightSide);
         VBox mainBox = new VBox(headerLabel,bothSides);
+        Rectangle rect = new Rectangle(10,200,Color.GRAY);
 
 
         //--------Proprieties--------
@@ -2922,8 +2926,9 @@ public class Main extends Application {
         mainBox.setSpacing(20);
         labelsBox.setSpacing(10);
         runnerLabelsBox.setSpacing(10);
-        bothSides.setSpacing(200);
+        bothSides.setSpacing(100);
         rightSide.setSpacing(30);
+        leftSide.setSpacing(10);
         buttonsBox.setSpacing(20);
         statusLabelsBox.setSpacing(50);
         imagesBox.setSpacing(15);
@@ -2951,10 +2956,13 @@ public class Main extends Application {
         tick2.setPreserveRatio(true);
         tick3.setPreserveRatio(true);
         tick4.setPreserveRatio(true);
+        imagePanes.getChildren().add(0,rect);
+
 
         //----getting-runner-info------
         ResultSet runnerInfo = sqlExe("SELECT user.firstName, user.lastName, user.Email, runner.gender, country.countryName, registrationStatus.registrationStatus, runner.dateOfBirth, charity.charityName, registration.sponsorshipTarget, raceKitOption.raceKitOption, event.eventName FROM ((((((((user INNER JOIN runner ON user.Email = runner.Email) INNER JOIN registration ON registration.runnerId = runner.runnerId ) INNER JOIN registrationStatus ON registrationStatus.registrationStatusId = registration.registrationStatusId) INNER JOIN registrationEvent ON registrationEvent.registrationId = registration.registrationId) INNER JOIN event ON event.eventId = registrationEvent.eventId) INNER JOIN country ON runner.countryCode = country.countryCode) INNER JOIN raceKitOption ON registration.raceKitOptionId = raceKitOption.raceKitOptionId) INNER JOIN charity ON registration.charityId = charity.charityId) WHERE user.Email ='"+email+"';");
         runnerInfo.next();
+        String status =runnerInfo.getString("registrationStatus");
         runneremailLabel.setText(runnerInfo.getString("Email"));
         runnerfirstNameLabel.setText(runnerInfo.getString("firstName"));
         runnerlastNameLabel.setText(runnerInfo.getString("lastName"));
@@ -2965,11 +2973,193 @@ public class Main extends Application {
         runnertargetLabel.setText(runnerInfo.getString("sponsorshipTarget"));
         runnerraceKitLabel.setText(runnerInfo.getString("raceKitOption"));
         runnereventLabel.setText(runnerInfo.getString("eventName"));
+        while (runnerInfo.next()) runnereventLabel.setText(runnereventLabel.getText() + ", " + runnerInfo.getString("eventName"));
 
+        switch (status){
+            case "Registered":
+                tick2.setImage(new Image(new FileInputStream("src/sample/Images/cross-icon.png")));
+                tick3.setImage(new Image(new FileInputStream("src/sample/Images/cross-icon.png")));
+                tick4.setImage(new Image(new FileInputStream("src/sample/Images/cross-icon.png")));
+                break;
+            case "Payment Confirmed":
+                tick3.setImage(new Image(new FileInputStream("src/sample/Images/cross-icon.png")));
+                tick4.setImage(new Image(new FileInputStream("src/sample/Images/cross-icon.png")));
+                break;
+            case "Race Kit Sent":
+                tick4.setImage(new Image(new FileInputStream("src/sample/Images/cross-icon.png")));
+                break;
+        }
 
         System.out.println("\n\n"+email+"\n\n");
 
         backButton.setOnAction(val -> {
+            try {
+                screen22(window);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+        editProfButton.setOnAction(val -> {
+            try {
+                screen24(window,email);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+        Runnable countdown = new Runnable() {
+            @Override
+            public void run() {
+                while(true){
+                    long countDownInMillis = marathonStart.getTimeInMillis() - System.currentTimeMillis();
+                    long days = countDownInMillis/86400000;
+                    long hours = (countDownInMillis%86400000)/3600000;
+                    long mins = ((countDownInMillis%86400000)%3600000)/60000;
+                    long secs = (((countDownInMillis%86400000)%3600000)%60000)/1000;
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            countdownLabel.setText(days+" days "+hours+" hours "+mins+" minutes "+secs+" seconds until marathon start.");
+                        }
+                    });
+
+                    try {
+                        Thread.sleep(interval);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        Thread thrd = new Thread(countdown);
+        thrd.start();
+
+        window.setScene(new Scene(rootBorderPane, windowWidth, windowHight));
+        window.show();
+    }
+
+    public void screen24(Stage window, String email) throws SQLException {
+        BorderPane rootBorderPane = new BorderPane();
+        Label countdownLabel = new Label();
+        Label titleLabel = new Label("Marathon Skills 2015");
+        Button backButton = new Button("Back");
+        HBox topBox = new HBox(backButton,titleLabel);
+        HBox bottomBox = new HBox(countdownLabel);
+        Label headerLabel = new Label("Edit your profile");
+        Label emailLabel = new Label("Email : ");
+        Label firstNameLabel = new Label("First Name:");
+        Label lastNameLabel = new Label("Last Name:");
+        Label genderLabel = new Label("Gender:");
+        Label dobLabel = new Label("Date of Birth:");
+        Label countryLabel = new Label("Country:");
+        Label emailBoldLabel = new Label(email);
+        TextField firstNameField = new TextField();
+        TextField lastNameField = new TextField();
+        ComboBox genderCombo = new ComboBox();
+        TextField dobField = new TextField("YYYY-MM-DD");
+        ComboBox countryCombo = new ComboBox();
+        VBox leftLabelsBox = new VBox(emailLabel,firstNameLabel,lastNameLabel,genderLabel,dobLabel,countryLabel);
+        VBox leftFieldsBox = new VBox(emailBoldLabel,firstNameField,lastNameField,genderCombo,dobField,countryCombo);
+        HBox leftSide = new HBox(leftLabelsBox,leftFieldsBox);
+        Label changePwLabel = new Label("Change password");
+        Label pwDescLabel = new Label("Leave these fields blank if you do not\n want to change the password.");
+        Label pwLabel = new Label("Password: ");
+        Label pw2Label = new Label("Password Again: ");
+        TextField pwField = new TextField();
+        TextField pw2Field = new TextField();
+        VBox rightLabelsBox = new VBox(pwLabel,pw2Label);
+        VBox rightFieldsBox = new VBox(pwField,pw2Field);
+        HBox rightElements = new HBox(rightLabelsBox,rightFieldsBox);
+        VBox rightSide = new VBox(changePwLabel,pwDescLabel,rightElements);
+        Button saveButton = new Button("Save");
+        Button cancelButton = new Button("Cancel");
+        HBox buttonsBox = new HBox(saveButton,cancelButton);
+        HBox midBox = new HBox(leftSide,rightSide);
+        VBox mainBox = new VBox(headerLabel,midBox,buttonsBox);
+
+
+        //--------Proprieties--------
+        topBox.setStyle("-fx-background-color: #336699;");
+        bottomBox.setStyle("-fx-background-color: #336699;");
+        titleLabel.setFont(Font.font("Courier New",20));
+        headerLabel.setFont(Font.font(18));
+        changePwLabel.setFont(Font.font(16));
+        pwDescLabel.setFont(Font.font(14));
+        emailBoldLabel.setFont(Font.font(null, FontWeight.BOLD,12));
+        bottomBox.setPadding(new Insets(15));
+        topBox.setPadding(new Insets(20));
+        mainBox.setPadding(new Insets(50));
+        midBox.setSpacing(100);
+        topBox.setSpacing(20);
+        mainBox.setSpacing(40);
+        rightSide.setSpacing(20);
+        leftSide.setSpacing(20);
+        buttonsBox.setSpacing(20);
+        rightElements.setSpacing(20);
+        leftFieldsBox.setSpacing(8);
+        leftLabelsBox.setSpacing(15);
+        rightFieldsBox.setSpacing(9);
+        rightLabelsBox.setSpacing(15);
+        bottomBox.setAlignment(Pos.CENTER);
+        mainBox.setAlignment(Pos.TOP_CENTER);
+        midBox.setAlignment(Pos.CENTER);
+        buttonsBox.setAlignment(Pos.CENTER);
+        rightSide.setAlignment(Pos.CENTER);
+        rootBorderPane.setTop(topBox);
+        rootBorderPane.setBottom(bottomBox);
+        rootBorderPane.setCenter(mainBox);
+
+        //---------sql-data-------------
+        ResultSet genders = sqlExe("SELECT * FROM Gender;");
+        while (genders.next()) genderCombo.getItems().add(genders.getString("Gender"));
+
+        ResultSet countries = sqlExe("SELECT CountryName FROM Country;");
+        while (countries.next())countryCombo.getItems().add(countries.getString("CountryName"));
+
+        saveButton.setOnAction(value -> {
+            String pw =pwField.getText();
+            Calendar now = Calendar.getInstance();
+            Calendar dob = Calendar.getInstance();
+            now.setTimeInMillis(System.currentTimeMillis());
+
+            String[] dobValues = dobField.getText().split("-");
+            dob.set(Integer.parseInt(dobValues[0])+10, Integer.parseInt(dobValues[1]), Integer.parseInt(dobValues[2]));
+            if(dobValues[1].length() == 1){
+                dobValues[1] = "0"+dobValues[1];
+            }
+            if(dobValues[2].length() == 1){
+                dobValues[2] = "0"+dobValues[2];
+            }
+
+            boolean pwRequirements =
+                    (pw.contains("!")||pw.contains("@")||pw.contains("#")||pw.contains("$")||pw.contains("%")||pw.contains("^")) &&
+                            (!pw.toLowerCase().equals(pw) && !pw.toUpperCase().equals(pw)) &&
+                            (pw.contains("1")||pw.contains("2")||pw.contains("3")||pw.contains("4")||pw.contains("5")||pw.contains("6")||pw.contains("7")||pw.contains("8")||pw.contains("9")||pw.contains("0")) &&
+                            (pw.length()>=6);
+            System.out.println(pwRequirements);
+            if(pwField.getText().equals(pw2Field.getText()) &&
+                    pwRequirements &&
+                    !firstNameField.getText().equals("") &&
+                    !lastNameField.getText().equals("") &&
+                    !genderCombo.getSelectionModel().isEmpty() &&
+                    !countryCombo.getSelectionModel().isEmpty() &&
+                    dob.before(now)){
+                sqlExeIns("UPDATE user SET Password = '"+pw+"' , FirstName = '"+firstNameField.getText()+"' , LastName = '"+lastNameField.getText()+"' WHERE Email = '"+email+"';");
+                sqlExeIns("UPDATE runner SET Gender = '"+genderCombo.getSelectionModel().getSelectedItem().toString()+"' , DateOfBirth = '"+dobValues[0]+"-"+dobValues[1]+"-"+dobValues[2]+"', CountryCode = (SELECT CountryCode FROM Country WHERE CountryName = '"+countryCombo.getSelectionModel().getSelectedItem().toString()+"') WHERE Email = '"+currentEmail+"'");
+            }
+            else if(pwField.getText().equals(pw2Field.getText()) &&
+                    pwField.getText().equals("") &&
+                    !firstNameField.getText().equals("") &&
+                    !lastNameField.getText().equals("") &&
+                    !genderCombo.getSelectionModel().isEmpty() &&
+                    !countryCombo.getSelectionModel().isEmpty() &&
+                    dob.before(now)){
+                sqlExeIns("UPDATE user SET FirstName = '"+firstNameField.getText()+"' , LastName = '"+lastNameField.getText()+"' WHERE Email = '"+email+"';");
+                sqlExeIns("UPDATE runner SET Gender = '"+genderCombo.getSelectionModel().getSelectedItem().toString()+"' , DateOfBirth = '"+dobValues[0]+"-"+dobValues[1]+"-"+dobValues[2]+"', CountryCode = (SELECT CountryCode FROM Country WHERE CountryName = '"+countryCombo.getSelectionModel().getSelectedItem().toString()+"') WHERE Email = '"+currentEmail+"'");
+            }
+
+        });
+
+        backButton.setOnAction(value -> {
             try {
                 screen22(window);
             } catch (SQLException e) {
