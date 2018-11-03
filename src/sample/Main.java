@@ -2688,6 +2688,8 @@ public class Main extends Application {
             lastNameBox.getChildren().remove(1,lastNameBox.getChildren().size());
             emailBox.getChildren().remove(1,emailBox.getChildren().size());
             statusBox.getChildren().remove(1,statusBox.getChildren().size());
+            editButtonsBox.getChildren().remove(1,editButtonsBox.getChildren().size());
+
             String sortBy = "ORDER BY ";
             int statusNum = statusCombo.getSelectionModel().getSelectedIndex() + 1;
 
@@ -3069,7 +3071,11 @@ public class Main extends Application {
         VBox rightLabelsBox = new VBox(pwLabel,pw2Label);
         VBox rightFieldsBox = new VBox(pwField,pw2Field);
         HBox rightElements = new HBox(rightLabelsBox,rightFieldsBox);
-        VBox rightSide = new VBox(changePwLabel,pwDescLabel,rightElements);
+        VBox topRightSide = new VBox(changePwLabel,pwDescLabel,rightElements);
+        Label changeStat = new Label("Registration status");
+        ComboBox stats = new ComboBox();
+        VBox rightBottomBox = new VBox(changeStat,stats);
+        VBox rightSide = new VBox(topRightSide,rightBottomBox);
         Button saveButton = new Button("Save");
         Button cancelButton = new Button("Cancel");
         HBox buttonsBox = new HBox(saveButton,cancelButton);
@@ -3091,7 +3097,8 @@ public class Main extends Application {
         midBox.setSpacing(100);
         topBox.setSpacing(20);
         mainBox.setSpacing(40);
-        rightSide.setSpacing(20);
+        topRightSide.setSpacing(20);
+        rightBottomBox.setSpacing(20);
         leftSide.setSpacing(20);
         buttonsBox.setSpacing(20);
         rightElements.setSpacing(20);
@@ -3099,11 +3106,12 @@ public class Main extends Application {
         leftLabelsBox.setSpacing(15);
         rightFieldsBox.setSpacing(9);
         rightLabelsBox.setSpacing(15);
+        rightSide.setSpacing(50);
         bottomBox.setAlignment(Pos.CENTER);
         mainBox.setAlignment(Pos.TOP_CENTER);
         midBox.setAlignment(Pos.CENTER);
         buttonsBox.setAlignment(Pos.CENTER);
-        rightSide.setAlignment(Pos.CENTER);
+        topRightSide.setAlignment(Pos.CENTER);
         rootBorderPane.setTop(topBox);
         rootBorderPane.setBottom(bottomBox);
         rootBorderPane.setCenter(mainBox);
@@ -3114,6 +3122,9 @@ public class Main extends Application {
 
         ResultSet countries = sqlExe("SELECT CountryName FROM Country;");
         while (countries.next())countryCombo.getItems().add(countries.getString("CountryName"));
+
+        ResultSet statsRs = sqlExe("SELECT registrationStatus FROM registrationStatus;");
+        while (statsRs.next())stats.getItems().add(statsRs.getString("registrationStatus"));
 
         saveButton.setOnAction(value -> {
             String pw =pwField.getText();
@@ -3142,9 +3153,11 @@ public class Main extends Application {
                     !lastNameField.getText().equals("") &&
                     !genderCombo.getSelectionModel().isEmpty() &&
                     !countryCombo.getSelectionModel().isEmpty() &&
+                    !stats.getSelectionModel().isEmpty() &&
                     dob.before(now)){
                 sqlExeIns("UPDATE user SET Password = '"+pw+"' , FirstName = '"+firstNameField.getText()+"' , LastName = '"+lastNameField.getText()+"' WHERE Email = '"+email+"';");
-                sqlExeIns("UPDATE runner SET Gender = '"+genderCombo.getSelectionModel().getSelectedItem().toString()+"' , DateOfBirth = '"+dobValues[0]+"-"+dobValues[1]+"-"+dobValues[2]+"', CountryCode = (SELECT CountryCode FROM Country WHERE CountryName = '"+countryCombo.getSelectionModel().getSelectedItem().toString()+"') WHERE Email = '"+currentEmail+"'");
+                sqlExeIns("UPDATE runner SET Gender = '"+genderCombo.getSelectionModel().getSelectedItem().toString()+"' , DateOfBirth = '"+dobValues[0]+"-"+dobValues[1]+"-"+dobValues[2]+"', CountryCode = (SELECT CountryCode FROM Country WHERE CountryName = '"+countryCombo.getSelectionModel().getSelectedItem().toString()+"') WHERE Email = '"+email+"'");
+                sqlExeIns("UPDATE (runner INNER JOIN registration ON registration.runnerId = runner.runnerId) SET registrationstatusId = "+(stats.getSelectionModel().getSelectedIndex()+1)+" WHERE email = '"+email+"';");
             }
             else if(pwField.getText().equals(pw2Field.getText()) &&
                     pwField.getText().equals("") &&
@@ -3154,7 +3167,8 @@ public class Main extends Application {
                     !countryCombo.getSelectionModel().isEmpty() &&
                     dob.before(now)){
                 sqlExeIns("UPDATE user SET FirstName = '"+firstNameField.getText()+"' , LastName = '"+lastNameField.getText()+"' WHERE Email = '"+email+"';");
-                sqlExeIns("UPDATE runner SET Gender = '"+genderCombo.getSelectionModel().getSelectedItem().toString()+"' , DateOfBirth = '"+dobValues[0]+"-"+dobValues[1]+"-"+dobValues[2]+"', CountryCode = (SELECT CountryCode FROM Country WHERE CountryName = '"+countryCombo.getSelectionModel().getSelectedItem().toString()+"') WHERE Email = '"+currentEmail+"'");
+                sqlExeIns("UPDATE runner SET Gender = '"+genderCombo.getSelectionModel().getSelectedItem().toString()+"' , DateOfBirth = '"+dobValues[0]+"-"+dobValues[1]+"-"+dobValues[2]+"', CountryCode = (SELECT CountryCode FROM Country WHERE CountryName = '"+countryCombo.getSelectionModel().getSelectedItem().toString()+"') WHERE Email = '"+email+"'");
+                sqlExeIns("UPDATE (runner INNER JOIN registration ON registration.runnerId = runner.runnerId) SET registrationstatusId = "+(stats.getSelectionModel().getSelectedIndex()+1)+" WHERE email = '"+email+"';");
             }
 
         });
@@ -3162,6 +3176,15 @@ public class Main extends Application {
         backButton.setOnAction(value -> {
             try {
                 screen22(window);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+        cancelButton.setOnAction(value -> {
+            try {
+                screen23(window,email);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -3274,8 +3297,7 @@ public class Main extends Application {
 
             System.out.println("connected");
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(query);
-            return rs;
+            return stmt.executeQuery(query);
 
 
         } catch (SQLException e) {
@@ -3287,10 +3309,6 @@ public class Main extends Application {
     public void sqlExeIns(String query){
         try {
 
-            String URL = "jdbc:mysql://127.0.0.1:3306/cpt02?useSSL=False";
-            String USER = "root";
-            String PASS = "omar";
-            conn = DriverManager.getConnection(URL, USER, PASS);
             System.out.println("connected");
             Statement stmt = conn.createStatement();
             stmt.execute(query);
