@@ -58,6 +58,7 @@ public class Main extends Application {
         marathonStart.set(2019,8,5,6,0);
         //textParse();
         screen1(primaryStage);
+        screen25(primaryStage,"");
     }
 
     public void screen0(Stage window){
@@ -3189,6 +3190,76 @@ public class Main extends Application {
                 e.printStackTrace();
             }
         });
+        Runnable countdown = new Runnable() {
+            @Override
+            public void run() {
+                while(true){
+                    long countDownInMillis = marathonStart.getTimeInMillis() - System.currentTimeMillis();
+                    long days = countDownInMillis/86400000;
+                    long hours = (countDownInMillis%86400000)/3600000;
+                    long mins = ((countDownInMillis%86400000)%3600000)/60000;
+                    long secs = (((countDownInMillis%86400000)%3600000)%60000)/1000;
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            countdownLabel.setText(days+" days "+hours+" hours "+mins+" minutes "+secs+" seconds until marathon start.");
+                        }
+                    });
+
+                    try {
+                        Thread.sleep(interval);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        Thread thrd = new Thread(countdown);
+        thrd.start();
+
+        window.setScene(new Scene(rootBorderPane, windowWidth, windowHight));
+        window.show();
+    }
+
+    public void screen25(Stage window, String email) throws SQLException {
+        BorderPane rootBorderPane = new BorderPane();
+        Label countdownLabel = new Label();
+        Label titleLabel = new Label("Marathon Skills 2015");
+        Button backButton = new Button("Back");
+        HBox topBox = new HBox(backButton,titleLabel);
+        HBox bottomBox = new HBox(countdownLabel);
+        BorderPane certBorderPane = new BorderPane();
+        Label raceEventLabel = new Label("Race event: ");
+        ComboBox raceEventCombo = new ComboBox();
+        HBox certTopBox = new HBox(raceEventLabel,raceEventCombo);
+
+
+        //--------Proprieties--------
+        topBox.setStyle("-fx-background-color: #336699;");
+        bottomBox.setStyle("-fx-background-color: #336699;");
+        certTopBox.setStyle("-fx-background-color: #336666;");
+        titleLabel.setFont(Font.font("Courier New",20));
+        bottomBox.setPadding(new Insets(15));
+        certTopBox.setPadding(new Insets(5));
+        topBox.setPadding(new Insets(20));
+        topBox.setSpacing(20);
+        bottomBox.setAlignment(Pos.CENTER);
+        certTopBox.setAlignment(Pos.CENTER);
+        rootBorderPane.setTop(topBox);
+        rootBorderPane.setBottom(bottomBox);
+        certBorderPane.setMinSize(windowWidth,400);
+        certTopBox.setMinWidth(windowWidth);
+        certTopBox.setMaxHeight(150);
+        raceEventCombo.setMinWidth(150);
+        certBorderPane.setTop(certTopBox);
+        rootBorderPane.setCenter(certBorderPane);
+
+
+        //-------sql-qs-------------
+        ResultSet raceEvents = sqlExe("SELECT eventName FROM (((runner INNER JOIN registration ON registration.runnerId = runner.runnerId ) INNER JOIN registrationEvent ON registration.registrationId = registrationEvent.registrationId) INNER JOIN event ON registrationEvent.eventId = event.eventId) WHERE Email ='"+email+"';");
+        while (raceEvents.next()) raceEventCombo.getItems().add(raceEvents.getString("eventName"));
+
+
         Runnable countdown = new Runnable() {
             @Override
             public void run() {
