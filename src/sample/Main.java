@@ -45,7 +45,7 @@ public class Main extends Application {
     Long interval = 1000L;
     Calendar marathonStart = Calendar.getInstance();
     String currentEmail;
-    String URL = "jdbc:mysql://127.0.0.1:3306/cpt01?useSSL=False";
+    String URL = "jdbc:mysql://127.0.0.1:3306/cpt02?useSSL=False";
     String USER = "root";
     String PASS = "omar";
 
@@ -58,7 +58,6 @@ public class Main extends Application {
         marathonStart.set(2019,8,5,6,0);
         //textParse();
         screen1(primaryStage);
-        screen25(primaryStage,"");
     }
 
     public void screen0(Stage window){
@@ -3009,6 +3008,13 @@ public class Main extends Application {
                 e.printStackTrace();
             }
         });
+        previewCert.setOnAction(value -> {
+            try {
+                screen25(window,email);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
         Runnable countdown = new Runnable() {
             @Override
             public void run() {
@@ -3256,10 +3262,21 @@ public class Main extends Application {
 
 
         //-------sql-qs-------------
-        ResultSet raceEvents = sqlExe("SELECT eventName FROM (((runner INNER JOIN registration ON registration.runnerId = runner.runnerId ) INNER JOIN registrationEvent ON registration.registrationId = registrationEvent.registrationId) INNER JOIN event ON registrationEvent.eventId = event.eventId) WHERE Email ='"+email+"';");
+        ResultSet raceEvents = sqlExe("SELECT eventName FROM ((((runner INNER JOIN registration ON registration.runnerId = runner.runnerId ) INNER JOIN registrationEvent ON registration.registrationId = registrationEvent.registrationId) INNER JOIN event ON registrationEvent.eventId = event.eventId) INNER JOIN marathon ON marathon.marathonId = event.marathonId) WHERE Email ='"+email+"' AND marathonName = 'Marathon Skills 2014';");
         while (raceEvents.next()) raceEventCombo.getItems().add(raceEvents.getString("eventName"));
 
 
+
+
+        backButton.setOnAction(value -> {
+            try {
+                screen23(window,email);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
         Runnable countdown = new Runnable() {
             @Override
             public void run() {
