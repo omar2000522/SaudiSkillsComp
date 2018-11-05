@@ -57,7 +57,7 @@ public class Main extends Application {
         conn = DriverManager.getConnection(URL, USER, PASS);
         marathonStart.set(2019,8,5,6,0);
         //textParse();
-        screen1(primaryStage);
+        screen21(primaryStage);
     }
 
     public void screen0(Stage window){
@@ -2493,6 +2493,15 @@ public class Main extends Application {
                 e.printStackTrace();
             }
         });
+        sponsorButton.setOnAction(value -> {
+            try {
+                screen21(window);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        });
 
         Runnable countdown = new Runnable() {
             @Override
@@ -2608,7 +2617,7 @@ public class Main extends Application {
         window.show();
     }
 
-    public void screen21(Stage window) throws SQLException {
+    public void screen21(Stage window) throws SQLException, FileNotFoundException {
         BorderPane rootBorderPane = new BorderPane();
         Label countdownLabel = new Label();
         Label titleLabel = new Label("Marathon Skills 2015");
@@ -2623,11 +2632,15 @@ public class Main extends Application {
         Label logosLabel = new Label("  Logo  ");
         Label charityNameLabel = new Label("  Charity Name  ");
         Label totalAmountLabel = new Label("  Total Amount  ");
-        VBox logosBox = new VBox(logosLabel);
-        VBox charityNameBox = new VBox(charityNameLabel);
-        VBox totalAmountBox = new VBox(totalAmountLabel);
-        HBox charityTable = new HBox(logosBox,charityNameBox,totalAmountBox);
+        //VBox logosBox = new VBox();
+        //VBox charityNameBox = new VBox();
+        //VBox totalAmountBox = new VBox();
+        //HBox charityTable = new HBox(logosBox,charityNameBox,totalAmountBox);
         ScrollPane tablePane  = new ScrollPane();
+        HBox labelsElement = new HBox(logosLabel,charityNameLabel,totalAmountLabel);
+        VBox elements = new VBox(labelsElement);
+        VBox mainBox = new VBox(headerLabel,sortElement,tablePane);
+
 
 
 
@@ -2636,14 +2649,26 @@ public class Main extends Application {
         topBox.setStyle("-fx-background-color: #336699;");
         bottomBox.setStyle("-fx-background-color: #336699;");
         titleLabel.setFont(Font.font("Courier New",20));
+        logosLabel.setFont(Font.font("Arial",FontWeight.BOLD,16));
+        charityNameLabel.setFont(Font.font("Arial",FontWeight.BOLD,16));
+        totalAmountLabel.setFont(Font.font("Arial",FontWeight.BOLD,16));
         bottomBox.setPadding(new Insets(15));
         topBox.setPadding(new Insets(20));
         topBox.setSpacing(20);
+        mainBox.setSpacing(20);
+        elements.setSpacing(20);
+        labelsElement.setSpacing(100);
         sortElement.setSpacing(15);
         bottomBox.setAlignment(Pos.CENTER);
+        sortElement.setAlignment(Pos.CENTER);
+        mainBox.setAlignment(Pos.CENTER);
+        elements.setAlignment(Pos.CENTER);
         rootBorderPane.setTop(topBox);
         rootBorderPane.setBottom(bottomBox);
-        tablePane.setContent(charityTable);
+        rootBorderPane.setCenter(mainBox);
+        tablePane.setContent(elements);
+        tablePane.setMaxWidth(windowWidth-100);
+
 
 
         //---------------Code----------------
@@ -2656,10 +2681,32 @@ public class Main extends Application {
             charitiesIds.put(charities.getString("charityId"),charities.getString("charityName"));
         }
         for (Object e:charitiesIds.keySet().toArray()) {
-
+            String id = (String) e;
+            int amount = 0;
+            ResultSet sponsorship = sqlExe("SELECT amount FROM (registration INNER JOIN sponsorship ON registration.registrationId = sponsorship.registrationId) WHERE charityId ='"+id+"';");
+            while (sponsorship.next()) amount += sponsorship.getInt("amount");
+            charitiesAmount.replace(charitiesIds.get(e),amount);
         }
+        for (Object e:charitiesAmount.keySet().toArray()) {
+            Label name = new Label(e.toString());
+            ResultSet imageDir = sqlExe("SELECT charityLogo FROM charity WHERE charityName ='"+e.toString()+"';");
+            imageDir.next();
+            ImageView logo = new ImageView(new Image(new FileInputStream("src/sample/Images/"+imageDir.getString("charityLogo"))));
+            String amount = charitiesAmount.get(e).toString();
+            amount = "$" + amount.substring(0,amount.length()-3) + "," + amount.substring(amount.length()-3);
+            Label amountLabel = new Label(amount);
 
+            logo.setPreserveRatio(true);
+            logo.setFitWidth(100);
+            logo.setFitHeight(100);
+            name.setMinWidth(300);
+            name.setFont(Font.font("Arial",FontWeight.SEMI_BOLD,16));
+            amountLabel.setFont(Font.font("Arial",FontWeight.SEMI_BOLD,16));
 
+            HBox element = new HBox(logo,name,amountLabel);
+            element.setSpacing(40);
+            elements.getChildren().add(element);
+        }
 
 
 
