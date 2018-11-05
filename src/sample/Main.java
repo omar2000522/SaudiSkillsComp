@@ -35,6 +35,7 @@ import java.beans.EventHandler;
 import java.io.*;
 import java.sql.*;
 import java.util.*;
+import java.util.concurrent.Callable;
 
 
 public class Main extends Application {
@@ -57,7 +58,7 @@ public class Main extends Application {
         conn = DriverManager.getConnection(URL, USER, PASS);
         marathonStart.set(2019,8,5,6,0);
         //textParse();
-        screen21(primaryStage);
+        screen1(primaryStage);
     }
 
     public void screen0(Stage window){
@@ -278,8 +279,8 @@ public class Main extends Application {
         Label loginLabel = new Label("Login Form");
         Label userLabel = new Label("Email: ");
         Label passLabel = new Label("Password: ");
-        TextField userField = new TextField("w.bubash@manda.com");
-        TextField passField = new TextField("eWq16ALB");
+        TextField userField = new TextField("leila.azedeva@mskills.com");
+        TextField passField = new TextField("MvTQ3itX");
         Button loginButton = new Button("Login");
         Button cancelButton = new Button("Cancel");
         Label errLabel = new Label();
@@ -2533,7 +2534,7 @@ public class Main extends Application {
         window.setScene(new Scene(rootBorderPane,windowWidth,windowHight));
         window.show();
     }
-
+    //admin menu
     public void screen20(Stage window){
         BorderPane rootBorderPane = new BorderPane();
         Label titleLabel = new Label("Marathon Skills 2015");
@@ -2542,10 +2543,10 @@ public class Main extends Application {
         HBox topBox = new HBox(backButton,titleLabel,logoutButton);
         Label menuDesc = new Label("Administrator menu");
         Label countdownLabel = new Label();
-        Button usersButton = new Button("Register for an event");
-        Button charitiesButton = new Button("Edit your profile");
-        Button volunteersButton = new Button("My race results");
-        Button inventoryButton = new Button("My sponsorships");
+        Button usersButton = new Button("Users");
+        Button charitiesButton = new Button("Charities");
+        Button volunteersButton = new Button("Volunteers");
+        Button inventoryButton = new Button("Inventory");
         VBox leftSide = new VBox(usersButton,charitiesButton);
         VBox rightSide = new VBox(volunteersButton,inventoryButton);
         HBox buttonsBox = new HBox(leftSide,rightSide);
@@ -2584,6 +2585,9 @@ public class Main extends Application {
         });
         backButton.setOnAction(value -> {
             screen3(window);
+        });
+        usersButton.setOnAction(value -> {
+            screen30(window);
         });
 
         Runnable countdown = new Runnable() {
@@ -2654,9 +2658,10 @@ public class Main extends Application {
         totalAmountLabel.setFont(Font.font("Arial",FontWeight.BOLD,16));
         bottomBox.setPadding(new Insets(15));
         topBox.setPadding(new Insets(20));
+        elements.setPadding(new Insets(20));
+        mainBox.setPadding(new Insets(20));
         topBox.setSpacing(20);
         mainBox.setSpacing(20);
-        elements.setSpacing(20);
         labelsElement.setSpacing(100);
         sortElement.setSpacing(15);
         bottomBox.setAlignment(Pos.CENTER);
@@ -2673,9 +2678,9 @@ public class Main extends Application {
 
         //---------------Code----------------
         sortByCombo.getItems().addAll("Charity Name","Total Amount");
-        Map<String,Integer> charitiesAmount = new HashMap<>();
-        Map<String,String> charitiesIds = new HashMap<>();
-        ResultSet charities = sqlExe("SELECT charityId,charityName FROM charity;");
+        Map<String,Integer> charitiesAmount = new Hashtable<>();
+        Map<String,String> charitiesIds = new Hashtable<>();
+        ResultSet charities = sqlExe("SELECT charityId,charityName FROM charity ORDER BY charityName;");
         while (charities.next()){
             charitiesAmount.put(charities.getString("charityName"),0);
             charitiesIds.put(charities.getString("charityId"),charities.getString("charityName"));
@@ -2705,11 +2710,14 @@ public class Main extends Application {
 
             HBox element = new HBox(logo,name,amountLabel);
             element.setSpacing(40);
+            element.setAlignment(Pos.CENTER_LEFT);
+            element.setPadding(new Insets(15));
             elements.getChildren().add(element);
         }
 
 
 
+        backButton.setOnAction(value -> screen19(window));
 
         Runnable countdown = new Runnable() {
             @Override
@@ -3411,6 +3419,94 @@ public class Main extends Application {
                 e.printStackTrace();
             }
         });
+        Runnable countdown = new Runnable() {
+            @Override
+            public void run() {
+                while(true){
+                    long countDownInMillis = marathonStart.getTimeInMillis() - System.currentTimeMillis();
+                    long days = countDownInMillis/86400000;
+                    long hours = (countDownInMillis%86400000)/3600000;
+                    long mins = ((countDownInMillis%86400000)%3600000)/60000;
+                    long secs = (((countDownInMillis%86400000)%3600000)%60000)/1000;
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            countdownLabel.setText(days+" days "+hours+" hours "+mins+" minutes "+secs+" seconds until marathon start.");
+                        }
+                    });
+
+                    try {
+                        Thread.sleep(interval);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        Thread thrd = new Thread(countdown);
+        thrd.start();
+
+        window.setScene(new Scene(rootBorderPane, windowWidth, windowHight));
+        window.show();
+    }
+
+    public void screen30(Stage window){
+        BorderPane rootBorderPane = new BorderPane();
+        Label countdownLabel = new Label();
+        Label titleLabel = new Label("Marathon Skills 2015");
+        Button backButton = new Button("Back");
+        HBox topBox = new HBox(backButton,titleLabel);
+        HBox bottomBox = new HBox(countdownLabel);
+        Label headerLabel = new Label("User management");
+        Button addUser = new Button(" + Add a new user");
+        Label filtRoleLabel = new Label("Filter by role: ");
+        Label sortLabel = new Label("Sort by:");
+        Label searchLabel = new Label("Search:");
+        ComboBox filterCombo = new ComboBox();
+        ComboBox sortCombo = new ComboBox();
+        TextField searchField = new TextField();
+        Button refresh = new Button(" Refresh ");
+        VBox labelsBox = new VBox(filtRoleLabel,sortLabel,searchLabel);
+        VBox fieldsBox = new VBox(filterCombo,sortCombo,searchField,refresh);
+        HBox elementsBox = new HBox(labelsBox,fieldsBox);
+        HBox sortAndAdd = new HBox(addUser,elementsBox);
+        Label totalUsers = new Label("Total users: 0");
+        Label firstNameLabel = new Label("First name");
+        Label lastNameLabel = new Label("Last name");
+        Label emailLabel = new Label("Email");
+        Label roleLabel = new Label("Role");
+        Label editLabel = new Label("Edit");
+        VBox firstNameBox = new VBox(firstNameLabel);
+        VBox lastNameBox = new VBox(lastNameLabel);
+        VBox emailBox = new VBox(emailLabel);
+        VBox roleBox = new VBox(roleLabel);
+        VBox editButtonsBox = new VBox(editLabel);
+        ScrollPane resultsPane = new ScrollPane();
+        HBox resultsBox = new HBox(firstNameBox,lastNameBox,emailBox,roleBox,editButtonsBox);
+        VBox mainBox = new VBox(headerLabel,sortAndAdd,totalUsers,resultsPane);
+
+
+        //--------Proprieties--------
+        topBox.setStyle("-fx-background-color: #336699;");
+        bottomBox.setStyle("-fx-background-color: #336699;");
+        titleLabel.setFont(Font.font("Courier New",20));
+        bottomBox.setPadding(new Insets(15));
+        topBox.setPadding(new Insets(20));
+        mainBox.setPadding(new Insets(20));
+        labelsBox.setPadding(new Insets(5,0,0,0));
+        topBox.setSpacing(20);
+        labelsBox.setSpacing(10);
+        fieldsBox.setSpacing(5);
+        labelsBox.setAlignment(Pos.TOP_RIGHT);
+        bottomBox.setAlignment(Pos.CENTER);
+        resultsBox.setAlignment(Pos.CENTER);
+        mainBox.setAlignment(Pos.TOP_CENTER);
+        rootBorderPane.setTop(topBox);
+        rootBorderPane.setBottom(bottomBox);
+        rootBorderPane.setCenter(mainBox);
+        resultsPane.setContent(resultsBox);
+
+
         Runnable countdown = new Runnable() {
             @Override
             public void run() {
