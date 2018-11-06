@@ -1,6 +1,7 @@
 package sample;
 
 
+import com.sun.istack.internal.Nullable;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.RotateTransition;
@@ -3563,6 +3564,126 @@ public class Main extends Application {
 
         backButton.setOnAction(value -> screen20(window));
 
+        Runnable countdown = new Runnable() {
+            @Override
+            public void run() {
+                while(true){
+                    long countDownInMillis = marathonStart.getTimeInMillis() - System.currentTimeMillis();
+                    long days = countDownInMillis/86400000;
+                    long hours = (countDownInMillis%86400000)/3600000;
+                    long mins = ((countDownInMillis%86400000)%3600000)/60000;
+                    long secs = (((countDownInMillis%86400000)%3600000)%60000)/1000;
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            countdownLabel.setText(days+" days "+hours+" hours "+mins+" minutes "+secs+" seconds until marathon start.");
+                        }
+                    });
+
+                    try {
+                        Thread.sleep(interval);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        Thread thrd = new Thread(countdown);
+        thrd.start();
+
+        window.setScene(new Scene(rootBorderPane, windowWidth, windowHight));
+        window.show();
+    }
+
+    public void screen27(Stage window,  String charityName) throws SQLException, FileNotFoundException {
+        BorderPane rootBorderPane = new BorderPane();
+        Label countdownLabel = new Label();
+        Label titleLabel = new Label("Marathon Skills 2015");
+        Button backButton = new Button("Back");
+        HBox topBox = new HBox(backButton,titleLabel);
+        HBox bottomBox = new HBox(countdownLabel);
+        Label headerLabel = new Label("Add/edit charity");
+        Label firstNameLabel = new Label("Name:");
+        Label lastNameLabel = new Label("Description:");
+        TextField firstNameField = new TextField();
+        TextArea lastNameField = new TextArea();
+        VBox charityNameBox = new VBox(firstNameLabel,firstNameField);
+        VBox charityDesc = new VBox(lastNameField,lastNameField);
+        VBox leftSide = new VBox(charityNameBox,charityDesc);
+        Label pwDescLabel = new Label("Leave the \"logo file\" fields blank if you \ndo not want to change the logo.");
+        Label pwLabel = new Label("Logo file: ");
+        TextField logoField = new TextField();
+        HBox rightElements = new HBox(pwLabel,logoField);
+        Label currentLogoLabel = new Label("Current logo:");
+        ImageView currentLogo = new ImageView();
+        VBox currentLogoBox = new VBox(currentLogoLabel,currentLogo);
+        VBox rightSide = new VBox(pwDescLabel,rightElements,currentLogoBox);
+        Button saveButton = new Button("Save");
+        Button cancelButton = new Button("Cancel");
+        HBox buttonsBox = new HBox(saveButton,cancelButton);
+        HBox midBox = new HBox(leftSide,rightSide);
+        VBox mainBox = new VBox(headerLabel,midBox,buttonsBox);
+
+
+        //--------Proprieties--------
+        topBox.setStyle("-fx-background-color: #336699;");
+        bottomBox.setStyle("-fx-background-color: #336699;");
+        titleLabel.setFont(Font.font("Courier New",20));
+        headerLabel.setFont(Font.font(18));
+        pwDescLabel.setFont(Font.font(14));
+        bottomBox.setPadding(new Insets(15));
+        topBox.setPadding(new Insets(20));
+        mainBox.setPadding(new Insets(50));
+        midBox.setSpacing(100);
+        topBox.setSpacing(20);
+        mainBox.setSpacing(40);
+        leftSide.setSpacing(20);
+        buttonsBox.setSpacing(20);
+        rightElements.setSpacing(20);
+        charityDesc.setSpacing(10);
+        currentLogoBox.setSpacing(10);
+        charityNameBox.setSpacing(10);
+        rightSide.setSpacing(50);
+        bottomBox.setAlignment(Pos.CENTER);
+        mainBox.setAlignment(Pos.TOP_CENTER);
+        midBox.setAlignment(Pos.CENTER);
+        leftSide.setAlignment(Pos.BOTTOM_CENTER);
+        buttonsBox.setAlignment(Pos.CENTER);
+        rootBorderPane.setTop(topBox);
+        rootBorderPane.setBottom(bottomBox);
+        rootBorderPane.setCenter(mainBox);
+        currentLogo.setFitHeight(200);
+        currentLogo.setPreserveRatio(true);
+        //---------sql-data-------------
+        if (charityName != null){
+            ResultSet logoDir = sqlExe("SELECT charityLogo FROM charity WHERE charityName ='"+charityName+"';");
+            logoDir.next();
+            currentLogo.setImage(new Image(new FileInputStream("src/sample/Images/"+logoDir.getString("charityLogo")+".png")));
+        }else currentLogo.setImage(new Image(new FileInputStream("src/sample/Image/cross-icon.png")));
+
+
+        saveButton.setOnAction(value -> {
+            String newLogo = logoField.getText();
+            boolean setLogo = !newLogo.equals("");
+
+            if (setLogo) sqlExeIns("UPDATE");
+
+        });
+
+        backButton.setOnAction(value -> {
+            try {
+                screen30(window);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+        cancelButton.setOnAction(value -> {
+            try {
+                screen30(window);
+            }catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
         Runnable countdown = new Runnable() {
             @Override
             public void run() {
