@@ -3450,7 +3450,7 @@ public class Main extends Application {
         window.show();
     }
 
-    public void screen30(Stage window){
+    public void screen30(Stage window) throws SQLException {
         BorderPane rootBorderPane = new BorderPane();
         Label countdownLabel = new Label();
         Label titleLabel = new Label("Marathon Skills 2015");
@@ -3495,16 +3495,51 @@ public class Main extends Application {
         mainBox.setPadding(new Insets(20));
         labelsBox.setPadding(new Insets(5,0,0,0));
         topBox.setSpacing(20);
-        labelsBox.setSpacing(10);
+        labelsBox.setSpacing(13);
         fieldsBox.setSpacing(5);
+        elementsBox.setSpacing(10);
+        mainBox.setSpacing(20);
+        sortAndAdd.setSpacing(300);
+        sortAndAdd.setAlignment(Pos.CENTER);
         labelsBox.setAlignment(Pos.TOP_RIGHT);
         bottomBox.setAlignment(Pos.CENTER);
+        resultsBox.setAlignment(Pos.CENTER);
         resultsBox.setAlignment(Pos.CENTER);
         mainBox.setAlignment(Pos.TOP_CENTER);
         rootBorderPane.setTop(topBox);
         rootBorderPane.setBottom(bottomBox);
         rootBorderPane.setCenter(mainBox);
         resultsPane.setContent(resultsBox);
+
+
+        //------sql-code-----------
+        final String[] sortOpt = {null};
+
+        ResultSet roles = sqlExe("SELECT roleName FROM role;");
+        while (roles.next()) filterCombo.getItems().add(roles.getString("roleName"));
+        sortCombo.getItems().addAll("First name","Last name","Email","Role");
+
+        sortCombo.setOnAction(value -> {
+            switch (sortCombo.getSelectionModel().getSelectedItem().toString()){
+                case "First name":
+                    sortOpt[0] = "ORDER BY firstName";
+                    break;
+                case "Last name":
+                    sortOpt[0] = "ORDER BY lastName";
+                    break;
+                case "Email":
+                    sortOpt[0] = "ORDER BY email";
+                    break;
+                case "Role":
+                    sortOpt[0] = "ORDER BY roleName";
+                    break;
+            }
+        });
+
+        refresh.setOnAction(value -> {
+            ResultSet users = sqlExe("SELECT firstName, LastName, Email, RoleName");//set query as separate string
+        });
+
 
 
         Runnable countdown = new Runnable() {
