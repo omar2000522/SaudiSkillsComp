@@ -21,6 +21,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.image.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -3470,22 +3471,20 @@ public class Main extends Application {
         Button backButton = new Button("Back");
         HBox topBox = new HBox(backButton,titleLabel);
         HBox bottomBox = new HBox(countdownLabel);
-        Label headerLabel = new Label("Sponsorship overview");
-        Label sortByLabel = new Label("Sort by: ");
-        ComboBox sortByCombo = new ComboBox();
-        Button sortButt = new Button(" Sort ");
-        HBox sortElement = new HBox(sortByLabel,sortByCombo,sortButt);
+        Label headerLabel = new Label("Manage charities");
+        Button sortButt = new Button("+ Add a new charity");
         Label logosLabel = new Label("  Logo  ");
         Label charityNameLabel = new Label("  Charity Name  ");
-        Label totalAmountLabel = new Label("  Total Amount  ");
+        Label totalAmountLabel = new Label("  Description  ");
+        Label editLabel = new Label("Edit");
         //VBox logosBox = new VBox();
         //VBox charityNameBox = new VBox();
         //VBox totalAmountBox = new VBox();
         //HBox charityTable = new HBox(logosBox,charityNameBox,totalAmountBox);
         ScrollPane tablePane  = new ScrollPane();
-        HBox labelsElement = new HBox(logosLabel,charityNameLabel,totalAmountLabel);
+        Pane labelsElement = new Pane(logosLabel,charityNameLabel,totalAmountLabel,editLabel);
         VBox elements = new VBox(labelsElement);
-        VBox mainBox = new VBox(headerLabel,sortElement,tablePane);
+        VBox mainBox = new VBox(headerLabel,sortButt,tablePane);
 
 
 
@@ -3494,20 +3493,20 @@ public class Main extends Application {
         //--------Proprieties--------
         topBox.setStyle("-fx-background-color: #336699;");
         bottomBox.setStyle("-fx-background-color: #336699;");
+        labelsElement.setStyle("-fx-border-width: 3 3 3 3; -fx-border-color: black");
         titleLabel.setFont(Font.font("Courier New",20));
+        headerLabel.setFont(Font.font("Arial",FontWeight.BOLD,18));
         logosLabel.setFont(Font.font("Arial",FontWeight.BOLD,16));
         charityNameLabel.setFont(Font.font("Arial",FontWeight.BOLD,16));
         totalAmountLabel.setFont(Font.font("Arial",FontWeight.BOLD,16));
+        editLabel.setFont(Font.font("Arial",FontWeight.BOLD,16));
         bottomBox.setPadding(new Insets(15));
         topBox.setPadding(new Insets(20));
         elements.setPadding(new Insets(20));
         mainBox.setPadding(new Insets(20));
         topBox.setSpacing(20);
         mainBox.setSpacing(20);
-        labelsElement.setSpacing(100);
-        sortElement.setSpacing(15);
         bottomBox.setAlignment(Pos.CENTER);
-        sortElement.setAlignment(Pos.CENTER);
         mainBox.setAlignment(Pos.CENTER);
         elements.setAlignment(Pos.CENTER);
         rootBorderPane.setTop(topBox);
@@ -3515,8 +3514,14 @@ public class Main extends Application {
         rootBorderPane.setCenter(mainBox);
         tablePane.setContent(elements);
         tablePane.setMaxWidth(windowWidth-100);
+        labelsElement.setPrefSize(657,26);
+        logosLabel.setLayoutX(22);
+        charityNameLabel.setLayoutX(105);
+        totalAmountLabel.setLayoutX(322);
+        editLabel.setLayoutX(590);
 
 
+        rootBorderPane.setOnMouseClicked(val -> System.out.println(val.getX()+","+val.getY()));
 
         //---------------Code----------------
 
@@ -3525,35 +3530,38 @@ public class Main extends Application {
             ImageView logo = new ImageView(new Image(new FileInputStream("src/sample/Images/"+charities.getString("charityLogo"))));
             Label name = new Label(charities.getString("charityName"));
             Text charityDesc = new Text(charities.getString("charityDescription"));
-            Rectangle topDivider = new Rectangle(10,3,Color.BLACK);
             Rectangle divider1 = new Rectangle(3,10,Color.BLACK);
             Rectangle divider2 = new Rectangle(3,10,Color.BLACK);
             Rectangle divider3 = new Rectangle(3,10,Color.BLACK);
-            Rectangle divider4 = new Rectangle(3,10,Color.BLACK);
-            HBox element = new HBox(divider1,logo,divider2,name,divider3,charityDesc,divider4);
+            Button editButt = new Button("       Edit       ");
+            HBox element = new HBox(logo,divider1,name,divider2,charityDesc,divider3,editButt);
 
             logo.setPreserveRatio(true);
             logo.setFitWidth(75);
             name.setPrefWidth(100);
             name.setWrapText(true);
             name.setFont(Font.font("Arial",FontWeight.SEMI_BOLD,14));
-            charityDesc.setWrappingWidth(400);
+            charityDesc.setWrappingWidth(300);
+
+            editButt.setOnAction(val -> {
+
+            });
 
             //set it to RECT.setHieght
-            topDivider.widthProperty().bind(element.widthProperty());
-            divider1.heightProperty().bind(element.heightProperty());
-            divider2.heightProperty().bind(element.heightProperty());
-            divider3.heightProperty().bind(element.heightProperty());
-            divider4.heightProperty().bind(element.heightProperty());
+            element.setStyle("-fx-border-width: 0 3 3 3; -fx-border-color: black;");
             element.setSpacing(10);
-            element.setAlignment(Pos.TOP_LEFT);
-            element.setPadding(new Insets(15));
-            elements.getChildren().addAll(topDivider,element);
+            element.setAlignment(Pos.CENTER_LEFT);
+            element.setPadding(new Insets(0,0,15,15));
+            divider1.heightProperty().bind(element.heightProperty().add(30));
+            divider2.heightProperty().bind(element.heightProperty().add(30));
+            divider3.heightProperty().bind(element.heightProperty().add(30));
+            elements.getChildren().add(element);
         }
 
 
 
-        backButton.setOnAction(value -> screen19(window));
+
+        backButton.setOnAction(value -> screen20(window));
 
         Runnable countdown = new Runnable() {
             @Override
