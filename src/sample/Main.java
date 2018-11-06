@@ -2587,7 +2587,11 @@ public class Main extends Application {
             screen3(window);
         });
         usersButton.setOnAction(value -> {
-            screen30(window);
+            try {
+                screen30(window);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         });
 
         Runnable countdown = new Runnable() {
@@ -3489,7 +3493,13 @@ public class Main extends Application {
         //--------Proprieties--------
         topBox.setStyle("-fx-background-color: #336699;");
         bottomBox.setStyle("-fx-background-color: #336699;");
-        titleLabel.setFont(Font.font("Courier New",20));
+        titleLabel.setFont(Font.font("Courier new",FontWeight.BOLD,20));
+        headerLabel.setFont(Font.font("Arial",FontWeight.BOLD,18));
+        firstNameLabel.setFont(Font.font("Arial",FontWeight.SEMI_BOLD,16));
+        lastNameLabel.setFont(Font.font("Arial",FontWeight.SEMI_BOLD,16));
+        emailLabel.setFont(Font.font("Arial",FontWeight.SEMI_BOLD,16));
+        roleLabel.setFont(Font.font("Arial",FontWeight.SEMI_BOLD,16));
+        editLabel.setFont(Font.font("Arial",FontWeight.SEMI_BOLD,16));
         bottomBox.setPadding(new Insets(15));
         topBox.setPadding(new Insets(20));
         mainBox.setPadding(new Insets(20));
@@ -3500,12 +3510,17 @@ public class Main extends Application {
         elementsBox.setSpacing(10);
         mainBox.setSpacing(20);
         sortAndAdd.setSpacing(300);
+        resultsBox.setSpacing(30);
         sortAndAdd.setAlignment(Pos.CENTER);
         labelsBox.setAlignment(Pos.TOP_RIGHT);
         bottomBox.setAlignment(Pos.CENTER);
         resultsBox.setAlignment(Pos.CENTER);
-        resultsBox.setAlignment(Pos.CENTER);
         mainBox.setAlignment(Pos.TOP_CENTER);
+//        firstNameBox.setAlignment(Pos.CENTER);
+//        lastNameBox.setAlignment(Pos.CENTER);
+//        emailBox.setAlignment(Pos.CENTER);
+//        editButtonsBox.setAlignment(Pos.CENTER);
+//        roleBox.setAlignment(Pos.CENTER);
         rootBorderPane.setTop(topBox);
         rootBorderPane.setBottom(bottomBox);
         rootBorderPane.setCenter(mainBox);
@@ -3537,7 +3552,34 @@ public class Main extends Application {
         });
 
         refresh.setOnAction(value -> {
-            ResultSet users = sqlExe("SELECT firstName, LastName, Email, RoleName");//set query as separate string
+            firstNameBox.getChildren().remove(1,firstNameBox.getChildren().size());
+            lastNameBox.getChildren().remove(1,lastNameBox.getChildren().size());
+            emailBox.getChildren().remove(1,emailBox.getChildren().size());
+            roleBox.getChildren().remove(1,roleBox.getChildren().size());
+            int totalResults = 0;
+
+            String query = "SELECT firstName, LastName, Email, RoleName FROM (user INNER JOIN role ON role.roleId = user.roleId) ";
+            if (!filterCombo.getSelectionModel().isEmpty() || !searchField.getText().equals("")) query += " WHERE ";
+            if (!filterCombo.getSelectionModel().isEmpty()) query += " roleName = '"+filterCombo.getSelectionModel().getSelectedItem().toString()+"' ";
+            if (!filterCombo.getSelectionModel().isEmpty() && !searchField.getText().equals("")) query += " AND ";
+            if (!searchField.getText().equals("")) query += " (Email LIKE '%"+searchField.getText()+"%' OR firstName LIKE '%"+searchField.getText()+"%' OR lastName LIKE '%"+searchField.getText()+"%')";
+            query += sortOpt[0];
+            ResultSet users = sqlExe(query);
+            try{
+                while (users.next()){
+                    firstNameBox.getChildren().add(new Label(users.getString("FirstName")));
+                    lastNameBox.getChildren().add(new Label(users.getString("lastName")));
+                    emailBox.getChildren().add(new Label(users.getString("Email")));
+                    roleBox.getChildren().add(new Label(users.getString("roleName")));
+                    String email = users.getString("Email");
+                    Label editButton = new Label("Edit");
+                    editButton.setTextFill(Color.DARKBLUE);
+                    editButton.setOnMouseClicked(val -> System.out.println(email));
+                    editButtonsBox.getChildren().add(editButton);
+                    totalResults++;
+                }
+                totalUsers.setText("Total users: "+totalResults);
+            }catch (Exception e){e.printStackTrace();};
         });
 
 
