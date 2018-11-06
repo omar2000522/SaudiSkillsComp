@@ -3574,7 +3574,13 @@ public class Main extends Application {
                     String email = users.getString("Email");
                     Label editButton = new Label("Edit");
                     editButton.setTextFill(Color.DARKBLUE);
-                    editButton.setOnMouseClicked(val -> System.out.println(email));
+                    editButton.setOnMouseClicked(val -> {
+                        try {
+                            screen31(window,email);
+                        }catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                    });
                     editButtonsBox.getChildren().add(editButton);
                     totalResults++;
                 }
@@ -3584,6 +3590,151 @@ public class Main extends Application {
 
 
 
+        Runnable countdown = new Runnable() {
+            @Override
+            public void run() {
+                while(true){
+                    long countDownInMillis = marathonStart.getTimeInMillis() - System.currentTimeMillis();
+                    long days = countDownInMillis/86400000;
+                    long hours = (countDownInMillis%86400000)/3600000;
+                    long mins = ((countDownInMillis%86400000)%3600000)/60000;
+                    long secs = (((countDownInMillis%86400000)%3600000)%60000)/1000;
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            countdownLabel.setText(days+" days "+hours+" hours "+mins+" minutes "+secs+" seconds until marathon start.");
+                        }
+                    });
+
+                    try {
+                        Thread.sleep(interval);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        Thread thrd = new Thread(countdown);
+        thrd.start();
+
+        window.setScene(new Scene(rootBorderPane, windowWidth, windowHight));
+        window.show();
+    }
+
+    public void screen31(Stage window, String email) throws SQLException {
+        BorderPane rootBorderPane = new BorderPane();
+        Label countdownLabel = new Label();
+        Label titleLabel = new Label("Marathon Skills 2015");
+        Button backButton = new Button("Back");
+        HBox topBox = new HBox(backButton,titleLabel);
+        HBox bottomBox = new HBox(countdownLabel);
+        Label headerLabel = new Label("Edit a user");
+        Label emailLabel = new Label("Email : ");
+        Label firstNameLabel = new Label("First Name:");
+        Label lastNameLabel = new Label("Last Name:");
+        Label roleLabel = new Label("Role:");
+        Label emailBoldLabel = new Label(email);
+        TextField firstNameField = new TextField();
+        TextField lastNameField = new TextField();
+        ComboBox roleCombo = new ComboBox();
+        VBox leftLabelsBox = new VBox(emailLabel,firstNameLabel,lastNameLabel,roleLabel);
+        VBox leftFieldsBox = new VBox(emailBoldLabel,firstNameField,lastNameField,roleCombo);
+        HBox leftSide = new HBox(leftLabelsBox,leftFieldsBox);
+        Label changePwLabel = new Label("Change password");
+        Label pwDescLabel = new Label("Leave these fields blank if you do not\n want to change the password.");
+        Label pwLabel = new Label("Password: ");
+        Label pw2Label = new Label("Password Again: ");
+        TextField pwField = new TextField();
+        TextField pw2Field = new TextField();
+        VBox rightLabelsBox = new VBox(pwLabel,pw2Label);
+        VBox rightFieldsBox = new VBox(pwField,pw2Field);
+        HBox rightElements = new HBox(rightLabelsBox,rightFieldsBox);
+        VBox topRightSide = new VBox(changePwLabel,pwDescLabel,rightElements);
+        VBox rightSide = new VBox(topRightSide);
+        Button saveButton = new Button("Save");
+        Button cancelButton = new Button("Cancel");
+        HBox buttonsBox = new HBox(saveButton,cancelButton);
+        HBox midBox = new HBox(leftSide,rightSide);
+        VBox mainBox = new VBox(headerLabel,midBox,buttonsBox);
+
+
+        //--------Proprieties--------
+        topBox.setStyle("-fx-background-color: #336699;");
+        bottomBox.setStyle("-fx-background-color: #336699;");
+        titleLabel.setFont(Font.font("Courier New",20));
+        headerLabel.setFont(Font.font(18));
+        changePwLabel.setFont(Font.font(16));
+        pwDescLabel.setFont(Font.font(14));
+        emailBoldLabel.setFont(Font.font(null, FontWeight.BOLD,12));
+        bottomBox.setPadding(new Insets(15));
+        topBox.setPadding(new Insets(20));
+        mainBox.setPadding(new Insets(50));
+        midBox.setSpacing(100);
+        topBox.setSpacing(20);
+        mainBox.setSpacing(40);
+        topRightSide.setSpacing(20);
+        leftSide.setSpacing(20);
+        buttonsBox.setSpacing(20);
+        rightElements.setSpacing(20);
+        leftFieldsBox.setSpacing(8);
+        leftLabelsBox.setSpacing(15);
+        rightFieldsBox.setSpacing(9);
+        rightLabelsBox.setSpacing(15);
+        rightSide.setSpacing(50);
+        bottomBox.setAlignment(Pos.CENTER);
+        mainBox.setAlignment(Pos.TOP_CENTER);
+        midBox.setAlignment(Pos.CENTER);
+        buttonsBox.setAlignment(Pos.CENTER);
+        topRightSide.setAlignment(Pos.CENTER);
+        rootBorderPane.setTop(topBox);
+        rootBorderPane.setBottom(bottomBox);
+        rootBorderPane.setCenter(mainBox);
+
+        //---------sql-data-------------
+        ResultSet roles = sqlExe("SELECT roleName FROM role;");
+        while (roles.next())roleCombo.getItems().add(roles.getString("roleName"));
+
+
+        saveButton.setOnAction(value -> {
+            String pw =pwField.getText();
+
+            boolean pwRequirements =
+                    (pw.contains("!")||pw.contains("@")||pw.contains("#")||pw.contains("$")||pw.contains("%")||pw.contains("^")) &&
+                            (!pw.toLowerCase().equals(pw) && !pw.toUpperCase().equals(pw)) &&
+                            (pw.contains("1")||pw.contains("2")||pw.contains("3")||pw.contains("4")||pw.contains("5")||pw.contains("6")||pw.contains("7")||pw.contains("8")||pw.contains("9")||pw.contains("0")) &&
+                            (pw.length()>=6);
+            System.out.println(pwRequirements);
+            if(pwField.getText().equals(pw2Field.getText()) &&
+                    pwRequirements &&
+                    !firstNameField.getText().equals("") &&
+                    !lastNameField.getText().equals("") &&
+                    !roleCombo.getSelectionModel().isEmpty()){
+                sqlExeIns("UPDATE user SET Password = '"+pw+"' , FirstName = '"+firstNameField.getText()+"' , LastName = '"+lastNameField.getText()+"', RoleId = (SELECT roleId FROM role WHERE roleName ='"+roleCombo.getSelectionModel().getSelectedItem().toString()+"') WHERE Email = '"+email+"';");
+            }
+            else if(pwField.getText().equals(pw2Field.getText()) &&
+                    pwField.getText().equals("") &&
+                    !firstNameField.getText().equals("") &&
+                    !lastNameField.getText().equals("") &&
+                    !roleCombo.getSelectionModel().isEmpty()){
+                sqlExeIns("UPDATE user SET FirstName = '"+firstNameField.getText()+"' , LastName = '"+lastNameField.getText()+"', RoleId = (SELECT roleId FROM role WHERE roleName ='"+roleCombo.getSelectionModel().getSelectedItem().toString()+"') WHERE Email = '"+email+"';");
+            }
+
+        });
+
+        backButton.setOnAction(value -> {
+            try {
+                screen30(window);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+        cancelButton.setOnAction(value -> {
+            try {
+                screen30(window);
+            }catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
         Runnable countdown = new Runnable() {
             @Override
             public void run() {
