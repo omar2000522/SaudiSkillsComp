@@ -3454,6 +3454,133 @@ public class Main extends Application {
         window.show();
     }
 
+    public void screen26(Stage window) throws SQLException, FileNotFoundException {
+        BorderPane rootBorderPane = new BorderPane();
+        Label countdownLabel = new Label();
+        Label titleLabel = new Label("Marathon Skills 2015");
+        Button backButton = new Button("Back");
+        HBox topBox = new HBox(backButton,titleLabel);
+        HBox bottomBox = new HBox(countdownLabel);
+        Label headerLabel = new Label("Sponsorship overview");
+        Label sortByLabel = new Label("Sort by: ");
+        ComboBox sortByCombo = new ComboBox();
+        Button sortButt = new Button(" Sort ");
+        HBox sortElement = new HBox(sortByLabel,sortByCombo,sortButt);
+        Label logosLabel = new Label("  Logo  ");
+        Label charityNameLabel = new Label("  Charity Name  ");
+        Label totalAmountLabel = new Label("  Total Amount  ");
+        //VBox logosBox = new VBox();
+        //VBox charityNameBox = new VBox();
+        //VBox totalAmountBox = new VBox();
+        //HBox charityTable = new HBox(logosBox,charityNameBox,totalAmountBox);
+        ScrollPane tablePane  = new ScrollPane();
+        HBox labelsElement = new HBox(logosLabel,charityNameLabel,totalAmountLabel);
+        VBox elements = new VBox(labelsElement);
+        VBox mainBox = new VBox(headerLabel,sortElement,tablePane);
+
+
+
+
+
+        //--------Proprieties--------
+        topBox.setStyle("-fx-background-color: #336699;");
+        bottomBox.setStyle("-fx-background-color: #336699;");
+        titleLabel.setFont(Font.font("Courier New",20));
+        logosLabel.setFont(Font.font("Arial",FontWeight.BOLD,16));
+        charityNameLabel.setFont(Font.font("Arial",FontWeight.BOLD,16));
+        totalAmountLabel.setFont(Font.font("Arial",FontWeight.BOLD,16));
+        bottomBox.setPadding(new Insets(15));
+        topBox.setPadding(new Insets(20));
+        elements.setPadding(new Insets(20));
+        mainBox.setPadding(new Insets(20));
+        topBox.setSpacing(20);
+        mainBox.setSpacing(20);
+        labelsElement.setSpacing(100);
+        sortElement.setSpacing(15);
+        bottomBox.setAlignment(Pos.CENTER);
+        sortElement.setAlignment(Pos.CENTER);
+        mainBox.setAlignment(Pos.CENTER);
+        elements.setAlignment(Pos.CENTER);
+        rootBorderPane.setTop(topBox);
+        rootBorderPane.setBottom(bottomBox);
+        rootBorderPane.setCenter(mainBox);
+        tablePane.setContent(elements);
+        tablePane.setMaxWidth(windowWidth-100);
+
+
+
+        //---------------Code----------------
+
+        ResultSet charities = sqlExe("SELECT charityId,charityName FROM charity ORDER BY charityName;");
+        while (charities.next()){
+            charitiesAmount.put(charities.getString("charityName"),0);
+            charitiesIds.put(charities.getString("charityId"),charities.getString("charityName"));
+        }
+        for (Object e:charitiesIds.keySet().toArray()) {
+            String id = (String) e;
+            int amount = 0;
+            ResultSet sponsorship = sqlExe("SELECT amount FROM (registration INNER JOIN sponsorship ON registration.registrationId = sponsorship.registrationId) WHERE charityId ='"+id+"';");
+            while (sponsorship.next()) amount += sponsorship.getInt("amount");
+            charitiesAmount.replace(charitiesIds.get(e),amount);
+        }
+        for (Object e:charitiesAmount.keySet().toArray()) {
+            Label name = new Label(e.toString());
+            ResultSet imageDir = sqlExe("SELECT charityLogo FROM charity WHERE charityName ='"+e.toString()+"';");
+            imageDir.next();
+            ImageView logo = new ImageView(new Image(new FileInputStream("src/sample/Images/"+imageDir.getString("charityLogo"))));
+            String amount = charitiesAmount.get(e).toString();
+            amount = "$" + amount.substring(0,amount.length()-3) + "," + amount.substring(amount.length()-3);
+            Label amountLabel = new Label(amount);
+
+            logo.setPreserveRatio(true);
+            logo.setFitWidth(100);
+            logo.setFitHeight(100);
+            name.setMinWidth(300);
+            name.setFont(Font.font("Arial",FontWeight.SEMI_BOLD,16));
+            amountLabel.setFont(Font.font("Arial",FontWeight.SEMI_BOLD,16));
+
+            HBox element = new HBox(logo,name,amountLabel);
+            element.setSpacing(40);
+            element.setAlignment(Pos.CENTER_LEFT);
+            element.setPadding(new Insets(15));
+            elements.getChildren().add(element);
+        }
+
+
+
+        backButton.setOnAction(value -> screen19(window));
+
+        Runnable countdown = new Runnable() {
+            @Override
+            public void run() {
+                while(true){
+                    long countDownInMillis = marathonStart.getTimeInMillis() - System.currentTimeMillis();
+                    long days = countDownInMillis/86400000;
+                    long hours = (countDownInMillis%86400000)/3600000;
+                    long mins = ((countDownInMillis%86400000)%3600000)/60000;
+                    long secs = (((countDownInMillis%86400000)%3600000)%60000)/1000;
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            countdownLabel.setText(days+" days "+hours+" hours "+mins+" minutes "+secs+" seconds until marathon start.");
+                        }
+                    });
+
+                    try {
+                        Thread.sleep(interval);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        Thread thrd = new Thread(countdown);
+        thrd.start();
+
+        window.setScene(new Scene(rootBorderPane, windowWidth, windowHight));
+        window.show();
+    }
+
     public void screen30(Stage window) throws SQLException {
         BorderPane rootBorderPane = new BorderPane();
         Label countdownLabel = new Label();
@@ -3588,7 +3715,13 @@ public class Main extends Application {
             }catch (Exception e){e.printStackTrace();};
         });
 
-
+        addUser.setOnAction(value -> {
+            try {
+                screen32(window);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
 
         Runnable countdown = new Runnable() {
             @Override
@@ -3684,6 +3817,7 @@ public class Main extends Application {
         bottomBox.setAlignment(Pos.CENTER);
         mainBox.setAlignment(Pos.TOP_CENTER);
         midBox.setAlignment(Pos.CENTER);
+        leftSide.setAlignment(Pos.BOTTOM_CENTER);
         buttonsBox.setAlignment(Pos.CENTER);
         topRightSide.setAlignment(Pos.CENTER);
         rootBorderPane.setTop(topBox);
@@ -3735,6 +3869,137 @@ public class Main extends Application {
                 e.printStackTrace();
             }
         });
+        Runnable countdown = new Runnable() {
+            @Override
+            public void run() {
+                while(true){
+                    long countDownInMillis = marathonStart.getTimeInMillis() - System.currentTimeMillis();
+                    long days = countDownInMillis/86400000;
+                    long hours = (countDownInMillis%86400000)/3600000;
+                    long mins = ((countDownInMillis%86400000)%3600000)/60000;
+                    long secs = (((countDownInMillis%86400000)%3600000)%60000)/1000;
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            countdownLabel.setText(days+" days "+hours+" hours "+mins+" minutes "+secs+" seconds until marathon start.");
+                        }
+                    });
+
+                    try {
+                        Thread.sleep(interval);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        Thread thrd = new Thread(countdown);
+        thrd.start();
+
+        window.setScene(new Scene(rootBorderPane, windowWidth, windowHight));
+        window.show();
+    }
+
+    public void screen32(Stage window) throws SQLException {
+        BorderPane rootBorderPane = new BorderPane();
+        Label countdownLabel = new Label();
+        Label titleLabel = new Label("Marathon Skills 2015");
+        Button backButton = new Button("Back");
+        HBox topBox = new HBox(backButton,titleLabel);
+        HBox bottomBox = new HBox(countdownLabel);
+        Label headerLabel = new Label("Add a new user");
+        Label emailLabel = new Label("Email:");
+        Label pwLabel = new Label("Password:");
+        Label pw2Label = new Label("Password Again:");
+        Label firstNameLabel = new Label("First Name:");
+        Label lastNameLabel = new Label("Last Name:");
+        Label roleLabel = new Label("Role:");
+        ComboBox roleCombo = new ComboBox();
+        TextField emailField = new TextField();
+        TextField pwField = new TextField();
+        TextField pw2Field = new TextField();
+        TextField firstNameField = new TextField();
+        TextField lastNameField = new TextField();
+        VBox leftLabelBox = new VBox(emailLabel,firstNameLabel,lastNameLabel,roleLabel);
+        VBox leftFieldBox = new VBox(emailField,firstNameField,lastNameField,roleCombo);
+        HBox leftBox = new HBox(leftLabelBox,leftFieldBox);
+        VBox rightLabelBox = new VBox(pwLabel,pw2Label);
+        VBox rightFieldBox = new VBox(pwField,pw2Field);
+        HBox rightBox = new HBox(rightLabelBox,rightFieldBox);
+        HBox inputElements = new HBox(leftBox,rightBox);
+        Button registerButton = new Button("Register");
+        Button cancelButton = new Button("Cancel");
+        HBox buttonsBox = new HBox(registerButton,cancelButton);
+        VBox headerBox = new VBox(headerLabel);
+        VBox midBox = new VBox(headerBox,inputElements,buttonsBox);
+
+
+
+        //--------Proprieties--------
+        topBox.setStyle("-fx-background-color: #336699;");
+        bottomBox.setStyle("-fx-background-color: #336699;");
+        titleLabel.setFont(Font.font("Courier New",20));
+        headerLabel.setFont(Font.font(18));
+        bottomBox.setPadding(new Insets(15));
+        topBox.setPadding(new Insets(20));
+        headerBox.setPadding(new Insets(20,10,50,10));
+        topBox.setSpacing(20);
+        midBox.setSpacing(20);
+        leftBox.setSpacing(20);
+        rightBox.setSpacing(20);
+        leftLabelBox.setSpacing(20);
+        leftFieldBox.setSpacing(10);
+        rightLabelBox.setSpacing(20);
+        rightFieldBox.setSpacing(10);
+        inputElements.setSpacing(40);
+        buttonsBox.setSpacing(20);
+        headerBox.setAlignment(Pos.CENTER);
+        headerLabel.setAlignment(Pos.CENTER);
+        inputElements.setAlignment(Pos.CENTER);
+        bottomBox.setAlignment(Pos.CENTER);
+        buttonsBox.setAlignment(Pos.CENTER);
+        rootBorderPane.setTop(topBox);
+        rootBorderPane.setCenter(midBox);
+        rootBorderPane.setBottom(bottomBox);
+
+        //---------sql-data-------------
+        ResultSet roles = sqlExe("SELECT roleName FROM role;");
+        while (roles.next()) roleCombo.getItems().add(roles.getString("roleName"));
+
+        registerButton.setOnAction(value -> {
+            String pw =pwField.getText();
+            boolean pwRequirements =
+                    (pw.contains("!")||pw.contains("@")||pw.contains("#")||pw.contains("$")||pw.contains("%")||pw.contains("^")) &&
+                            (!pw.toLowerCase().equals(pw) && !pw.toUpperCase().equals(pw)) &&
+                            (pw.contains("1")||pw.contains("2")||pw.contains("3")||pw.contains("4")||pw.contains("5")||pw.contains("6")||pw.contains("7")||pw.contains("8")||pw.contains("9")||pw.contains("0")) &&
+                            (pw.length()>=6);
+            String role = roleCombo.getSelectionModel().getSelectedItem().toString().substring(0,1);
+            System.out.println(role);
+
+            if( emailField.getText().matches("(.*)@(.*)\\.(.*)") &&
+                    pwField.getText().equals(pw2Field.getText()) &&
+                    pwRequirements &&
+                    !firstNameField.getText().equals("") &&
+                    !lastNameField.getText().equals("") &&
+                    !roleCombo.getSelectionModel().isEmpty()){
+                sqlExeIns("INSERT INTO User VALUES ('"+emailField.getText()+"','"+pwField.getText()+"','"+firstNameField.getText()+"','"+lastNameField.getText()+"','"+role+"');");
+            }
+        });
+        cancelButton.setOnAction(value -> {
+            try {
+                screen30(window);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+        backButton.setOnAction(value -> {
+            try {
+                screen30(window);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+
         Runnable countdown = new Runnable() {
             @Override
             public void run() {
