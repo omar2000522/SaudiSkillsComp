@@ -2605,6 +2605,13 @@ public class Main extends Application {
                 e.printStackTrace();
             }
         });
+        volunteersButton.setOnAction(value -> {
+            try {
+                screen28(window);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
 
         Runnable countdown = new Runnable() {
             @Override
@@ -3529,6 +3536,7 @@ public class Main extends Application {
 
         ResultSet charities = sqlExe("SELECT charityId,charityName,charityLogo,charityDescription FROM charity ORDER BY charityName;");
         while (charities.next()){
+            System.out.println(charities.getString("charityLogo"));
             ImageView logo = new ImageView(new Image(new FileInputStream("src/sample/Images/"+charities.getString("charityLogo"))));
             String name = charities.getString("charityName");
             Label nameLabel = new Label(name);
@@ -3682,12 +3690,14 @@ public class Main extends Application {
         saveButton.setOnAction(value -> {
             String newLogo = logoField.getText();
             boolean setLogo = !newLogo.equals("");
+            boolean filledFields = !"".equals(firstNameField.getText()) && !"".equals(lastNameField.getText());
+
             if (!finalCharityExists) sqlExeIns("INSERT INTO charity (charityName,charityDescription,charityLogo) VALUES ('"+firstNameField.getText()+"','"+lastNameField.getText()+"','"+newLogo.substring(newLogo.lastIndexOf("\\"))+"');");
             else {
                 if (setLogo) sqlExeIns("UPDATE charity SET charityLogo ='"+newLogo.substring(newLogo.lastIndexOf("\\"))+"' WHERE charityName = '"+charityName+"';");
-                if ()
-
-
+                if (filledFields){
+                    sqlExeIns("UPDATE charity SET charityName = '"+firstNameField.getText()+"' , charityDescription ='"+lastNameField.getText()+"' WHERE charityName = '"+charityName+"';");
+                }
             }
 
 
@@ -3707,6 +3717,198 @@ public class Main extends Application {
         cancelButton.setOnAction(value -> {
             screen20(window);
         });
+        Runnable countdown = new Runnable() {
+            @Override
+            public void run() {
+                while(true){
+                    long countDownInMillis = marathonStart.getTimeInMillis() - System.currentTimeMillis();
+                    long days = countDownInMillis/86400000;
+                    long hours = (countDownInMillis%86400000)/3600000;
+                    long mins = ((countDownInMillis%86400000)%3600000)/60000;
+                    long secs = (((countDownInMillis%86400000)%3600000)%60000)/1000;
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            countdownLabel.setText(days+" days "+hours+" hours "+mins+" minutes "+secs+" seconds until marathon start.");
+                        }
+                    });
+
+                    try {
+                        Thread.sleep(interval);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        Thread thrd = new Thread(countdown);
+        thrd.start();
+
+        window.setScene(new Scene(rootBorderPane, windowWidth, windowHight));
+        window.show();
+    }
+
+    public void screen28 (Stage window) throws SQLException {
+        BorderPane rootBorderPane = new BorderPane();
+        Label countdownLabel = new Label();
+        Label titleLabel = new Label("Marathon Skills 2015");
+        Button backButton = new Button("Back");
+        HBox topBox = new HBox(backButton,titleLabel);
+        HBox bottomBox = new HBox(countdownLabel);
+        Label headerLabel = new Label("Volunteer management");
+        Label h2Label = new Label("Sort and filter");
+        Label h3Label = new Label("Import");
+        Label sortLabel = new Label("Sort by: ");
+        ComboBox sortByCombo = new ComboBox();
+        HBox sortElement = new HBox(sortLabel,sortByCombo);
+        Button importVolunteers = new Button("Import volunteers");
+        Button refreshButton = new Button(" Refresh ");
+        VBox filterBox = new VBox(h2Label,sortElement,refreshButton);
+        VBox exportBox = new VBox(h3Label,importVolunteers);
+        HBox filterAndExportBox = new HBox(filterBox,exportBox);
+        Label firstNameLabel = new Label("First name");
+        Label lastNameLabel = new Label("Last name");
+        Label countryLabel = new Label("Country");
+        Label genderLabel = new Label("Gender");
+        Label totalVolunteers = new Label();
+        VBox firstNameBox = new VBox(firstNameLabel);
+        VBox lastNameBox = new VBox(lastNameLabel);
+        VBox countryBox = new VBox(countryLabel);
+        VBox genderBox = new VBox(genderLabel);
+        ScrollPane resultsPane = new ScrollPane();
+        HBox resultsBox = new HBox(firstNameBox,lastNameBox,countryBox,genderBox);
+        VBox mainBox = new VBox(headerLabel,filterAndExportBox,new Label(),totalVolunteers,resultsPane);
+
+        //--------Proprieties--------
+        topBox.setStyle("-fx-background-color: #336699;");
+        bottomBox.setStyle("-fx-background-color: #336699;");
+        titleLabel.setFont(Font.font("Courier New",20));
+        bottomBox.setPadding(new Insets(15));
+        topBox.setPadding(new Insets(20));
+        mainBox.setPadding(new Insets(20));
+        topBox.setSpacing(20);
+        resultsBox.setSpacing(20);
+        filterAndExportBox.setSpacing(80);
+        filterBox.setSpacing(10);
+        exportBox.setSpacing(10);
+        sortByCombo.setMinWidth(150);
+        resultsPane.setMaxWidth(windowWidth-100);
+        resultsBox.setMinWidth(windowWidth-120);
+        bottomBox.setAlignment(Pos.CENTER);
+        mainBox.setAlignment(Pos.TOP_CENTER);
+        resultsBox.setAlignment(Pos.CENTER);
+        filterAndExportBox.setAlignment(Pos.CENTER);
+        filterBox.setAlignment(Pos.CENTER);
+        exportBox.setAlignment(Pos.CENTER);
+        sortElement.setAlignment(Pos.CENTER_RIGHT);
+        resultsPane.setContent(resultsBox);
+        rootBorderPane.setTop(topBox);
+        rootBorderPane.setBottom(bottomBox);
+        rootBorderPane.setCenter(mainBox);
+
+        //---------code------------------
+        sortByCombo.getItems().addAll("First name","Last name","Country","Gender");
+
+        refreshButton.setOnAction(value -> {
+            firstNameBox.getChildren().remove(1,firstNameBox.getChildren().size());
+            lastNameBox.getChildren().remove(1,lastNameBox.getChildren().size());
+            countryBox.getChildren().remove(1,countryBox.getChildren().size());
+            genderBox.getChildren().remove(1,genderBox.getChildren().size());
+
+            String sortBy = "ORDER BY ";
+
+            switch (sortByCombo.getSelectionModel().getSelectedItem().toString()) {
+                case "First name":
+                    sortBy+="volunteer.firstName";
+                    break;
+                case "Last name":
+                    sortBy+="volunteer.lastName";
+                    break;
+                case "Country":
+                    sortBy+="country.countryName";
+                    break;
+                case "Gender":
+                    sortBy+="volunteer.gender";
+                    break;
+            }
+
+            ResultSet volunteers = sqlExe("SELECT volunteer.firstName, volunteer.lastName, country.countryName, volunteer.gender FROM (volunteer INNER JOIN country) "+sortBy+";");
+            try{
+                while (volunteers.next()){
+                    firstNameBox.getChildren().add(new Label(volunteers.getString("firstName")));
+                    lastNameBox.getChildren().add(new Label(volunteers.getString("lastName")));
+                    countryBox.getChildren().add(new Label(volunteers.getString("countryName")));
+                    genderBox.getChildren().add(new Label(volunteers.getString("gender")));
+                }
+            }
+            catch (Exception e){e.printStackTrace();}
+            totalVolunteers.setText("Total volunteers: "+(firstNameBox.getChildren().size()-1));
+
+        });
+        importVolunteers.setOnAction(value -> {
+            screen29(window);
+        });
+        backButton.setOnAction(value -> screen20(window));
+
+        Runnable countdown = new Runnable() {
+            @Override
+            public void run() {
+                while(true){
+                    long countDownInMillis = marathonStart.getTimeInMillis() - System.currentTimeMillis();
+                    long days = countDownInMillis/86400000;
+                    long hours = (countDownInMillis%86400000)/3600000;
+                    long mins = ((countDownInMillis%86400000)%3600000)/60000;
+                    long secs = (((countDownInMillis%86400000)%3600000)%60000)/1000;
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            countdownLabel.setText(days+" days "+hours+" hours "+mins+" minutes "+secs+" seconds until marathon start.");
+                        }
+                    });
+
+                    try {
+                        Thread.sleep(interval);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        Thread thrd = new Thread(countdown);
+        thrd.start();
+
+        window.setScene(new Scene(rootBorderPane, windowWidth, windowHight));
+        window.show();
+    }
+
+    public void screen29(Stage window){
+        BorderPane rootBorderPane = new BorderPane();
+        Label countdownLabel = new Label();
+        Label titleLabel = new Label("Marathon Skills 2015");
+        Button backButton = new Button("Back");
+        HBox topBox = new HBox(backButton,titleLabel);
+        HBox bottomBox = new HBox(countdownLabel);
+        Label headerLabel = new Label("Import volunteers");
+        Label csvListLabel = new Label("CSV list of volunteers:  ");
+        TextField fileField = new TextField();
+        Button browseButt = new Button("Browse...");
+        HBox fileElement = new HBox(csvListLabel,fileField,browseButt);
+        Button importButt = new Button("Import");
+        Button cancelButt = new Button("Cancel");
+        HBox buttonsBox = new HBox(importButt,cancelButt);
+
+        //--------Proprieties--------
+        topBox.setStyle("-fx-background-color: #336699;");
+        bottomBox.setStyle("-fx-background-color: #336699;");
+        titleLabel.setFont(Font.font("Courier New",20));
+        headerLabel.setFont(Font.font("Arial",FontWeight.BOLD,18));
+        bottomBox.setPadding(new Insets(15));
+        topBox.setPadding(new Insets(20));
+        topBox.setSpacing(20);
+        bottomBox.setAlignment(Pos.CENTER);
+        rootBorderPane.setTop(topBox);
+        rootBorderPane.setBottom(bottomBox);
+
         Runnable countdown = new Runnable() {
             @Override
             public void run() {
