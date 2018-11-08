@@ -28,6 +28,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.scene.layout.*;
@@ -3529,23 +3530,30 @@ public class Main extends Application {
         ResultSet charities = sqlExe("SELECT charityId,charityName,charityLogo,charityDescription FROM charity ORDER BY charityName;");
         while (charities.next()){
             ImageView logo = new ImageView(new Image(new FileInputStream("src/sample/Images/"+charities.getString("charityLogo"))));
-            Label name = new Label(charities.getString("charityName"));
+            String name = charities.getString("charityName");
+            Label nameLabel = new Label(name);
             Text charityDesc = new Text(charities.getString("charityDescription"));
             Rectangle divider1 = new Rectangle(3,10,Color.BLACK);
             Rectangle divider2 = new Rectangle(3,10,Color.BLACK);
             Rectangle divider3 = new Rectangle(3,10,Color.BLACK);
             Button editButt = new Button("       Edit       ");
-            HBox element = new HBox(logo,divider1,name,divider2,charityDesc,divider3,editButt);
+            HBox element = new HBox(logo,divider1,nameLabel,divider2,charityDesc,divider3,editButt);
 
             logo.setPreserveRatio(true);
             logo.setFitWidth(75);
-            name.setPrefWidth(100);
-            name.setWrapText(true);
-            name.setFont(Font.font("Arial",FontWeight.SEMI_BOLD,14));
+            nameLabel.setPrefWidth(100);
+            nameLabel.setWrapText(true);
+            nameLabel.setFont(Font.font("Arial",FontWeight.SEMI_BOLD,14));
             charityDesc.setWrappingWidth(300);
 
             editButt.setOnAction(val -> {
-
+                try {
+                    screen27(window,name);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
             });
 
             //set it to RECT.setHieght
@@ -3608,21 +3616,25 @@ public class Main extends Application {
         TextField firstNameField = new TextField();
         TextArea lastNameField = new TextArea();
         VBox charityNameBox = new VBox(firstNameLabel,firstNameField);
-        VBox charityDesc = new VBox(lastNameField,lastNameField);
+        VBox charityDesc = new VBox(lastNameLabel,lastNameField);
         VBox leftSide = new VBox(charityNameBox,charityDesc);
-        Label pwDescLabel = new Label("Leave the \"logo file\" fields blank if you \ndo not want to change the logo.");
+        Text pwDescLabel = new Text("Leave the \"logo file\" fields blank if you \ndo not want to change the logo.");
         Label pwLabel = new Label("Logo file: ");
         TextField logoField = new TextField();
-        HBox rightElements = new HBox(pwLabel,logoField);
+        Button browseButton = new Button("Browse...");
+        VBox rightElements = new VBox(pwLabel,logoField,browseButton);
         Label currentLogoLabel = new Label("Current logo:");
         ImageView currentLogo = new ImageView();
         VBox currentLogoBox = new VBox(currentLogoLabel,currentLogo);
-        VBox rightSide = new VBox(pwDescLabel,rightElements,currentLogoBox);
+        VBox rightSide = new VBox(rightElements,currentLogoBox);
         Button saveButton = new Button("Save");
         Button cancelButton = new Button("Cancel");
         HBox buttonsBox = new HBox(saveButton,cancelButton);
         HBox midBox = new HBox(leftSide,rightSide);
-        VBox mainBox = new VBox(headerLabel,midBox,buttonsBox);
+        VBox mainBox = new VBox(headerLabel,pwDescLabel,midBox,buttonsBox);
+        final File[] logoFile = {null};
+        final String[] newLogoName = {null};
+        boolean charityExists = false;
 
 
         //--------Proprieties--------
@@ -3633,13 +3645,13 @@ public class Main extends Application {
         pwDescLabel.setFont(Font.font(14));
         bottomBox.setPadding(new Insets(15));
         topBox.setPadding(new Insets(20));
-        mainBox.setPadding(new Insets(50));
+        mainBox.setPadding(new Insets(20));
         midBox.setSpacing(100);
         topBox.setSpacing(20);
-        mainBox.setSpacing(40);
+        mainBox.setSpacing(20);
         leftSide.setSpacing(20);
         buttonsBox.setSpacing(20);
-        rightElements.setSpacing(20);
+        rightElements.setSpacing(10);
         charityDesc.setSpacing(10);
         currentLogoBox.setSpacing(10);
         charityNameBox.setSpacing(10);
@@ -3647,42 +3659,53 @@ public class Main extends Application {
         bottomBox.setAlignment(Pos.CENTER);
         mainBox.setAlignment(Pos.TOP_CENTER);
         midBox.setAlignment(Pos.CENTER);
-        leftSide.setAlignment(Pos.BOTTOM_CENTER);
+        leftSide.setAlignment(Pos.TOP_CENTER);
         buttonsBox.setAlignment(Pos.CENTER);
         rootBorderPane.setTop(topBox);
         rootBorderPane.setBottom(bottomBox);
         rootBorderPane.setCenter(mainBox);
-        currentLogo.setFitHeight(200);
+        currentLogo.setFitHeight(100);
+        logoField.setMinWidth(350);
         currentLogo.setPreserveRatio(true);
+
+
         //---------sql-data-------------
         if (charityName != null){
+            charityExists = true;
             ResultSet logoDir = sqlExe("SELECT charityLogo FROM charity WHERE charityName ='"+charityName+"';");
             logoDir.next();
-            currentLogo.setImage(new Image(new FileInputStream("src/sample/Images/"+logoDir.getString("charityLogo")+".png")));
+            currentLogo.setImage(new Image(new FileInputStream("src/sample/Images/"+logoDir.getString("charityLogo"))));
         }else currentLogo.setImage(new Image(new FileInputStream("src/sample/Image/cross-icon.png")));
 
 
+        boolean finalCharityExists = charityExists;
         saveButton.setOnAction(value -> {
             String newLogo = logoField.getText();
             boolean setLogo = !newLogo.equals("");
+            if (!finalCharityExists) sqlExeIns("INSERT INTO charity (charityName,charityDescription,charityLogo) VALUES ('"+firstNameField.getText()+"','"+lastNameField.getText()+"','"+newLogo.substring(newLogo.lastIndexOf("\\"))+"');");
+            else {
+                if (setLogo) sqlExeIns("UPDATE charity SET charityLogo ='"+newLogo.substring(newLogo.lastIndexOf("\\"))+"' WHERE charityName = '"+charityName+"';");
+                if ()
 
-            if (setLogo) sqlExeIns("UPDATE");
+
+            }
+
 
         });
-
+        browseButton.setOnAction(value -> {
+            FileChooser logo = new FileChooser();
+            logo.setTitle("Charity Logo");
+            logo.getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG","*.png"));
+            logoFile[0] = logo.showOpenDialog(window);
+            System.out.println(logoFile[0].getName());
+            logoField.setText(logoFile[0].getPath());
+            newLogoName[0] = logoFile[0].getName();
+        });
         backButton.setOnAction(value -> {
-            try {
-                screen30(window);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+                screen20(window);
         });
         cancelButton.setOnAction(value -> {
-            try {
-                screen30(window);
-            }catch (SQLException e) {
-                e.printStackTrace();
-            }
+            screen20(window);
         });
         Runnable countdown = new Runnable() {
             @Override
