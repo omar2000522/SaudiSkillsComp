@@ -49,7 +49,7 @@ public class Main extends Application {
     Long interval = 1000L;
     Calendar marathonStart = Calendar.getInstance();
     String currentEmail;
-    String URL = "jdbc:mysql://127.0.0.1:3306/cpt02?useSSL=False";
+    String URL = "jdbc:mysql://127.0.0.1:3306/cpt01?useSSL=False";
     String USER = "root";
     String PASS = "omar";
 
@@ -3889,13 +3889,14 @@ public class Main extends Application {
         HBox topBox = new HBox(backButton,titleLabel);
         HBox bottomBox = new HBox(countdownLabel);
         Label headerLabel = new Label("Import volunteers");
-        Label csvListLabel = new Label("CSV list of volunteers:  ");
+        Label csvListLabel = new Label("CSV list of volunteers:");
         TextField fileField = new TextField();
         Button browseButt = new Button("Browse...");
         HBox fileElement = new HBox(csvListLabel,fileField,browseButt);
         Button importButt = new Button("Import");
         Button cancelButt = new Button("Cancel");
         HBox buttonsBox = new HBox(importButt,cancelButt);
+        VBox mainBox = new VBox(headerLabel,fileElement,buttonsBox);
 
         //--------Proprieties--------
         topBox.setStyle("-fx-background-color: #336699;");
@@ -3905,9 +3906,16 @@ public class Main extends Application {
         bottomBox.setPadding(new Insets(15));
         topBox.setPadding(new Insets(20));
         topBox.setSpacing(20);
+        mainBox.setSpacing(100);
+        fileElement.setSpacing(10);
+        buttonsBox.setSpacing(15);
         bottomBox.setAlignment(Pos.CENTER);
+        mainBox.setAlignment(Pos.CENTER);
+        fileElement.setAlignment(Pos.CENTER);
+        buttonsBox.setAlignment(Pos.CENTER);
         rootBorderPane.setTop(topBox);
         rootBorderPane.setBottom(bottomBox);
+        rootBorderPane.setCenter(mainBox);
 
         Runnable countdown = new Runnable() {
             @Override
