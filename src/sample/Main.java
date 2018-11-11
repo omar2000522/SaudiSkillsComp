@@ -22,9 +22,7 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.image.*;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Line;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -1120,7 +1118,15 @@ public class Main extends Application {
                 e.printStackTrace();
             }
         });
+        BMI.setOnAction(value -> {
+            try {
+                screen33(window);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        });
         backButton.setOnAction(value -> screen1(window));
+
         window.setScene(new Scene(rootBorderPane,windowWidth,windowHight));
         window.show();
     }
@@ -3945,13 +3951,12 @@ public class Main extends Application {
                 try {
                     Scanner sc = new Scanner(new File(fileField.getText()));
 
+                    sc.next();
                     while (sc.hasNext()){
                         String[] currentVolunteer = sc.next().split(",");
-                        System.out.println(currentVolunteer[4]);
                         currentVolunteer[4] = currentVolunteer[4].equals("F") ? "Female":"Male";
-                        System.out.println(currentVolunteer[4]+"\n");
 
-                        //sqlExeIns("INSERT INTO volunteer");
+                        sqlExeIns("INSERT INTO volunteer VALUES ("+currentVolunteer[0]+",'"+currentVolunteer[1]+"','"+currentVolunteer[2]+"','"+currentVolunteer[3]+"','"+currentVolunteer[4]+"');");
                     }
 
 
@@ -4430,6 +4435,140 @@ public class Main extends Application {
 
                     try {
                         Thread.sleep(interval);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        Thread thrd = new Thread(countdown);
+        thrd.start();
+
+        window.setScene(new Scene(rootBorderPane, windowWidth, windowHight));
+        window.show();
+    }
+
+    public void screen33(Stage window) throws FileNotFoundException {
+        BorderPane rootBorderPane = new BorderPane();
+        Label countdownLabel = new Label();
+        Label titleLabel = new Label("Marathon Skills 2015");
+        Button backButton = new Button("Back");
+        HBox topBox = new HBox(backButton,titleLabel);
+        HBox bottomBox = new HBox(countdownLabel);
+        Label headerLabel = new Label("BMI calculator");
+        Text bmiInfo = new Text("BMI stands for Body Mass Index. It is used to give you an idea of whether you’re underweight, overweight or an ideal weight for your height. It’s useful to know because if your weight increases or decreases outside of the ideal range, your health risks may increase.");
+        ImageView femaleIcon = new ImageView();
+        ImageView maleIcon = new ImageView();
+        HBox iconsBox = new HBox(femaleIcon,maleIcon);
+        Label heightLabel = new Label("Height: ");
+        TextField heightField = new TextField();
+        Label cmLabel = new Label("cm");
+        HBox heightElement = new HBox(heightLabel,heightField,cmLabel);
+        Label weightLabel = new Label("Weight: ");
+        TextField weightField = new TextField();
+        Label kgLabel = new Label("kg");
+        HBox weightElement = new HBox(weightLabel,weightField,kgLabel);
+        Button calcButt = new Button("Calculate");
+        Button cancelButt = new Button("Cancel");
+        HBox buttonsBox = new HBox(calcButt,cancelButt);
+        VBox leftSide = new VBox(bmiInfo,iconsBox,heightElement,weightElement,buttonsBox);
+        ImageView bodyIcon = new ImageView();
+
+        Polygon pointer = new Polygon();
+        pointer.getPoints().addAll(new Double[]{
+                0.0, 5.0,
+                20.0, 5.0,
+                10.0, 15.0
+        });
+        pointer.setFill(Color.BLACK);
+
+        Rectangle scale1 = new Rectangle(75,15,Color.GOLD);
+        Rectangle scale2 = new Rectangle(75,15,Color.GREEN);
+        Rectangle scale3 = new Rectangle(75,15,Color.GOLD);
+        Rectangle scale4 = new Rectangle(75,15,Color.RED);
+        HBox scaleBox = new HBox(scale1,scale2,scale3,scale4);
+        Pane sliderPane = new Pane(pointer);
+        VBox sliderBox = new VBox(sliderPane,scaleBox);
+        VBox rightSide = new VBox(bodyIcon,sliderBox);
+        HBox bothSides = new HBox(leftSide,rightSide);
+        VBox mainBox = new VBox(headerLabel,bothSides);
+
+        //--------Proprieties--------
+        topBox.setStyle("-fx-background-color: #336699;");
+        bottomBox.setStyle("-fx-background-color: #336699;");
+        titleLabel.setFont(Font.font("Courier New",20));
+        bottomBox.setPadding(new Insets(15));
+        topBox.setPadding(new Insets(20));
+        mainBox.setSpacing(20);
+        bothSides.setSpacing(50);
+        topBox.setSpacing(20);
+        leftSide.setSpacing(20);
+        heightElement.setSpacing(10);
+        weightElement.setSpacing(10);
+        iconsBox.setSpacing(10);
+        buttonsBox.setSpacing(10);
+        bottomBox.setAlignment(Pos.CENTER);
+        leftSide.setAlignment(Pos.CENTER);
+        mainBox.setAlignment(Pos.CENTER);
+        iconsBox.setAlignment(Pos.CENTER);
+        buttonsBox.setAlignment(Pos.CENTER);
+        heightElement.setAlignment(Pos.CENTER);
+        weightElement.setAlignment(Pos.CENTER);
+        bothSides.setAlignment(Pos.CENTER);
+        rootBorderPane.setTop(topBox);
+        rootBorderPane.setBottom(bottomBox);
+        rootBorderPane.setCenter(mainBox);
+        bmiInfo.setWrappingWidth(300);
+        maleIcon.setPreserveRatio(true);
+        femaleIcon.setPreserveRatio(true);
+        bodyIcon.setPreserveRatio(true);
+        maleIcon.setFitWidth(50);
+        femaleIcon.setFitWidth(50);
+        bodyIcon.setFitHeight(300);
+        bodyIcon.setImage(new Image(new FileInputStream("src/sample/Images/bmi-healthy-icon.png")));
+        maleIcon.setImage(new Image(new FileInputStream("src/sample/Images/male-icon.png")));
+        femaleIcon.setImage(new Image(new FileInputStream("src/sample/Images/female-icon.png")));
+        pointer.setLayoutX(pointer.getLayoutX() + 100);
+
+
+        //----------code--------------
+        maleIcon.setOnMouseClicked(value -> {
+            maleIcon.setStyle("-fx-opacity : 1;");
+            femaleIcon.setStyle("-fx-opacity : 0.5;");
+        });
+        femaleIcon.setOnMouseClicked(value -> {
+            femaleIcon.setStyle("-fx-opacity : 1;");
+            maleIcon.setStyle("-fx-opacity : 0.5;");
+        });
+        calcButt.setOnAction(value -> {
+            double weight = Double.parseDouble(weightField.getText());
+            double height = Double.parseDouble(heightField.getText())/100;
+            double BMI = weight / (height*height);
+            System.out.println(BMI);
+
+            pointer.setLayoutX(((BMI-10)/(35-10))*260);
+        });
+
+
+        Runnable countdown = new Runnable() {
+            @Override
+            public void run() {
+                while(true){
+                    long countDownInMillis = marathonStart.getTimeInMillis() - System.currentTimeMillis();
+                    long days = countDownInMillis/86400000;
+                    long hours = (countDownInMillis%86400000)/3600000;
+                    long mins = ((countDownInMillis%86400000)%3600000)/60000;
+                    long secs = (((countDownInMillis%86400000)%3600000)%60000)/1000;
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            countdownLabel.setText(days+" days "+hours+" hours "+mins+" minutes "+secs+" seconds until marathon start.");
+                            //pointer.setLayoutX(((pointer.getLayoutX() + 1)%260));
+                        }
+                    });
+
+                    try {
+                        Thread.sleep(1000L);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
