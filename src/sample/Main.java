@@ -2,6 +2,7 @@ package sample;
 
 
 import com.sun.istack.internal.Nullable;
+import com.sun.xml.internal.ws.wsdl.writer.document.Import;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.RotateTransition;
@@ -49,7 +50,7 @@ public class Main extends Application {
     Long interval = 1000L;
     Calendar marathonStart = Calendar.getInstance();
     String currentEmail;
-    String URL = "jdbc:mysql://127.0.0.1:3306/cpt01?useSSL=False";
+    String URL = "jdbc:mysql://127.0.0.1:3306/cpt02?useSSL=False";
     String USER = "root";
     String PASS = "omar";
 
@@ -3903,6 +3904,7 @@ public class Main extends Application {
         bottomBox.setStyle("-fx-background-color: #336699;");
         titleLabel.setFont(Font.font("Courier New",20));
         headerLabel.setFont(Font.font("Arial",FontWeight.BOLD,18));
+        fileField.setMinWidth(300);
         bottomBox.setPadding(new Insets(15));
         topBox.setPadding(new Insets(20));
         topBox.setSpacing(20);
@@ -3916,6 +3918,48 @@ public class Main extends Application {
         rootBorderPane.setTop(topBox);
         rootBorderPane.setBottom(bottomBox);
         rootBorderPane.setCenter(mainBox);
+
+        backButton.setOnAction(value -> {
+            try {
+                screen28(window);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+        cancelButt.setOnAction(value -> {
+            try {
+                screen28(window);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+        browseButt.setOnAction(value -> {
+            FileChooser volunteersFileC = new FileChooser();
+            volunteersFileC.setTitle("Volunteers file");
+            volunteersFileC.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Comma Separated Values","*.CSV"));
+            File volunteerPath = volunteersFileC.showOpenDialog(window);
+            fileField.setText(volunteerPath.getPath());
+        });
+        importButt.setOnAction(value -> {
+            if ((new File(fileField.getText())).exists()){
+                try {
+                    Scanner sc = new Scanner(new File(fileField.getText()));
+
+                    while (sc.hasNext()){
+                        String[] currentVolunteer = sc.next().split(",");
+                        System.out.println(currentVolunteer[4]);
+                        currentVolunteer[4] = currentVolunteer[4].equals("F") ? "Female":"Male";
+                        System.out.println(currentVolunteer[4]+"\n");
+
+                        //sqlExeIns("INSERT INTO volunteer");
+                    }
+
+
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
         Runnable countdown = new Runnable() {
             @Override
@@ -4044,7 +4088,6 @@ public class Main extends Application {
                     break;
             }
         });
-
         refresh.setOnAction(value -> {
             firstNameBox.getChildren().remove(1,firstNameBox.getChildren().size());
             lastNameBox.getChildren().remove(1,lastNameBox.getChildren().size());
@@ -4081,13 +4124,15 @@ public class Main extends Application {
                 totalUsers.setText("Total users: "+totalResults);
             }catch (Exception e){e.printStackTrace();};
         });
-
         addUser.setOnAction(value -> {
             try {
                 screen32(window);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
+        });
+        backButton.setOnAction(value -> {
+            screen3(window);
         });
 
         Runnable countdown = new Runnable() {
