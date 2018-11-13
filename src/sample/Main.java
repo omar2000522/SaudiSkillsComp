@@ -74,7 +74,7 @@ public class Main extends Application {
         //--------Proprieties--------
         topBox.setStyle("-fx-background-color: #336699;");
         bottomBox.setStyle("-fx-background-color: #336699;");
-        titleLabel.setFont(Font.font("Courier New",20));
+        titleLabel.setFont(Font.font("Open Sans",20));
         bottomBox.setPadding(new Insets(15));
         topBox.setPadding(new Insets(20));
         topBox.setSpacing(20);
@@ -217,7 +217,7 @@ public class Main extends Application {
         //--------Proprieties--------
         topBox.setStyle("-fx-background-color: #336699;");
         bottomBox.setStyle("-fx-background-color: #336699;");
-        titleLabel.setFont(Font.font("Courier New",20));
+        titleLabel.setFont(Font.font("Open Sans",20));
         bottomBox.setPadding(new Insets(15));
         topBox.setPadding(new Insets(20));
         buttonsBox.setSpacing(20);
@@ -297,7 +297,7 @@ public class Main extends Application {
         topBox.setStyle("-fx-background-color : #336699");
         rootBorderPane.setTop(topBox);
         rootBorderPane.setCenter(midBox);
-        titleLabel.setFont(Font.font("Courier New",20));
+        titleLabel.setFont(Font.font("Open Sans",20));
         midBox.setAlignment(Pos.CENTER);
         loginElements.setAlignment(Pos.CENTER);
         buttonsBox.setAlignment(Pos.CENTER);
@@ -392,7 +392,7 @@ public class Main extends Application {
         //--------Proprieties--------
         topBox.setStyle("-fx-background-color: #336699;");
         bottomBox.setStyle("-fx-background-color: #336699;");
-        titleLabel.setFont(Font.font("Courier New",20));
+        titleLabel.setFont(Font.font("Open Sans",20));
         headerLabel.setFont(Font.font(18));
         descLabel.setFont(Font.font(14));
         bottomBox.setPadding(new Insets(15));
@@ -581,7 +581,7 @@ public class Main extends Application {
         //--------Proprieties--------
         topBox.setStyle("-fx-background-color: #336699;");
         bottomBox.setStyle("-fx-background-color: #336699;");
-        titleLabel.setFont(Font.font("Courier New",20));
+        titleLabel.setFont(Font.font("Open Sans",20));
         bottomBox.setPadding(new Insets(15));
         topBox.setPadding(new Insets(20));
         topLeftBox.setPadding(new Insets(50,50,10,50));
@@ -877,7 +877,7 @@ public class Main extends Application {
         //--------Proprieties--------
         topBox.setStyle("-fx-background-color: #336699;");
         bottomBox.setStyle("-fx-background-color: #336699;");
-        titleLabel.setFont(Font.font("Courier New",20));
+        titleLabel.setFont(Font.font("Open Sans",20));
         tyLabel.setFont(Font.font(25));
         smoltyLabel.setFont(Font.font(18));
         moneyContactLabel.setFont(Font.font(15));
@@ -949,7 +949,7 @@ public class Main extends Application {
         //-----------proprieties----------
         topBox.setStyle("-fx-background-color : #336699");
         bottomBox.setStyle("-fx-background-color : #336699");
-        titleLabel.setFont(Font.font("Courier New", 20));
+        titleLabel.setFont(Font.font("Open Sans", 20));
         logoutButton.setAlignment(Pos.CENTER_RIGHT);
         leftSide.setAlignment(Pos.TOP_CENTER);
         rightSide.setAlignment(Pos.TOP_CENTER);
@@ -989,7 +989,7 @@ public class Main extends Application {
             Label email = new Label("coordinator@gmail.com");
             VBox mainBox = new VBox(header,forMoreInfo,phoneNum,email);
 
-            header.setFont(Font.font("Courier New",15));
+            header.setFont(Font.font("Open Sans",15));
             mainBox.setPadding(new Insets(30));
             mainBox.setSpacing(15);
             mainBox.setAlignment(Pos.CENTER);
@@ -1156,7 +1156,7 @@ public class Main extends Application {
         //--------Proprieties--------
         topBox.setStyle("-fx-background-color: #336699;");
         bottomBox.setStyle("-fx-background-color: #336699;");
-        titleLabel.setFont(Font.font("Courier New",20));
+        titleLabel.setFont(Font.font("Open Sans",20));
         headerLabel.setFont(Font.font("Arial",FontWeight.BOLD,18));
         maraInfoText.setWrappingWidth(400);
         image1.setFitWidth(100);
@@ -1278,7 +1278,7 @@ public class Main extends Application {
         //--------Proprieties--------
         topBox.setStyle("-fx-background-color: #336699;");
         bottomBox.setStyle("-fx-background-color: #336699;");
-        titleLabel.setFont(Font.font("Courier New",20));
+        titleLabel.setFont(Font.font("Open Sans",20));
         infoTitle.setFont(Font.font("Arial",FontWeight.BOLD,18));
         bottomBox.setPadding(new Insets(15));
         topBox.setPadding(new Insets(20));
@@ -1606,7 +1606,7 @@ public class Main extends Application {
             labelsBox.setSpacing(10);
             charityElement.setSpacing(20);
             description.setWrappingWidth(600);
-            name.setFont(Font.font("Courier New",20));
+            name.setFont(Font.font("Open Sans",20));
             charityElement.setStyle("-fx-background-color: #ffffff;");
             charityElement.setPadding(new Insets(15));
             mainBox.getChildren().add(charityElement);
@@ -1702,7 +1702,7 @@ public class Main extends Application {
         topBox.setStyle("-fx-background-color: #336699;");
         bottomBox.setStyle("-fx-background-color: #336699;");
         resultsBox.setStyle("-fx-background-color: #eeeeee;");
-        titleLabel.setFont(Font.font("Courier New",20));
+        titleLabel.setFont(Font.font("Open Sans",20));
         headerLabel.setFont(Font.font("Arial",18));
         ranksLabel.setFont(Font.font("Arial",FontWeight.BOLD,16));
         raceTimeLabel.setFont(Font.font("Arial",FontWeight.BOLD,16));
@@ -1887,7 +1887,7 @@ public class Main extends Application {
         //--------Proprieties--------
         topBox.setStyle("-fx-background-color: #336699;");
         bottomBox.setStyle("-fx-background-color: #336699;");
-        titleLabel.setFont(Font.font("Courier New",20));
+        titleLabel.setFont(Font.font("Open Sans",20));
         itemLabel.setFont(Font.font("Arial",FontWeight.BOLD,20));
         itemText.setWrappingWidth(400);
         bottomBox.setPadding(new Insets(15));
@@ -2069,7 +2069,7 @@ public class Main extends Application {
         //--------Proprieties--------
         topBox.setStyle("-fx-background-color: #336699;");
         bottomBox.setStyle("-fx-background-color: #336699;");
-        titleLabel.setFont(Font.font("Courier New",20));
+        titleLabel.setFont(Font.font("Open Sans",20));
         headerLabel.setFont(Font.font(18));
         changePwLabel.setFont(Font.font(16));
         pwDescLabel.setFont(Font.font(14));
@@ -2283,7 +2283,7 @@ public class Main extends Application {
         //--------Proprieties--------
         topBox.setStyle("-fx-background-color: #336699;");
         bottomBox.setStyle("-fx-background-color: #336699;");
-        titleLabel.setFont(Font.font("Courier New",30));
+        titleLabel.setFont(Font.font("Open Sans",30));
         headerLabel.setFont(Font.font(24));
         bottomBox.setPadding(new Insets(15));
         topBox.setPadding(new Insets(20));
@@ -2360,7 +2360,7 @@ public class Main extends Application {
         //--------Proprieties--------
         topBox.setStyle("-fx-background-color: #336699;");
         bottomBox.setStyle("-fx-background-color: #336699;");
-        titleLabel.setFont(Font.font("Courier New",20));
+        titleLabel.setFont(Font.font("Open Sans",20));
         charityLabel.setFont(Font.font("Arial",FontWeight.SEMI_BOLD,16));
         headerLabel.setFont(Font.font("Arial",FontWeight.BOLD,18));
         amountLabel.setFont(Font.font("Arial",FontWeight.BOLD,16));
@@ -2469,7 +2469,7 @@ public class Main extends Application {
         //-----------proprieties----------
         topBox.setStyle("-fx-background-color : #336699");
         bottomBox.setStyle("-fx-background-color : #336699");
-        titleLabel.setFont(Font.font("Courier New", 20));
+        titleLabel.setFont(Font.font("Open Sans", 20));
         logoutButton.setAlignment(Pos.CENTER_RIGHT);
         leftSide.setAlignment(Pos.TOP_CENTER);
         rightSide.setAlignment(Pos.TOP_CENTER);
@@ -2566,7 +2566,7 @@ public class Main extends Application {
         //-----------proprieties----------
         topBox.setStyle("-fx-background-color : #336699");
         bottomBox.setStyle("-fx-background-color : #336699");
-        titleLabel.setFont(Font.font("Courier New", 20));
+        titleLabel.setFont(Font.font("Open Sans", 20));
         logoutButton.setAlignment(Pos.CENTER_RIGHT);
         leftSide.setAlignment(Pos.TOP_CENTER);
         rightSide.setAlignment(Pos.TOP_CENTER);
@@ -2682,7 +2682,7 @@ public class Main extends Application {
         //--------Proprieties--------
         topBox.setStyle("-fx-background-color: #336699;");
         bottomBox.setStyle("-fx-background-color: #336699;");
-        titleLabel.setFont(Font.font("Courier New",20));
+        titleLabel.setFont(Font.font("Open Sans",20));
         logosLabel.setFont(Font.font("Arial",FontWeight.BOLD,16));
         charityNameLabel.setFont(Font.font("Arial",FontWeight.BOLD,16));
         totalAmountLabel.setFont(Font.font("Arial",FontWeight.BOLD,16));
@@ -2823,7 +2823,7 @@ public class Main extends Application {
         //--------Proprieties--------
         topBox.setStyle("-fx-background-color: #336699;");
         bottomBox.setStyle("-fx-background-color: #336699;");
-        titleLabel.setFont(Font.font("Courier New",20));
+        titleLabel.setFont(Font.font("Open Sans",20));
         bottomBox.setPadding(new Insets(15));
         topBox.setPadding(new Insets(20));
         mainBox.setPadding(new Insets(20));
@@ -3087,7 +3087,7 @@ public class Main extends Application {
         //--------Proprieties--------
         topBox.setStyle("-fx-background-color: #336699;");
         bottomBox.setStyle("-fx-background-color: #336699;");
-        titleLabel.setFont(Font.font("Courier New",20));
+        titleLabel.setFont(Font.font("Open Sans",20));
         headerLabel.setFont(Font.font("Arial",FontWeight.BOLD,18));
         regStatusLabel.setFont(Font.font("Arial",FontWeight.SEMI_BOLD,16));
         bottomBox.setPadding(new Insets(15));
@@ -3265,7 +3265,7 @@ public class Main extends Application {
         //--------Proprieties--------
         topBox.setStyle("-fx-background-color: #336699;");
         bottomBox.setStyle("-fx-background-color: #336699;");
-        titleLabel.setFont(Font.font("Courier New",20));
+        titleLabel.setFont(Font.font("Open Sans",20));
         headerLabel.setFont(Font.font(18));
         changePwLabel.setFont(Font.font(16));
         pwDescLabel.setFont(Font.font(14));
@@ -3416,7 +3416,7 @@ public class Main extends Application {
         topBox.setStyle("-fx-background-color: #336699;");
         bottomBox.setStyle("-fx-background-color: #336699;");
         certTopBox.setStyle("-fx-background-color: #336666;");
-        titleLabel.setFont(Font.font("Courier New",20));
+        titleLabel.setFont(Font.font("Open Sans",20));
         bottomBox.setPadding(new Insets(15));
         certTopBox.setPadding(new Insets(5));
         topBox.setPadding(new Insets(20));
@@ -3510,7 +3510,7 @@ public class Main extends Application {
         topBox.setStyle("-fx-background-color: #336699;");
         bottomBox.setStyle("-fx-background-color: #336699;");
         labelsElement.setStyle("-fx-border-width: 3 3 3 3; -fx-border-color: black");
-        titleLabel.setFont(Font.font("Courier New",20));
+        titleLabel.setFont(Font.font("Open Sans",20));
         headerLabel.setFont(Font.font("Arial",FontWeight.BOLD,18));
         logosLabel.setFont(Font.font("Arial",FontWeight.BOLD,16));
         charityNameLabel.setFont(Font.font("Arial",FontWeight.BOLD,16));
@@ -3655,7 +3655,7 @@ public class Main extends Application {
         //--------Proprieties--------
         topBox.setStyle("-fx-background-color: #336699;");
         bottomBox.setStyle("-fx-background-color: #336699;");
-        titleLabel.setFont(Font.font("Courier New",20));
+        titleLabel.setFont(Font.font("Open Sans",20));
         headerLabel.setFont(Font.font(18));
         pwDescLabel.setFont(Font.font(14));
         bottomBox.setPadding(new Insets(15));
@@ -3789,7 +3789,7 @@ public class Main extends Application {
         //--------Proprieties--------
         topBox.setStyle("-fx-background-color: #336699;");
         bottomBox.setStyle("-fx-background-color: #336699;");
-        titleLabel.setFont(Font.font("Courier New",20));
+        titleLabel.setFont(Font.font("Open Sans",20));
         bottomBox.setPadding(new Insets(15));
         topBox.setPadding(new Insets(20));
         mainBox.setPadding(new Insets(20));
@@ -3908,7 +3908,7 @@ public class Main extends Application {
         //--------Proprieties--------
         topBox.setStyle("-fx-background-color: #336699;");
         bottomBox.setStyle("-fx-background-color: #336699;");
-        titleLabel.setFont(Font.font("Courier New",20));
+        titleLabel.setFont(Font.font("Open Sans",20));
         headerLabel.setFont(Font.font("Arial",FontWeight.BOLD,18));
         fileField.setMinWidth(300);
         bottomBox.setPadding(new Insets(15));
@@ -4036,7 +4036,7 @@ public class Main extends Application {
         //--------Proprieties--------
         topBox.setStyle("-fx-background-color: #336699;");
         bottomBox.setStyle("-fx-background-color: #336699;");
-        titleLabel.setFont(Font.font("Courier new",FontWeight.BOLD,20));
+        titleLabel.setFont(Font.font("Open Sans",FontWeight.BOLD,20));
         headerLabel.setFont(Font.font("Arial",FontWeight.BOLD,18));
         firstNameLabel.setFont(Font.font("Arial",FontWeight.SEMI_BOLD,16));
         lastNameLabel.setFont(Font.font("Arial",FontWeight.SEMI_BOLD,16));
@@ -4211,7 +4211,7 @@ public class Main extends Application {
         //--------Proprieties--------
         topBox.setStyle("-fx-background-color: #336699;");
         bottomBox.setStyle("-fx-background-color: #336699;");
-        titleLabel.setFont(Font.font("Courier New",20));
+        titleLabel.setFont(Font.font("Open Sans",20));
         headerLabel.setFont(Font.font(18));
         changePwLabel.setFont(Font.font(16));
         pwDescLabel.setFont(Font.font(14));
@@ -4355,7 +4355,7 @@ public class Main extends Application {
         //--------Proprieties--------
         topBox.setStyle("-fx-background-color: #336699;");
         bottomBox.setStyle("-fx-background-color: #336699;");
-        titleLabel.setFont(Font.font("Courier New",20));
+        titleLabel.setFont(Font.font("Open Sans",20));
         headerLabel.setFont(Font.font(18));
         bottomBox.setPadding(new Insets(15));
         topBox.setPadding(new Insets(20));
@@ -4498,7 +4498,7 @@ public class Main extends Application {
         //--------Proprieties--------
         topBox.setStyle("-fx-background-color: #336699;");
         bottomBox.setStyle("-fx-background-color: #336699;");
-        titleLabel.setFont(Font.font("Courier New",20));
+        titleLabel.setFont(Font.font("Open Sans",20));
         bottomBox.setPadding(new Insets(15));
         topBox.setPadding(new Insets(20));
         mainBox.setSpacing(20);
