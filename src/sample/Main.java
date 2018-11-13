@@ -4459,7 +4459,9 @@ public class Main extends Application {
         Text bmiInfo = new Text("BMI stands for Body Mass Index. It is used to give you an idea of whether you’re underweight, overweight or an ideal weight for your height. It’s useful to know because if your weight increases or decreases outside of the ideal range, your health risks may increase.");
         ImageView femaleIcon = new ImageView();
         ImageView maleIcon = new ImageView();
-        HBox iconsBox = new HBox(femaleIcon,maleIcon);
+        VBox maleBox = new VBox(maleIcon);
+        VBox femaleBox = new VBox(femaleIcon);
+        HBox iconsBox = new HBox(maleBox,femaleBox);
         Label heightLabel = new Label("Height: ");
         TextField heightField = new TextField();
         Label cmLabel = new Label("cm");
@@ -4535,10 +4537,14 @@ public class Main extends Application {
         maleIcon.setOnMouseClicked(value -> {
             maleIcon.setStyle("-fx-opacity : 1;");
             femaleIcon.setStyle("-fx-opacity : 0.5;");
+            maleBox.setStyle("-fx-border-width : 4; -fx-border-color : black");
+            femaleBox.setStyle("-fx-border-width : 0; -fx-border-color : black");
         });
         femaleIcon.setOnMouseClicked(value -> {
             femaleIcon.setStyle("-fx-opacity : 1;");
             maleIcon.setStyle("-fx-opacity : 0.5;");
+            femaleBox.setStyle("-fx-border-width : 4; -fx-border-color : black");
+            maleBox.setStyle("-fx-border-width : 0; -fx-border-color : black");
         });
         calcButt.setOnAction(value -> {
             double weight = Double.parseDouble(weightField.getText());
@@ -4546,8 +4552,45 @@ public class Main extends Application {
             double BMI = weight / (height*height);
             System.out.println(BMI);
 
-            pointer.setLayoutX(((BMI-10)/(35-10))*260);
+            if (BMI < 18.5){
+                if (BMI >= 10)pointer.setLayoutX(((BMI-10)/(35-10))*280);
+                else pointer.setLayoutX(0);
+
+                try {
+                    bodyIcon.setImage(new Image(new FileInputStream("src/sample/Images/bmi-underweight-icon.png")));
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+            else if (BMI <= 24.9){
+                pointer.setLayoutX(((BMI-10)/(35-10))*280);
+                try {
+                    bodyIcon.setImage(new Image(new FileInputStream("src/sample/Images/bmi-healthy-icon.png")));
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+            else if (BMI <= 29.9){
+                pointer.setLayoutX(((BMI-10)/(35-10))*280);
+                try {
+                    bodyIcon.setImage(new Image(new FileInputStream("src/sample/Images/bmi-overweight-icon.png")));
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+            else if (BMI >= 30){
+                if (BMI <= 35)pointer.setLayoutX(((BMI-10)/(35-10))*280);
+                else pointer.setLayoutX(280);
+                try {
+                    bodyIcon.setImage(new Image(new FileInputStream("src/sample/Images/bmi-obese-icon.png")));
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+
         });
+        backButton.setOnAction(val -> screen10(window));
+        cancelButt.setOnAction(val -> screen10(window));
 
 
         Runnable countdown = new Runnable() {
